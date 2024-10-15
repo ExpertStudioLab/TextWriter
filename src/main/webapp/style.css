@@ -3,18 +3,53 @@
     margin-left: 3cm;
     margin-right: 3cm;
 }
+
 header {
-    height: 2cm;
-    background-color: lightblue;
-    display: flex;
-    vertical-align: middle;
+    height: 40px;
+    border-top: 20px solid lightblue;
+    border-bottom: 20px solid lightblue;
+    padding: 0;
 }
+
 h1 {
     width: 100%;
     height: 40px;
+    margin: 0;
     text-indent: 1cm;
-    background-color: white;
 }
+
+#Canvas-Block {
+    position: relative;
+    width: auto;
+    height: 40px;
+    padding-left: 1cm;
+}
+h2 {
+    position: absolute;
+    margin: 0;
+    width: auto;
+    height: 40px;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 20px;
+    border-top: 2px solid black;
+    background-color: cornsilk;
+}
+.Section-Devider {
+    height: 40px;
+    width: 40px;
+}
+#Section-Header1 {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    top: 0;
+    left: 0;
+    height: 40px;
+    padding: 0;
+    border-bottom: 10px solid chocolate;
+}
+
 #Section-Block {
     position: relative;
     display: inline-block;
@@ -30,6 +65,7 @@ h1 {
 	height: 30px;
     width: 40px;
 }
+/*
 h2 {
     position: relative;
     display: inline-flex;
@@ -39,3 +75,4 @@ h2 {
     margin-top: 0;
     text-indent: 10px;
 }
+*/
