@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Servlet implementation class Control
@@ -30,8 +31,15 @@ public class Control extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		HttpSession session = request.getSession( true );
+		if( session.getAttribute( "HeaderTitle" ) == null ) {
+			session.setAttribute( "jsp_file",  "auto_text_writer.jsp" );
+			session.setAttribute( "HeaderTitle", Boolean.FALSE );
+			session.setAttribute( "SectionTitle", Boolean.FALSE );
+		}
+		
 		ServletContext sc = getServletContext();
-		RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/sample.jsp" );
+		RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/" + session.getAttribute( "jsp_file" ) );
 		rd.forward( request, response) ;
 	}
 
