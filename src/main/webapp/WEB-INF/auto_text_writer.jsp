@@ -5,7 +5,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/form_style.css" />
-<script type="text/javascript" src="${pageContext.request.contextPath}/style.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>AutoTextWriter</title>
 </head>
@@ -18,5 +17,7 @@
 											  								\"input_contents\"
 	}.jsp" />
 <h1>Hello</h1>
+
+<script type="text/javascript" src="${pageContext.request.contextPath}/style.js" charset="UTF-8" ></script>
 </body>
 </html>

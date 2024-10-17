@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<link rel="stylesheet" href="dialog_style.css" />
+<meta charset="UTF-8">
+<title>タグの追加</title>
+</head>
+<body>
+	<header></header>
+	<div id="Comment">
+			<label for="Tag-Name"><p>新しいタグの名前</p></label>
+	</div>
+	<div class="Set-Position">
+			<input type="text" id="Tag-Name" required maxlength="12" value="" />
+			<span></span>
+	</div>
+	<div id="Permit-Button">
+		<input type="button" id="Button-Style" value="OK" onclick="sendData()" />
+	</div>
+	<script>
+		function sendData() {
+			const txtBox = document.getElementById( "Tag-Name" );
+			const txt = txtBox.value;
+			window.opener.getData( txt );
+			window.close();
+		}
+	</script>
+</body>
+</html>
