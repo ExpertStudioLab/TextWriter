@@ -1,17 +1,21 @@
 @charset "UTF-8";
+/* 右寄せするのに使うブロック用の設定 */
 .Right-Justify {
 	display: flex;
 	justify-content: flex-end;
+	height: 0.9cm;
 	padding-right: 27%;
-	margin: 0;
 }
-#Tag-Select {
+/* タグ入力を促すコメントの設定 */
+#Tag-Comment {
 	font-size: 18px;
 	display: block;
 	height: auto;
 	width: auto;
+	margin-top: 5px;
 	margin-right: 100px;
 }
+/* プルダウンの仕様 */
 .Selector {
 	height: 0.8cm;
 	width: 5cm;
