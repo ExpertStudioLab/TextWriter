@@ -26,12 +26,15 @@
 
    const add_tag_btn = document.getElementById( "Add-Tag" );
    let dlgWnd;
+   var tags = new String( "" );
+   let i = 1;
    add_tag_btn.addEventListener( "click", popupAddTagWnd );
 
    function popupAddTagWnd() {
     const dlgWnd = window.open( "DialogBox/add_tag.html", "タグの追加", "width=300,height=199,top=200,left=550" );
    }
-   
+
+// タグ指定プルダウンボックス関連のコード   
    function getData( data ) {
 	   if( data != "" ) {
 		   const selectObj = document.getElementById( "Tag-El" );
@@ -39,5 +42,24 @@
 		   optionEl.text = data;
 		   optionEl.value  = data;
 		   selectObj.appendChild( optionEl );
+		   
+			const formObj = document.getElementById( "send" );
+			const inputEl = document.createElement( "input" );
+			inputEl.type = "hidden";
+			inputEl.name = "new-tag" + String( i );
+			inputEl.id = String( i );
+			inputEl.value = data;
+			formObj.appendChild( inputEl );
+			i += 1;
 	   }
+   }
+   
+   function addInput() {
+			const formObj = document.getElementById( "send" );
+			const inputEl = document.createElement( "input" );
+			inputEl.type = "hidden";
+			inputEl.name = "num";
+			inputEl.id = "number";
+			inputEl.value = String( i - 1 );
+			formObj.appendChild( inputEl );	
    }
