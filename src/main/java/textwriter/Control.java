@@ -1,6 +1,10 @@
 package textwriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -33,10 +37,25 @@ public class Control extends HttpServlet {
 		// TODO Auto-generated method stub
 		HttpSession session = request.getSession( true );
 		if( session.getAttribute( "HeaderTitle" ) == null ) {
+			List<String> tags = new ArrayList<>();
 			session.setAttribute( "jsp_file",  "auto_text_writer.jsp" );
+			session.setAttribute( "Tags", tags );
 			session.setAttribute( "HeaderTitle", Boolean.FALSE );
 			session.setAttribute( "SectionTitle", Boolean.FALSE );
 		}
+	
+		// 配列に同じデータが入力された場合は、消去する
+		// 次回起動時に前回追加されたタグを表示するために指定ファイルに保存する
+		String num = request.getParameter( "num" );
+		if( num != null && num != "" ) {
+			int j = Integer.valueOf( num );
+			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
+			for( int i = 0; i < j; i++ ) {
+				String name = request.getParameter( "new-tag" + String.valueOf( i + 1 ) );
+				tags.add( name );
+			}
+		}
+
 		
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/" + session.getAttribute( "jsp_file" ) );

@@ -5,13 +5,13 @@ header {
 	height: 10px;
 }
 /* 入力エラーチェック時の表示 */
-input:invalid + span::after {
+#Tag-Name:invalid + span::after {
 	position: absolute;
 	content: "❎";
 	padding-left: 10px;
 	margin-top: 5px;
 }
-input:valid + span::after {
+#Tag-Name:valid + span::after {
 	position: absolute;
 	content: "✅";
 	padding-left: 10px;
@@ -27,18 +27,19 @@ span {
 	width: fit-content;
 	padding-left: 30px;
 }
-p {
-	font-size: 18px;
-}
+/* 入力を促すコメント */
 #Comment{
 	position: absolute;
 	height: 20px;
 	margin-left: 30px;
+	font-size: 18px;
 }
+/* テキストボックスの仕様 */
 #Tag-Name {
 	line-height: 0.7cm;
 	font-size: 14px
 }
+/* 決定ボタンの仕様 */
 #Permit-Button {
 	position: relative;
 	top: 40px;

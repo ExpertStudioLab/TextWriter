@@ -9,7 +9,7 @@
 <body>
 	<header></header>
 	<div id="Comment">
-			<label for="Tag-Name"><p>新しいタグの名前</p></label>
+			<label for="Tag-Name">新しいタグの名前</label>
 	</div>
 	<div class="Set-Position">
 			<input type="text" id="Tag-Name" required maxlength="12" value="" />
@@ -23,7 +23,9 @@
 			const txtBox = document.getElementById( "Tag-Name" );
 			const txt = txtBox.value;
 			window.opener.getData( txt );
-			window.close();
+			if( txt != "" ) {
+				window.close();
+			}
 		}
 	</script>
 </body>
