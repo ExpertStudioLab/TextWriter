@@ -24,14 +24,19 @@
     styleSheet.insertRule( str, 0 );
    }
 
-   const add_tag_btn = document.getElementById( "Add-Tag" );
-   let dlgWnd;
-   var tags = new String( "" );
-   let i = 1;
-   add_tag_btn.addEventListener( "click", popupAddTagWnd );
+   const selectEl = document.getElementById( "Tag-El" );
+   let i = selectEl.length - 1;
+   let startIndex = 0;
+
+   if( i == 0 ) {
+      sessionStorage.setItem( "index", "0" );
+   } else {
+      i = parseInt( sessionStorage.getItem( "index" ) );
+      startIndex = i;
+   }
 
    function popupAddTagWnd() {
-    const dlgWnd = window.open( "DialogBox/add_tag.html", "タグの追加", "width=300,height=199,top=200,left=550" );
+    window.open( "DialogBox/add_tag.html", "タグの追加", "width=300,height=199,top=200,left=550" );
    }
 
 // タグ指定プルダウンボックス関連のコード   
@@ -54,12 +59,24 @@
 	   }
    }
    
-   function addInput() {
-			const formObj = document.getElementById( "send" );
-			const inputEl = document.createElement( "input" );
-			inputEl.type = "hidden";
-			inputEl.name = "num";
-			inputEl.id = "number";
-			inputEl.value = String( i - 1 );
-			formObj.appendChild( inputEl );	
+   function addIndex() {
+         const j = parseInt( sessionStorage.getItem( "index" ) );
+         if( i > j ) {
+   			const formObj = document.getElementById( "send" );
+	   		const inputEl = document.createElement( "input" );
+		   	inputEl.type = "hidden";
+			   inputEl.name = "num";
+			   inputEl.id = "number";
+			   inputEl.value = String( i );
+			   formObj.appendChild( inputEl );
+
+	   		const inputEl2 = document.createElement( "input" );
+		   	inputEl2.type = "hidden";
+			   inputEl2.name = "start-index";
+			   inputEl2.id = "in";
+			   inputEl2.value = String( startIndex );
+			   formObj.appendChild( inputEl2 );
+
+            sessionStorage.setItem( "index", String( i ) );
+         }
    }

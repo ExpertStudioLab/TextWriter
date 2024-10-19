@@ -43,15 +43,16 @@ public class Control extends HttpServlet {
 			session.setAttribute( "HeaderTitle", Boolean.FALSE );
 			session.setAttribute( "SectionTitle", Boolean.FALSE );
 		}
-	
-		// 配列に同じデータが入力された場合は、消去する
-		// 次回起動時に前回追加されたタグを表示するために指定ファイルに保存する
+
+		
 		String num = request.getParameter( "num" );
 		if( num != null && num != "" ) {
 			int j = Integer.valueOf( num );
 			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
-			for( int i = 0; i < j; i++ ) {
-				String name = request.getParameter( "new-tag" + String.valueOf( i + 1 ) );
+			String in = request.getParameter( "start-index" );
+			System.out.println( in );
+			for( int i = Integer.valueOf( in ); i < j; i++ ) {
+				String name = request.getParameter( "new-tag" + String.valueOf( i ) );
 				tags.add( name );
 			}
 		}

@@ -27,8 +27,8 @@
     </select>
 </div>
 <div class="Right-Justify">
-    <input type="button" value="タグを追加" id="Add-Tag" >
+    <input type="button" value="タグを追加" id="Add-Tag" onclick="popupAddTagWnd()" />
 </div>
 <form action="TextWriter" method="get" id="send">
-    <input type="submit" alt="送信" onclick="addInput()">
+    <input type="submit" alt="送信" onclick="addIndex()" />
 </form>
