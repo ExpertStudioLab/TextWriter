@@ -17,11 +17,6 @@
 											  								\"input_sec_title\" :
 											  								\"input_contents\"
 	}.jsp" />
-<input type="button" id="b" value="JSP" onclick="jspFunc()"/>
-	<script>
-		function jspFunc() {
-		}
-	</script>
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/style.js" ></script>
 <div id="d"></div>

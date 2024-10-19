@@ -1,12 +1,17 @@
 @charset "UTF-8";
-/* 右寄せするのに使うブロック用の設定 */
+/* display on right side */
 .Right-Justify {
 	display: flex;
 	justify-content: flex-end;
-	height: 0.9cm;
+	height: fit-content;
 	padding-right: 27%;
 }
-/* タグ入力を促すコメントの設定 */
+/* display on left side */
+.Left-Justify {
+	padding-left: 7%;
+	height: fit-content;
+}
+/* size of comment to get select a tag  */
 #Tag-Comment {
 	font-size: 18px;
 	display: block;
@@ -15,10 +20,15 @@
 	margin-top: 5px;
 	margin-right: 100px;
 }
-/* プルダウンの仕様 */
+/* size of dropdown list */
 .Selector {
 	height: 0.8cm;
 	width: 5cm;
 	font-size: 20px;
 	padding-right: 5px;
+}
+/* size of textbox */
+.Textbox {
+	font-size: 30px;
+	width: 15cm;
 }
