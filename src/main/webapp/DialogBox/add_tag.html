@@ -22,8 +22,8 @@
 		function sendData() {
 			const txtBox = document.getElementById( "Tag-Name" );
 			const txt = txtBox.value;
-			window.opener.getData( txt );
 			if( txt != "" ) {
+				window.opener.getData( txt );
 				window.close();
 			}
 		}

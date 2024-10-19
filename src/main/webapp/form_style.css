@@ -32,3 +32,25 @@
 	font-size: 30px;
 	width: 15cm;
 }
+/* permission button position */
+#send {
+	padding-left:  7%;
+}
+#permit {
+	margin-top: 20px;
+	width: 100px;
+	height: 35px;
+	font-size: 20px;
+	font-weight: bold;
+	border: 2px groove darkgray;
+}
+#permit:hover {
+	background-color: rgba(223, 215, 215, 0.826);
+}
+#permit:active {
+	background-color: rgba(171, 166, 166, 0.693);
+}
+.Tag-Button {
+	margin-top: 5px;
+	letter-spacing: 1px;
+}

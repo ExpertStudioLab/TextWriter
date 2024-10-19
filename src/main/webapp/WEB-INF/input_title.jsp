@@ -24,10 +24,10 @@
     </select>
 </div>
 <div class="Right-Justify">
-    <input type="button" value="タグを追加" id="Add-Tag" onclick="popupAddTagWnd()" />
+    <input type="button" value="タグを追加" class="Tag-Button" id="Add-Tag" onclick="popupAddTagWnd()" />
 </div>
 <div class="Right-Justify">
-	<input type="button" value="タグの削除" id="Del-Tag" />
+	<input type="button" value="タグの削除" class="Tag-Button" id="Del-Tag" />
 </div>
 <div class="Left-Justify">
 	<h1><label for="Title-Name">タイトルを指定してください</label></h1>
@@ -36,5 +36,5 @@
 	<input type="text" id="Title-Name" class="Textbox" placeholder="- タイトルを入力 -" />
 </div>
 <form action="TextWriter" method="get" id="send">
-    <input type="submit" alt="送信" onclick="addIndex()" />
+	<input type="submit" alt="送信" id="permit" onclick="addIndex()" />
 </form>

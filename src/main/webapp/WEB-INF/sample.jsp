@@ -15,14 +15,14 @@
         <header><h1>タイトル</h1></header><hr>
         <main>
             <div id="Canvas-Block">
-                <h2 id="Section-Name1">セクション</h2>
+                <h2 id="Section-Name1">第1章．サーブレットプログラムでのデータベースの利用</h2>
                 <div id="Section-Header1">
                     <canvas class="Section-Devider"></canvas>
                 </div>
             </div>
             <script type="module">window.addEventListener( "load", ()=>{ setCanvas( "Section-Name1", "#Section-Header1" ) } )</script>
  <!--           <div id="Section-Block"><h2>セクション</h2><canvas id="Space"></canvas></div>       -->
-            <script type="module">window.addEventListener( "load", ()=>{drawSectionHeader( ".Section-Devider", "セクション" );} )</script>
+            <script type="module">window.addEventListener( "load", ()=>{drawSectionHeader( ".Section-Devider" );} )</script>
         </main>
     </div>
 </body>
