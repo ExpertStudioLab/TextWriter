@@ -27,7 +27,7 @@
     <input type="button" value="タグを追加" class="Tag-Button" id="Add-Tag" onclick="popupAddTagWnd()" />
 </div>
 <div class="Right-Justify">
-	<input type="button" value="タグの削除" class="Tag-Button" id="Del-Tag" />
+	<input type="button" value="タグの削除" class="Tag-Button" id="Del-Tag" onclick="popupDelTagWnd()" />
 </div>
 <div class="Left-Justify">
 	<h1><label for="Title-Name">タイトルを指定してください</label></h1>

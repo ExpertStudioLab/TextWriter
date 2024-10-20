@@ -59,6 +59,11 @@ for( const option of sel.options ) {
    function popupAddTagWnd() {
     window.open( "DialogBox/add_tag.html", "タグの追加", "width=300,height=199,top=200,left=550" );
    }
+   
+   // [Delete tag ment] button has been pushed
+   function popupDelTagWnd() {
+	   window.open( "DialogBox/del_tag.html", "タグの削除", "width=300,height=199,top=200,left=550" );
+	}
 
 	// get an additional tag menu from [Add tag menu] Window
    function getData( data ) {
@@ -66,7 +71,7 @@ for( const option of sel.options ) {
 		 const selectObj = document.getElementById( "Tag-El" );
 		 const optionEl = document.createElement( "option" );
 		optionEl.text = data;
-		optionEl.value  = data;
+		optionEl.value  = String( i );
 		selectObj.appendChild( optionEl );
 		// send an additional tag menu to the servlet program   
 		const formObj = document.getElementById( "send" );
@@ -99,4 +104,10 @@ for( const option of sel.options ) {
 
             sessionStorage.setItem( "index", String( i ) );
          }
+   }
+   
+   // send tag menus to Delete Tag Window
+   function sendMenu() {
+	   const sel = document.getElementById( "Tag-El" );
+	   return sel;
    }

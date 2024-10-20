@@ -50,7 +50,6 @@ public class Control extends HttpServlet {
 			int j = Integer.valueOf( num );
 			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
 			String in = request.getParameter( "start-index" );
-			System.out.println( in );
 			for( int i = Integer.valueOf( in ); i < j; i++ ) {
 				String name = request.getParameter( "new-tag" + String.valueOf( i ) );
 				tags.add( name );

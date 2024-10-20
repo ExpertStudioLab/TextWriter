@@ -39,6 +39,12 @@ span {
 	line-height: 0.7cm;
 	font-size: 14px
 }
+/* appearence of pulldown box */
+#Del-Name {
+	height: 0.8cm;
+	width: 182px;
+	font-size: 14px;
+}
 /* 決定ボタンの仕様 */
 #Permit-Button {
 	position: relative;
