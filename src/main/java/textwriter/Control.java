@@ -2,6 +2,7 @@ package textwriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +57,21 @@ public class Control extends HttpServlet {
 			}
 		}
 
+		String delTag = request.getParameter( "del-menu0");
+		if( delTag != null && delTag != "" ) {
+			String strEnd = request.getParameter( "end" );
+			int end = Integer.valueOf( strEnd );
+			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
+			List<Integer> delIndex = new ArrayList<>();
+			for( int i = 0; i < end; i++ ) {
+				delIndex.add( Integer.valueOf( delTag ) );
+				delTag = request.getParameter( "del-menu" + String.valueOf( i + 1 ) );
+			}
+			Collections.sort( delIndex, Collections.reverseOrder() );
+			for( int i = 0; i < end; i++ ) {
+				tags.remove( delIndex.get( i ).intValue() );
+			}
+		}
 		
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/" + session.getAttribute( "jsp_file" ) );

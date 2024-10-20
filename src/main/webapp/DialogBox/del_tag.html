@@ -10,8 +10,11 @@
 	<div id="Comment">
 			<label for="Del-Name">削除するタグの指定</label>
 	</div>
+	<div id="com"></div>
 	<div class="Set-Position">
-		<select name="del-tag" class="Selector" id="Del-Name"></select>
+		<select name="del-tag" class="Selector" id="Del-Name" value="" >
+			<option value="-1"></option>
+		</select>
 	</div>
 	<div id="Permit-Button">
 		<input type="button" id="Button-Style" value="OK" onclick="sendData()" />
@@ -41,8 +44,23 @@
 	}, false );
 
 	function sendData() {
-
+		const selectBox = document.getElementById( "Del-Name" );
+		const delIndex = selectBox.value;
+		if( delIndex != "-1" ) {
+			window.opener.delMenu( delIndex );
+			window.close();
+		}
 	}
+	var select = document.getElementById( "Del-Name" );
+	select.onchange = function() {
+		let box = document.querySelector( "#com" );
+		if( this.value != "-1" ) {
+			box.textContent = select.options[ parseInt( this.value ) + 1 ].label + " を削除します。";
+		} else {
+			box.textContent = "";
+		}
+	}
+
 </script>
 </body>
 </html>

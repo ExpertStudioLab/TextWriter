@@ -45,21 +45,27 @@ for( const option of sel.options ) {
    let i = selectEl.length - 1;
    // the storage position of additional tag menus in order
    let startIndex = 0;
+   // the number of delete menus
+   let delNum = 0;
 
 	// the Array of tag menus is empty
    if( i == 0 ) {
       sessionStorage.setItem( "index", "0" );
     // the Array contains tag menus
    } else {
-      i = parseInt( sessionStorage.getItem( "index" ) );
-      startIndex = i;
+		if( sessionStorage.getItem( "index" ) != null ) {
+	      i = parseInt( sessionStorage.getItem( "index" ) );
+    	  startIndex = i;
+		}
+		else {
+			sessionStorage.setItem( "index", "i" );
+		}
    }
 
 	// [Add tag menu] button has been pushed
    function popupAddTagWnd() {
     window.open( "DialogBox/add_tag.html", "タグの追加", "width=300,height=199,top=200,left=550" );
    }
-   
    // [Delete tag ment] button has been pushed
    function popupDelTagWnd() {
 	   window.open( "DialogBox/del_tag.html", "タグの削除", "width=300,height=199,top=200,left=550" );
@@ -68,46 +74,49 @@ for( const option of sel.options ) {
 	// get an additional tag menu from [Add tag menu] Window
    function getData( data ) {
 	   	// put an additional tag menu into pull-down menu box
-		 const selectObj = document.getElementById( "Tag-El" );
-		 const optionEl = document.createElement( "option" );
+//		 const selectObj = document.getElementById( "Tag-El" );
+		const optionEl = document.createElement( "option" );
 		optionEl.text = data;
 		optionEl.value  = String( i );
-		selectObj.appendChild( optionEl );
+		selectEl.appendChild( optionEl );
 		// send an additional tag menu to the servlet program   
-		const formObj = document.getElementById( "send" );
-		const inputEl = document.createElement( "input" );
-		inputEl.type = "hidden";
-		inputEl.name = "new-tag" + String( i );
-		inputEl.id = String( i );
-		inputEl.value = data;
-		formObj.appendChild( inputEl );
+		sendValue( "new-tag" + String( i ), data );
 		i += 1;
    }
-   // send a start index of Array Object
+   // send a start index of Array Object and an end index
    function addIndex() {
          const j = parseInt( sessionStorage.getItem( "index" ) );
          if( i > j ) {
-   			const formObj = document.getElementById( "send" );
-	   		const inputEl = document.createElement( "input" );
-		   	inputEl.type = "hidden";
-			inputEl.name = "num";
-			inputEl.id = "number";
-			inputEl.value = String( i );
-			formObj.appendChild( inputEl );
-
-	   		const inputEl2 = document.createElement( "input" );
-		   	inputEl2.type = "hidden";
-			inputEl2.name = "start-index";
-			inputEl2.id = "in";
-			inputEl2.value = String( startIndex );
-			formObj.appendChild( inputEl2 );
-
+			sendValue( "num", String( i ) );
+			sendValue( "start-index", String( startIndex ) );
             sessionStorage.setItem( "index", String( i ) );
          }
+		 if( delNum > 0 ) {
+			sendValue( "end", String( delNum ) );
+			sessionStorage.setItem( "index", String( i - delNum ) );
+		 }
+   }
+let id = 0;
+   // create form to send values to the servlet
+   function sendValue( vName, vValue ) { 
+		const formObj = document.getElementById( "send" );
+		const inputEl = document.createElement( "input" );
+		inputEl.type = "hidden";
+		inputEl.name = vName;
+		inputEl.value = vValue;
+		inputEl.id = String( id );
+		formObj.appendChild( inputEl );
+		id += 1;
    }
    
    // send tag menus to Delete Tag Window
    function sendMenu() {
-	   const sel = document.getElementById( "Tag-El" );
-	   return sel;
+	   return selectEl;
+   }
+
+   // delete tag menu by index
+   function delMenu( delIndex ) {
+		selectEl.remove( parseInt( delIndex ) + 1  );
+		sendValue( "del-menu" + String( delNum ), delIndex );
+		delNum += 1;
    }
