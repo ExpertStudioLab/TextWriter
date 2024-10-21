@@ -43,6 +43,8 @@ public class Control extends HttpServlet {
 			session.setAttribute( "Tags", tags );
 			session.setAttribute( "HeaderTitle", Boolean.FALSE );
 			session.setAttribute( "SectionTitle", Boolean.FALSE );
+		} else if( session.getAttribute( "SectionTitle").equals( Boolean.FALSE ) ) {
+			
 		}
 
 		
@@ -57,15 +59,14 @@ public class Control extends HttpServlet {
 			}
 		}
 
-		String delTag = request.getParameter( "del-menu0");
-		if( delTag != null && delTag != "" ) {
-			String strEnd = request.getParameter( "end" );
+		String strEnd = request.getParameter( "end" );
+		if( strEnd != null && strEnd != "" ) {
 			int end = Integer.valueOf( strEnd );
 			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
 			List<Integer> delIndex = new ArrayList<>();
 			for( int i = 0; i < end; i++ ) {
+				String delTag = request.getParameter( "del-menu" + String.valueOf( i ) );
 				delIndex.add( Integer.valueOf( delTag ) );
-				delTag = request.getParameter( "del-menu" + String.valueOf( i + 1 ) );
 			}
 			Collections.sort( delIndex, Collections.reverseOrder() );
 			for( int i = 0; i < end; i++ ) {
