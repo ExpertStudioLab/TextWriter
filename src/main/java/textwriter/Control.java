@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -37,14 +35,19 @@ public class Control extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		HttpSession session = request.getSession( true );
+
 		if( session.getAttribute( "HeaderTitle" ) == null ) {
 			List<String> tags = new ArrayList<>();
 			session.setAttribute( "jsp_file",  "auto_text_writer.jsp" );
 			session.setAttribute( "Tags", tags );
 			session.setAttribute( "HeaderTitle", Boolean.FALSE );
 			session.setAttribute( "SectionTitle", Boolean.FALSE );
-		} else if( session.getAttribute( "SectionTitle").equals( Boolean.FALSE ) ) {
-			
+		} else if( session.getAttribute( "SectionTitle").equals( false ) )  {
+			if( request.getParameter( "title" ) != null ) {
+				System.out.println( "hello " );
+				session.setAttribute( "HeaderTitle", Boolean.TRUE );
+				session.setAttribute( "hTitle", request.getParameter( "title" ) );
+			}
 		}
 
 		
