@@ -10,6 +10,12 @@
 <title>AutoTextWriter</title>
 </head>
 <body>
+	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) {	%>
+	<div class="Grid-Container">
+		<div class="Grid-Item"><iframe class="Frame" src="View/title.html" allowFullscreen></iframe></div>
+		<div class="Grid-Item"></div>
+	</div>
+	<% }	%>
 	<!-- タイトル　セクション名　内容の順に入力させる -->
 	<jsp:include page="${sessionScope.HeaderTitle.equals( false ) ?
 																			\"input_title\" :

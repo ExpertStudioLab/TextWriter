@@ -54,3 +54,19 @@
 	margin-top: 5px;
 	letter-spacing: 1px;
 }
+
+.Grid-Container {
+	display: grid;
+	grid-template-columns: 4fr 1fr;
+}
+.Grid-Item {
+	height: auto;
+	width: 100%;
+	padding: 10px;
+	background-color: white;
+	border: 2px solid cadetblue;
+}
+.Frame {
+	width: 100%;
+	height: 100%;
+}

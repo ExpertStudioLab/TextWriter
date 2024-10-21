@@ -1,39 +1,4 @@
 
-    function drawSectionHeader( Canvas ) {
-    var cvs = document.querySelector( Canvas );
-    var graph = cvs.getContext( "2d" );
-    graph.strokeStyle="#a9a9a9";
-    graph.lineWidth = 40;
-    graph.beginPath();
-    graph.moveTo( 0, 0);
-    graph.lineTo( 400, 200);
-    graph.stroke();
-    graph.fillStyle = "#fff8dc";
-    graph.beginPath();
-    graph.moveTo( 0, 5);
-    graph.lineTo( 395, 200);
-    graph.lineTo( 0, 200 );
-    graph.fill();
-    }
-   function setCanvas( title_id, canvas_id ) {
-	   // get an element of section title space
-		const title_context = document.getElementById( title_id );
-		// set canvas width to be larger 40 px than this section title space 
-		var str = canvas_id + "{ width: " + String( title_context.clientWidth + 40 ) + "px;}";
-		// insert <style> tag into <head> tag
-		const styleEl = document.createElement( "style" );
-		document.head.appendChild( styleEl );
-		const styleSheet = styleEl.sheet;
-		// insert into top of style tag
-		styleSheet.insertRule( str, 0 );
-   }
-/*
-   window.addEventListener( "beforeunload", ( event )=> {
-      if( !flag ) {
-         event.preventDefault();
-      }
-   });
-*/
    // { num : 0 } means "history.state.num = 0".
    history.pushState( { num : 0 }, null, window.location.href );
    // on update widow, make the servlet program to process orders previous values
@@ -58,13 +23,13 @@
 
 	// the number of dropdown list menu into i
    const selectEl = document.getElementById( "Tag-El" );
+   const textOp = document.getElementById( "Title-Name" );
    let i = selectEl.length - 1;
    // the storage position of additional tag menus in order
    let startIndex = 0;
    // the number of delete menus
    let delNum = 0;
 
-   let flag = false;
 
    sessionStorage.setItem( "index", String( i ) );
 
@@ -102,7 +67,10 @@
 			sendValue( "end", String( delNum ) );
 		 }
        sessionStorage.setItem( "index", String( i - delNum ) );
-       flag = true;
+
+       if( String( textOp.value ) != "" ) {
+         sendValue( "title", String( textOp.value ) );
+       }
    }
    // create form to send values to the servlet
    function sendValue( vName, vValue ) { 
