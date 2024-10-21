@@ -11,8 +11,8 @@
 			<label for="Del-Name">削除するタグの指定</label>
 	</div>
 	<div id="com"></div>
-	<div class="Set-Position">
-		<select name="del-tag" class="Selector" id="Del-Name" value="" >
+	<div class="Set-Position" >
+		<select name="del-tag" class="Selector" id="Del-Name" >
 			<option value="-1"></option>
 		</select>
 	</div>
@@ -22,14 +22,12 @@
 <script>
 	window.addEventListener( "DOMContentLoaded", ()=> {
 		const sel = window.opener.sendMenu();
-		var optionEl = [];
 		let cnt = 0;
 		const delTagBoxEl = document.getElementById( "Del-Name" );
 		
 		if( sel.length > 1 ) {
 			for( const option of sel.options ) {
 				if( cnt > 0 ) {
-					var tmp = optionEl[ cnt - 1 ];
 					tmp = document.createElement( "option" );
 					tmp.value = String( cnt - 1 );
 					tmp.text = option.label;
@@ -41,7 +39,8 @@
 		} else {
 			delTagBoxEl.disabled = true;
 		}
-	}, false );
+	} );
+	window.onload = function() { focus( document.getElementById( "Del-Name" ) ); }
 
 	function sendData() {
 		const selectBox = document.getElementById( "Del-Name" );

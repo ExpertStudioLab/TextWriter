@@ -27,18 +27,34 @@
 		// insert into top of style tag
 		styleSheet.insertRule( str, 0 );
    }
-
-// プルダウン・ボックスの要素を取得するテスト
 /*
-var ops = [];
-var cnt = 0;
-const sel = document.getElementById( "Tag-El" );
-for( const option of sel.options ) {
-	ops[cnt] = option.label;
-	alert( ops[cnt]);
-	cnt += 1;
-}
+   window.addEventListener( "beforeunload", ( event )=> {
+      if( !flag ) {
+         event.preventDefault();
+      }
+   });
 */
+   // { num : 0 } means "history.state.num = 0".
+   history.pushState( { num : 0 }, null, window.location.href );
+   // on update widow, make the servlet program to process orders previous values
+   window.addEventListener( "DOMContentLoaded", ()=> {
+      storeState();
+   });
+   // on browzer back, ... 
+   window.addEventListener( "popstate", ()=> {
+      storeState();
+      // because a page will get old, update to present status.
+      // create a new tag menus list. but recent delete commands are canceled.( permit button had not clicked.)
+      window.location.reload();
+   });
+
+   function storeState() {
+      var url = new URL( window.location.href );
+      var params = url.searchParams;
+      params.delete( "num" );
+      params.delete( "end" );
+      history.replaceState( "", "", url.pathname );
+   }
 
 	// the number of dropdown list menu into i
    const selectEl = document.getElementById( "Tag-El" );
@@ -48,18 +64,12 @@ for( const option of sel.options ) {
    // the number of delete menus
    let delNum = 0;
 
-	// the Array of tag menus is empty
-   if( i == 0 ) {
-      sessionStorage.setItem( "index", "0" );
-    // the Array contains tag menus
-   } else {
-		if( sessionStorage.getItem( "index" ) != null ) {
-	      i = parseInt( sessionStorage.getItem( "index" ) );
-    	  startIndex = i;
-		}
-		else {
-			sessionStorage.setItem( "index", "i" );
-		}
+   let flag = false;
+
+   sessionStorage.setItem( "index", String( i ) );
+
+   if( i > 0 ) {
+      startIndex = parseInt( sessionStorage.getItem( "index" ) );
    }
 
 	// [Add tag menu] button has been pushed
@@ -73,30 +83,27 @@ for( const option of sel.options ) {
 
 	// get an additional tag menu from [Add tag menu] Window
    function getData( data ) {
-	   	// put an additional tag menu into pull-down menu box
-//		 const selectObj = document.getElementById( "Tag-El" );
+	   // put an additional tag menu into pull-down menu box
 		const optionEl = document.createElement( "option" );
 		optionEl.text = data;
 		optionEl.value  = String( i );
 		selectEl.appendChild( optionEl );
-		// send an additional tag menu to the servlet program   
+		// send an additional tag menu to the servlet program   ex. new-tag0, new-tag1, ...
 		sendValue( "new-tag" + String( i ), data );
 		i += 1;
    }
    // send a start index of Array Object and an end index
    function addIndex() {
-         const j = parseInt( sessionStorage.getItem( "index" ) );
-         if( i > j ) {
+      if( i > startIndex ) {
 			sendValue( "num", String( i ) );
 			sendValue( "start-index", String( startIndex ) );
-            sessionStorage.setItem( "index", String( i ) );
-         }
+      }
 		 if( delNum > 0 ) {
 			sendValue( "end", String( delNum ) );
-			sessionStorage.setItem( "index", String( i - delNum ) );
 		 }
+       sessionStorage.setItem( "index", String( i - delNum ) );
+       flag = true;
    }
-let id = 0;
    // create form to send values to the servlet
    function sendValue( vName, vValue ) { 
 		const formObj = document.getElementById( "send" );
@@ -104,9 +111,7 @@ let id = 0;
 		inputEl.type = "hidden";
 		inputEl.name = vName;
 		inputEl.value = vValue;
-		inputEl.id = String( id );
 		formObj.appendChild( inputEl );
-		id += 1;
    }
    
    // send tag menus to Delete Tag Window

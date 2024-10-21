@@ -18,7 +18,7 @@
 											  								\"input_contents\"
 	}.jsp" />
 
-<script type="text/javascript" src="${pageContext.request.contextPath}/style.js" ></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/style.js?version=12345" ></script>
 <div id="d"></div>
 </body>
 </html>
