@@ -8,7 +8,7 @@
 </div>
 <div class="Right-Justify">
     <select name="Tag" class="Selector" id="Tag-El">
-        <option value="">ノンジャンル</option>
+        <option>ノンジャンル</option>
 
         <%
 	        if( session.getAttribute( "Tags" ) != null ) {
@@ -33,8 +33,24 @@
 	<h1><label for="Title-Name">タイトルを指定してください</label></h1>
 </div>
 <div class="Left-Justify">
-	<input type="text" id="Title-Name" class="Textbox" placeholder="- タイトルを入力 -" />
+	<span><small>過去のタイトルを選択する場合は、テキストボックスをクルックしてください。</small></span>
+</div>
+<div class="Left-Justify">
+	<input type="text" list="Title-List" id="Title-Name" class="Textbox" placeholder="- タイトルを入力 -" />
+	<datalist id="Title-List">
+		<option value="Display here stored title names."></option>
+	</datalist>
 </div>
 <form action="TextWriter" method="get" id="send">
 	<input type="submit" alt="送信" id="permit" onclick="addIndex()" />
 </form>
+<script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/title.js" ></script>
+<script>
+	function setTitleStorage( vals ) {
+		setTitle( vals );
+	}
+	function init() {
+		
+	}
+</script>

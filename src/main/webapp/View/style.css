@@ -21,7 +21,7 @@ h1 {
 #Canvas-Block {
     position: relative;
     width: auto;
-    height: 40px;
+    height: auto;
     padding-left: 1cm;
 }
 h2 {

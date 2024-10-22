@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Insert title here</title>
-</head>
-<body>
 
-</body>
-</html>
+    <div class="Left-Justify"><h1><label>ラベルを指定</label></h1></div>
+    <div class="Left-Justify">
+        <input type="text" list="Section-List" id="Section-Title" value="" placeholder="- ラベルを記入または選択 -" />
+        <datalist id="Section-List">
+            <option value="Display here stored section names."></option>
+        </datalist>
+    </div>
+    <form action="TextWriter" method="get" id="send">
+        <input type="submit" alt="送信" id="permit" onclick="sendLabel()" disabled="disabled" />
+    </form>
+    <script>
+        const sec_titleOp = document.getElementById( "Section-Title" );
+        sec_titleOp.addEventListener( "input", inputChange );
+        function inputChange( event ) {
+            const btnOp = document.getElementById( "permit" );
+            btnOp.disabled = ( event.currentTarget.value == "" );
+        }
+
+        function sendLabel() {
+            const textOp = document.getElementById( "Section-Title" );
+            sendValue( "sec-title", String( textOp.value ) );
+        }
+    </script>
+    <script type="text/javascript" src="${ pageContext.request.contextPath }/storage.js"></script>

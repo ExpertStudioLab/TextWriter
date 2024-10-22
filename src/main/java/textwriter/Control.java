@@ -20,6 +20,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "TextWriter", urlPatterns = { "/TextWriter" })
 public class Control extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private HttpSession session;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -34,23 +35,14 @@ public class Control extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		HttpSession session = request.getSession( true );
-
-		if( session.getAttribute( "HeaderTitle" ) == null ) {
-			List<String> tags = new ArrayList<>();
-			session.setAttribute( "jsp_file",  "auto_text_writer.jsp" );
-			session.setAttribute( "Tags", tags );
-			session.setAttribute( "HeaderTitle", Boolean.FALSE );
-			session.setAttribute( "SectionTitle", Boolean.FALSE );
-		} else if( session.getAttribute( "SectionTitle").equals( false ) )  {
-			if( request.getParameter( "title" ) != null ) {
-				System.out.println( "hello " );
-				session.setAttribute( "HeaderTitle", Boolean.TRUE );
-				session.setAttribute( "hTitle", request.getParameter( "title" ) );
-			}
+		if( session == null ) {
+			this.initInputForm( request );
+		} else if( request.getParameter( "title" ) != null ) {
+			session.setAttribute( "HeaderTitle", Boolean.TRUE );
+		} else if( request.getParameter( "sec-title" ) != null ) {
+			session.setAttribute( "SectionTitle", Boolean.TRUE );
 		}
 
-		
 		String num = request.getParameter( "num" );
 		if( num != null && num != "" ) {
 			int j = Integer.valueOf( num );
@@ -89,6 +81,15 @@ public class Control extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		doGet(request, response);
+	}
+
+	private void initInputForm( HttpServletRequest request ) {
+		session = request.getSession( true );
+		List<String> tags = new ArrayList<>();
+		session.setAttribute( "jsp_file",  "auto_text_writer.jsp" );
+		session.setAttribute( "Tags", tags );
+		session.setAttribute( "HeaderTitle", Boolean.FALSE );
+		session.setAttribute( "SectionTitle", Boolean.FALSE );
 	}
 
 }
