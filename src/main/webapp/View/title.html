@@ -3,22 +3,21 @@
 <head>
 <link rel="stylesheet" href="style.css"/>
 <script type="text/javascript" src="views.js"></script>
-
+<script type="text/javascript" src="../storage.js"></script>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
 <body>
-       <header><h1>サーブレットの基礎</h1></header><hr>
-        <main>
-            <div id="Canvas-Block">
-                <h2 id="Section-Name1">第1章．サーブレットプログラムでのデータベースの利用</h2>
-                <div id="Section-Header1">
-                    <canvas class="Section-Devider"></canvas>
-                </div>
-            </div>
-            <script type="module">window.addEventListener( "load", ()=>{ setCanvas( "Section-Name1", "#Section-Header1" ) } )</script>
-            <script type="module">window.addEventListener( "load", ()=>{drawSectionHeader( ".Section-Devider" );} )</script>
-        </main>
-    </div>
+		<div id="Tag"></div>
+       <header id="Title"></header><hr>
+<script>
+       function init() {
+              const vals = getTitle();
+              const hEl = document.getElementById( "Title" );
+              const tagEl = document.getElementById( "Tag" );
+				hEl.insertAdjacentHTML( "afterbegin", "<h1>" + vals.title + "</h1>" );
+				tagEl.insertAdjacentHTML( "afterbegin", "<span><small>" + vals.tagName + "</small></span>")
+       	}
+</script>
 </body>
 </html>

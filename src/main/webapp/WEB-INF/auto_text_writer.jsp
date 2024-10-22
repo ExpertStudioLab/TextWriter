@@ -12,8 +12,13 @@
 <body>
 	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) {	%>
 	<div class="Grid-Container">
-		<div class="Grid-Item"><iframe class="Frame" src="View/title.html" allowFullscreen></iframe></div>
+		<div class="Grid-Item"><iframe class="Frame" src="${pageContext.request.contextPath}/View/title.html" ></iframe></div>
 		<div class="Grid-Item"></div>
+	</div>
+	<% }	%>
+	<% if( session.getAttribute( "SectionTitle").equals( true ) ) {	%>
+	<div class="Grid-Container">
+		<div class="Grid-Item"><iframe class="Frame" src="${ pageContext.request.contextPath }/View/sec_title.html"></iframe></div>
 	</div>
 	<% }	%>
 	<!-- タイトル　セクション名　内容の順に入力させる -->
@@ -24,7 +29,6 @@
 											  								\"input_contents\"
 	}.jsp" />
 
-<script type="text/javascript" src="${pageContext.request.contextPath}/style.js?version=12345" ></script>
-<div id="d"></div>
+<div id></div>
 </body>
 </html>

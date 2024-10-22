@@ -1,26 +1,6 @@
-
-   // { num : 0 } means "history.state.num = 0".
-   history.pushState( { num : 0 }, null, window.location.href );
-   // on update widow, make the servlet program to process orders previous values
-   window.addEventListener( "DOMContentLoaded", ()=> {
-      storeState();
-   });
-   // on browzer back, ... 
-   window.addEventListener( "popstate", ()=> {
-      storeState();
-      // because a page will get old, update to present status.
-      // create a new tag menus list. but recent delete commands are canceled.( permit button had not clicked.)
-      window.location.reload();
-   });
-
-   function storeState() {
-      var url = new URL( window.location.href );
-      var params = url.searchParams;
-      params.delete( "num" );
-      params.delete( "end" );
-      history.replaceState( "", "", url.pathname );
-   }
-
+/**
+ * 
+ */
 	// the number of dropdown list menu into i
    const selectEl = document.getElementById( "Tag-El" );
    const textOp = document.getElementById( "Title-Name" );
@@ -51,7 +31,7 @@
 	   // put an additional tag menu into pull-down menu box
 		const optionEl = document.createElement( "option" );
 		optionEl.text = data;
-		optionEl.value  = String( i );
+		optionEl.value = data;
 		selectEl.appendChild( optionEl );
 		// send an additional tag menu to the servlet program   ex. new-tag0, new-tag1, ...
 		sendValue( "new-tag" + String( i ), data );
@@ -67,19 +47,12 @@
 			sendValue( "end", String( delNum ) );
 		 }
        sessionStorage.setItem( "index", String( i - delNum ) );
-
        if( String( textOp.value ) != "" ) {
-         sendValue( "title", String( textOp.value ) );
+         const vals = { title : String( textOp.value ),
+                        tagName : String( selectEl.value )};
+         setTitleStorage( vals );
+         sendValue( "title", "true" );
        }
-   }
-   // create form to send values to the servlet
-   function sendValue( vName, vValue ) { 
-		const formObj = document.getElementById( "send" );
-		const inputEl = document.createElement( "input" );
-		inputEl.type = "hidden";
-		inputEl.name = vName;
-		inputEl.value = vValue;
-		formObj.appendChild( inputEl );
    }
    
    // send tag menus to Delete Tag Window
