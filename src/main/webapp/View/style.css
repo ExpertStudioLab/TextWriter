@@ -4,8 +4,11 @@
     margin-right: 3cm;
 }
 
+#ViewTitle {
+	white-space: nowrap;
+}
 header {
-    height: 40px;
+	white-space: nowrap;
     border-top: 20px solid lightblue;
     border-bottom: 20px solid lightblue;
     padding: 0;
@@ -23,6 +26,7 @@ h1 {
     width: auto;
     height: auto;
     padding-left: 1cm;
+    white-space: nowrap;
 }
 h2 {
     position: absolute;
@@ -43,10 +47,12 @@ h2 {
     position: relative;
     display: flex;
     justify-content: flex-end;
+/*
     top: 0;
     left: 0;
-    height: 40px;
     padding: 0;
+*/
+    height: 40px;
     border-bottom: 10px solid chocolate;
 }
 
