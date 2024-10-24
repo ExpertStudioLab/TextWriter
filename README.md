@@ -8,3 +8,8 @@ Oct. 19. 2024, Sat. Enabled to store data into the tag selection on a page refre
 Oct. 20. 2024, Sun. Enabled to delete data from the tag selection. 
 Oct. 21. 2024, Mon. Resolved the problem with updating page and page back.
 Oct. 22. 2024, Tue. Create a auto writer that is displaying when write a text at a textbox.
+<<<<<<< HEAD
+=======
+Oct. 24. 2024, Thu. Enabled to draw rectangles with mouse moving. Yesterday, I was in trouble with this implementation.
+                    I have no time, so that develop my project more speedily I can do!
+>>>>>>> branch 'test' of https://github.com/ExpertStudioLab/TextWriter

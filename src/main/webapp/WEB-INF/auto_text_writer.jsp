@@ -11,16 +11,22 @@
 </head>
 <body>
 	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) {	%>
-	<div class="Grid-Container">
-		<div class="Grid-Item"><iframe class="Frame" src="${pageContext.request.contextPath}/View/title.html" ></iframe></div>
-		<div class="Grid-Item"></div>
-	</div>
+	<div id="BackGround">
+		<div class="Grid-Container">
+			<div class="Grid-Item"><iframe class="Frame" src="${pageContext.request.contextPath}/View/title.html" ></iframe></div>
+			<div class="Grid-Item"></div>
+		</div>
 	<% }	%>
 	<% if( session.getAttribute( "SectionTitle").equals( true ) ) {	%>
-	<div class="Grid-Container">
-		<div class="Grid-Item"><iframe class="Frame" src="${ pageContext.request.contextPath }/View/sec_title.html"></iframe></div>
-	</div>
+		<div class="Grid-Container">
+			<div class="Grid-Item"><iframe class="Frame" src="${ pageContext.request.contextPath }/View/sec_title.html"></iframe></div>
+			<div class="Grid-Item"></div>
+		</div>
 	<% }	%>
+	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) { 	%>
+	</div>
+	<% } %>
+	
 	<!-- タイトル　セクション名　内容の順に入力させる -->
 	<jsp:include page="${sessionScope.HeaderTitle.equals( false ) ?
 																			\"input_title\" :
@@ -29,6 +35,7 @@
 											  								\"input_contents\"
 	}.jsp" />
 
-<div id></div>
+<div></div>
+
 </body>
 </html>

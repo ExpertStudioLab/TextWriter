@@ -56,12 +56,15 @@
 }
 
 .Grid-Container {
+	position: relative;
 	display: grid;
-	grid-template-columns: 4fr 1fr;
+	grid-template-columns: 65% 350px;
+	margin: auto;
 }
 .Grid-Item {
 	height: auto;
 	width: 100%;
+	min-width: 350px;
 	padding: 10px;
 	background-color: white;
 	border: 2px solid cadetblue;
@@ -71,10 +74,58 @@
 	height: 100%;
 }
 #Containts {
-	font-size: 30px;
-	width: 800px;
+	font-size: 24px;
+	width: 100%;
 }
 #Display-Area {
+	height: auto;
+	width: 70%;
+	margin-left: 10%;
+	margin-right: 10%;
+	word-wrap: break-word;
+}
+#Align-Containt {
+	display: grid;
+	grid-template-columns: 59% 39%;
+}
+#Left-Side {
 	width: 100%;
-	height: 500px;
+	height: auto;
+}
+#Right-Side {
+	width: 100%;
+}
+#BackGround {
+	overflow-x: hidden;
+}
+#Doc {
+	font-size: 24px;
+}
+#Image {
+	border: 2px solid black;
+	margin-top: 20px;
+	margin-left: 50px;
+	width: 500px;
+	height: 250px;
+}
+#drawRect {
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	position: absolute;
+	border: 1px solid black;
+}
+#popupMenu {
+	position: absolute;
+	display: none;
+}
+#Canvas {
+	z-index: 1;
+}
+#popupMenu li {
+	cursor: pointer;
+}
+#Save {
+	width: 100px;
 }

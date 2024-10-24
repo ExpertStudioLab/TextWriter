@@ -51,6 +51,6 @@
 		setTitle( vals );
 	}
 	function init() {
-		
+		console.log( "title called");
 	}
 </script>
