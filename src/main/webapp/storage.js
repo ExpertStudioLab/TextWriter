@@ -28,8 +28,8 @@
    }
 
    function getTitle( ) {
-      const vals = { title : String( sessionStorage.getItem( "hTitle" ) ),
-                     tagName : String( sessionStorage.getItem( "tag-name" ) ) };
+      const vals = { title : sessionStorage.getItem( "hTitle" ),
+                     tagName : sessionStorage.getItem( "tag-name" ) };
       return vals;
    }
 

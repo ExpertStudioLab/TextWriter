@@ -12,7 +12,8 @@
 <body>
  
     <div id="Form">
-        <header><h1>タイトル</h1></header><hr>
+        <header><h1>${ sessionScope.result }</h1></header>
+        <hr>
         <main>
             <div id="Canvas-Block">
                 <h2 id="Section-Name1">第1章．サーブレットプログラムでのデータベースの利用</h2>

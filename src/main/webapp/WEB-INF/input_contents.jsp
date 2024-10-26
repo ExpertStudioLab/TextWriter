@@ -24,9 +24,9 @@
             <div id="drawRect"></div>
             <canvas id="Image" height="250px" width="500px"></canvas>
         </div>
-        <div>
-            <input type="button" id="Save" value="保存" />
-        </div>
+        <form action="/TextWriter/storeimage" enctype="multipart/form-data" method="post">
+            <input type="submit" id="Save" value="保存" />
+        </form>
     </div>
 </div>
 <script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
