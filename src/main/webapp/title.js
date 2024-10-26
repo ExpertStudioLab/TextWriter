@@ -50,7 +50,7 @@
        if( String( textOp.value ) != "" ) {
          const vals = { title : String( textOp.value ),
                         tagName : String( selectEl.value )};
-         setTitleStorage( vals );
+         setTitle( vals );
          sendValue( "title", "true" );
        }
    }

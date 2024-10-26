@@ -47,9 +47,6 @@
 <script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/title.js" ></script>
 <script>
-	function setTitleStorage( vals ) {
-		setTitle( vals );
-	}
 	function init() {
 		console.log( "title called");
 	}

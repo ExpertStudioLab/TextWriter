@@ -6,18 +6,18 @@
 <title>Insert title here</title>
 </head>
 <body>
-            <div id="Canvas-Block">
-                <h2 id="Section-Name1">第1章．サーブレットプログラムでのデータベースの利用</h2>
-                <div id="Section-Header1">
-                    <canvas class="Section-Devider"></canvas>
+            <div id="Section-Block">
+                <h2 id="Section-Title">第1章．サーブレットプログラムでのデータベースの利用</h2>
+                <div id="SecTitle-Label">
+                    <canvas id="SecTitle-End"></canvas>
                 </div>
             </div>
             <script type="text/javascript" src="views.js"></script>
             <script type="text/javascript" src="../storage.js"></script>
             <script>
 				function init() {
-					setCanvas( "Section-Name1", "#Section-Header1" );
-					drawSectionHeader( ".Section-Devider" );
+					setCanvas( "Section-Title", "#SecTitle-Label" );
+					drawSectionHeader( "#SecTitle-End" );
 				}
 			</script>
 </body>
