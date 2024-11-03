@@ -46,57 +46,7 @@ public class Control extends HttpServlet {
 				session.setAttribute( "SectionTitle", Boolean.TRUE );
 				break;
 		}
-		
-/*
-		if( session == null ) {
-			this.initInputForm( request );
-		} else if( request.getParameter( "title" ) != null ) {
-			session.setAttribute( "HeaderTitle", Boolean.TRUE );
-		} else if( request.getParameter( "sec-title" ) != null ) {
-			session.setAttribute( "SectionTitle", Boolean.TRUE );
-		} else if( request.getParameter( "column" ) != null ) {
-			String column = request.getParameter( "column" );
-			String count = request.getParameter( "count" );
-			ArrayList<String> colNames = ( ArrayList<String> )session.getAttribute( "column_names" );
-			if(  colNames.size() > 0  ) {
-				if( colNames.get( colNames.size() - 1 ) != column ) {
-					colNames.add( column );
-				}
-			} else {
-				colNames.add( column );
-				session.setAttribute( "NextOne", Boolean.FALSE );
-			}
-			if( !session.getAttribute( "Count").equals( count ) ) {
-				session.setAttribute( "Count", count );
-			}
-		}
 
-		String num = request.getParameter( "num" );
-		if( num != null && num != "" ) {
-			int j = Integer.valueOf( num );
-			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
-			String in = request.getParameter( "start-index" );
-			for( int i = Integer.valueOf( in ); i < j; i++ ) {
-				String name = request.getParameter( "new-tag" + String.valueOf( i ) );
-				tags.add( name );
-			}
-		}
-
-		String strEnd = request.getParameter( "end" );
-		if( strEnd != null && strEnd != "" ) {
-			int end = Integer.valueOf( strEnd );
-			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
-			List<Integer> delIndex = new ArrayList<>();
-			for( int i = 0; i < end; i++ ) {
-				String delTag = request.getParameter( "del-menu" + String.valueOf( i ) );
-				delIndex.add( Integer.valueOf( delTag ) );
-			}
-			Collections.sort( delIndex, Collections.reverseOrder() );
-			for( int i = 0; i < end; i++ ) {
-				tags.remove( delIndex.get( i ).intValue() );
-			}
-		}
-*/
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/" + session.getAttribute( "jsp_file" ) );
 //		RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/sample.jsp" );
