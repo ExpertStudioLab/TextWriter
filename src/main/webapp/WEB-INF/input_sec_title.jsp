@@ -2,7 +2,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
-    <div class="Left-Justify"><h1><label>ラベルを指定</label></h1></div>
+    <div class="Left-Justify"><h1><label for="Section-Title">ラベルを指定</label></h1></div>
     <div class="Left-Justify">
         <input type="text" list="Section-List" id="Section-Title" value="" placeholder="- ラベルを記入または選択 -" />
         <datalist id="Section-List">

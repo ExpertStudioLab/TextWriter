@@ -4,7 +4,7 @@
 <%@ page import="java.util.ArrayList" %>
 
 <div class="Right-Justify">
-	<label for="Tag-El" id="Tag-Comment">タグの入力</label> 
+	<label for="Tag-El" class="Comment" style="margin-top: 5px; margin-right: 100px;">タグの入力</label> 
 </div>
 <div class="Right-Justify">
     <select name="Tag" class="Selector" id="Tag-El">
@@ -41,7 +41,7 @@
 		<option value="Display here stored title names."></option>
 	</datalist>
 </div>
-<form action="TextWriter" method="get" id="send">
+<form action="TextWriter" method="get" id="send" >
 	<input type="submit" alt="送信" id="permit" onclick="addIndex()" />
 </form>
 <script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>

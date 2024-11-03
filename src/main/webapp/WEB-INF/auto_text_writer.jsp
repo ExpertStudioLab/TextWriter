@@ -35,7 +35,5 @@
 											  								\"input_contents\"
 	}.jsp" />
 
-<div></div>
-
 </body>
 </html>
