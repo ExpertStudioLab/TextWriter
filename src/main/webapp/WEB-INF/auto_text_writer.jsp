@@ -23,6 +23,17 @@
 			<div class="Grid-Item"></div>
 		</div>
 	<% }	%>
+	<% 	if( !session.getAttribute( "Count" ).equals( "NONE" ) ) {
+				int len = Integer.valueOf( ( String )session.getAttribute( "Count" ) );
+				for( int i = 0; i < len; i++ ) {
+	%>
+		<div class="Grid-Container">
+			<div class="Grid-Item"><iframe class="Frame" src="${ pageContext.request.contextPath }/View/contents.html"></iframe></div>
+			<div class="Grid-Item"></div>
+		</div>
+	<%		}
+			}
+	%>
 	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) { 	%>
 	</div>
 	<% } %>
@@ -34,6 +45,6 @@
 											  								\"input_sec_title\" :
 											  								\"input_contents\"
 	}.jsp" />
-
+<script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
 </body>
 </html>

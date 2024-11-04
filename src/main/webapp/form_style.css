@@ -93,6 +93,13 @@
 	width: 100%;
 }
 
+#Preview {
+	padding-left: 7%;
+	width: 100%;
+	height: fit-content;
+	display: flex;
+	justify-content: flex-end;
+}
 #Doc {
 	font-size: 24px;
 }

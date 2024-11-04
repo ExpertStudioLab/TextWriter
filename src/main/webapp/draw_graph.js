@@ -63,7 +63,7 @@ let flag = false;
     }
 
 
-
+/*
     saveBtn.addEventListener( "click", ( event )=> {
         event.preventDefault();
 
@@ -72,7 +72,7 @@ let flag = false;
             fData.append( "file", pictBlob, "sample001.png" );
             
             const xhr = new XMLHttpRequest();
-            xhr.open( "POST", "/TextWriter/storeimage", true );
+            xhr.open( "POST", "/TextWriter/storage", true );
             xhr.onload = function () {
                 if( xhr.status == 200 ) {
                     console.log( "Upload successful!" );
@@ -88,3 +88,30 @@ let flag = false;
         });
 
     } );
+*/
+    saveBtn.addEventListener( "click", sendData );
+
+    function sendData( event ) {
+        event.preventDefault();
+        cvs.toBlob( ( canvasImage ) => {
+            const illust = document.getElementById( "Illustration" );
+            const img = document.createElement( "img" );
+            img.src = window.URL.createObjectURL( canvasImage );
+            img.width = "400px";
+            img.height = "300px";
+            illust.appendChild( img );
+			const myHeaders = new Headers();
+        	myHeaders.append( "Content-Type", "image/png" );
+        	const myRequest = new Request( "/TextWriter/storage", {
+            method: "POST",
+            body: canvasImage,
+            headers: myHeaders
+        });
+        try{
+            const response = fetch( myRequest );
+            console.log( "Success: ", response );
+        } catch( error ) {
+            console.error( "Error: ", error );
+        }
+        });
+    }

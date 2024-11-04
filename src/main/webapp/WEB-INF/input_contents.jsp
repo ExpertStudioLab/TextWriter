@@ -4,7 +4,7 @@
 <%@ page import="java.util.ArrayList" %>
 <div id="Display-Area">
     <div><span>作成されるドキュメントの書式</span></div>
-    <div><p id="Doc"></p></div>
+    <div id="Preview"><figure id="Illustration"></figure><p id="Doc"></p></div>
 </div>
 <% 	ArrayList<String> cols = ( ArrayList<String> )session.getAttribute( "column_names" );
 		final int  len = cols.size() > 0 ? cols.size() : 1;
@@ -47,14 +47,13 @@
             <canvas id="Image" height="250px" width="500px">
             </canvas>
         </div>
-        <form action="/TextWriter/storeimage" enctype="multipart/form-data" method="post">
-            <input type="submit" id="Save" value="保存" />
+        <form>
+            <input type="submit" id="Save" value="挿入" />
         </form>
     </div>
 </div>
 <% 		}
 		} %>
-<script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/draw_graph.js"></script>
 <script>
     function init() {
@@ -77,6 +76,7 @@
     const textOp = document.getElementById( "Containts" );
     textOp.addEventListener( "input", displayText );
     function displayText( event ) {
+    		console.log( "contents" );
             const disp = document.querySelector( "p" );
             disp.innerText = String( textOp.value );
     }
