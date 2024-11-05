@@ -95,13 +95,20 @@
 
 #Preview {
 	padding-left: 7%;
+	padding-right: 10%;
 	width: 100%;
 	height: fit-content;
-	display: flex;
-	justify-content: flex-end;
+	background-color: darkcyan;
+}
+#Illust {
+	margin-left: 20px;
+	float: right;
 }
 #Doc {
 	font-size: 24px;
+}
+#File {
+	display: none;
 }
 #Image {
 	border: 2px solid black;
