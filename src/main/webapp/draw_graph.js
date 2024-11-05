@@ -4,9 +4,10 @@
     let point = { x : 0, y : 0 };
     const cvs = document.getElementById( "Image" );
     const graph = cvs.getContext( "2d" );
-    const saveBtn = document.getElementById( "Save" );
+    const insertBtn = document.getElementById( "Insert" );
     const formLine = document.getElementById( "drawRect" );
     let offSet;
+    let fileNumber;
 
     graph.fillStyle = "#fff"
     graph.fillRect( 0, 0, cvs.width, cvs.height );
@@ -63,7 +64,7 @@ let flag = false;
     }
 
 
-
+/*
     saveBtn.addEventListener( "click", ( event )=> {
         event.preventDefault();
 
@@ -72,7 +73,7 @@ let flag = false;
             fData.append( "file", pictBlob, "sample001.png" );
             
             const xhr = new XMLHttpRequest();
-            xhr.open( "POST", "/TextWriter/storeimage", true );
+            xhr.open( "POST", "/TextWriter/storage", true );
             xhr.onload = function () {
                 if( xhr.status == 200 ) {
                     console.log( "Upload successful!" );
@@ -88,3 +89,64 @@ let flag = false;
         });
 
     } );
+*/
+
+document.body.onload = function() {
+   const xhr = new XMLHttpRequest();
+   xhr.open( "GET", "/TextWriter/storage", true );
+   xhr.setRequestHeader( 'Process', 'FileNumber' );
+   xhr.onreadystatechange = function() {
+	   if( xhr.readyState == 4 && xhr.status == 200 ) {
+		   fileNumber = xhr.responseText;
+		   console.log( "Success: ", fileNumber );
+	   } else {
+		   console.log( "Error ocasion" );
+	   }
+   };
+   xhr.send( null );
+   console.log( "hello" );
+};
+
+//    saveBtn.addEventListener( "click", sendData );
+    insertBtn.addEventListener( "click", insertIllust );
+/*
+    function sendData( event ) {
+        const illustData = document.getElementById( "Illust" );
+        graph.drawImage( illustData, 0, 0 );
+        cvs.toBlob( ( canvasImage ) => {
+			const myHeaders = new Headers();
+        	myHeaders.append( "Content-Type", "image/png" );
+        	const myRequest = new Request( "/TextWriter/storage", {
+            method: "POST",
+            body: canvasImage,
+            headers: myHeaders
+        });
+        try{
+            const response = fetch( myRequest );
+            console.log( "Success: ", response );
+        } catch( error ) {
+            console.error( "Error: ", error );
+        }
+        });
+    }
+*/
+    function insertIllust( ) {
+        cvs.toBlob( ( canvasImage ) => {
+            const illust = document.getElementById( "Illust" );
+            illust.src = window.URL.createObjectURL( canvasImage );
+            illust.style.width = "500px";
+            illust.style.height = "250px";
+
+			const fileOp = document.getElementById( "SendFile" );
+			fileOp.name = "img_" + fileNumber;
+			const sendFile = new File( [ canvasImage ], fileNumber + ".png", { type: "image/png" } );
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add( sendFile );
+			if( fileOp.files.length > 0 ) {
+				fileOp.value = '';
+			}
+			fileOp.files = dataTransfer.files;
+        });
+
+    }
+

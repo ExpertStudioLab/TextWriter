@@ -44,7 +44,6 @@
 <form action="TextWriter" method="get" id="send" >
 	<input type="submit" alt="送信" id="permit" onclick="addIndex()" />
 </form>
-<script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/title.js" ></script>
 <script>
 	function init() {

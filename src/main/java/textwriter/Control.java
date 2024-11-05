@@ -1,6 +1,7 @@
 package textwriter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,8 +58,7 @@ public class Control extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+
 	}
 
 	private void initInputForm( HttpServletRequest request ) {
@@ -73,6 +73,7 @@ public class Control extends HttpServlet {
 		session.setAttribute( "HeaderTitle", Boolean.FALSE );
 		session.setAttribute( "SectionTitle", Boolean.FALSE );
 		session.setAttribute( "NextOne", Boolean.TRUE );
+		session.setAttribute( "FileNumber", "1" );
 	}
 
 	private HttpSession getSession( HttpServletRequest request ) {

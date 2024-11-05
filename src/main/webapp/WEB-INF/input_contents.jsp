@@ -2,19 +2,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="java.util.ArrayList" %>
-<div id="Display-Area">
-    <div><span>作成されるドキュメントの書式</span></div>
-    <div><p id="Doc"></p></div>
-</div>
 <% 	ArrayList<String> cols = ( ArrayList<String> )session.getAttribute( "column_names" );
 		final int  len = cols.size() > 0 ? cols.size() : 1;
 		for( int i = 0; i < len; i++ ) {
-			if( cols.size() > 0 ) {
-				%>
-<div class="Left-Justify">
-<h3><%= cols.get( i ) %></h3>
-</div>
-<% 			}
 			if( session.getAttribute( "NextOne").equals( true ) ) {
 %>
 <div class="Left-Justify">
@@ -27,10 +17,17 @@
     <input type="submit" alt="送信" id="permit" disabled onclick="sendColumn()" />
 </form>
 	<% } else { %>
+    <div><span>作成されるドキュメントの書式</span></div>
+<%			if( cols.size() > 0 ) {
+				%>
 <div class="Left-Justify">
-    <h3></h3>
+<h3><%= cols.get( i ) %></h3>
 </div>
-
+<% 			}
+%>
+<div id="Display-Area">
+    <div id="Preview"><img id="Illust"></img><p id="Doc"></p></div>
+</div>
 <div id="Align-Containt">
     <div id="Left-Side">  
         <div class="Left-Justify">
@@ -47,15 +44,24 @@
             <canvas id="Image" height="250px" width="500px">
             </canvas>
         </div>
-        <form action="/TextWriter/storeimage" enctype="multipart/form-data" method="post">
-            <input type="submit" id="Save" value="保存" />
-        </form>
+        <input type="button" id="Insert" value="挿入" />
     </div>
+    <div>
+        <input type="button" id="Paragraph" value="段落の追加" />
+    </div>
+    <div>
+        <input type="button" id="Next" value="追加" />
+    </div>
+    <form action="/TextWriter/storage" method="post" enctype="multipart/form-data" id="SendForm" >
+        <input type="submit" id="Save" value="保存" />
+        <input type="file" hidden="true" id="SendFile" />
+    </form>
 </div>
 <% 		}
 		} %>
-<script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
+<%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/draw_graph.js"></script>
+<%  } %>
 <script>
     function init() {
     	console.log( "containt called");
@@ -63,7 +69,7 @@
 
     // make sure to input a column name.
     const column_nameOp = document.getElementById( "Column-Name" );
-    column_nameOp.addEventListener( "input", inputChange );
+    if( column_nameOp != null ) column_nameOp.addEventListener( "input", inputChange );
     function inputChange( event ) {
         const btnOp = document.getElementById( "permit" );
         btnOp.disabled = ( event.currentTarget.value == "" );
@@ -75,8 +81,9 @@
     
     // if write a text, display at the Display-Area
     const textOp = document.getElementById( "Containts" );
-    textOp.addEventListener( "input", displayText );
+    if( textOp != null ) textOp.addEventListener( "input", displayText );
     function displayText( event ) {
+    		console.log( "contents" );
             const disp = document.querySelector( "p" );
             disp.innerText = String( textOp.value );
     }

@@ -90,20 +90,22 @@ public class StatusManager {
 	private void columnFunction() {
 		String column = this.request.getParameter( "column" );
 		String count = this.request.getParameter( "count" );
+		String end = this.request.getParameter( "end" );
 		if(  this.columns.size() > 0 ) {
 			if( this.columns.get( this.columns.size() - 1 ) != column ) {
 				this.columns.add( column );
 			}
 		} else if( column != null ) {
-			System.out.println( "hello servlet!" );
 			this.columns.add( column );
 			this.session.setAttribute( "NextOne", Boolean.FALSE );
 		}
-		if( !this.session.getAttribute( "Count").equals( count ) ) {
-			if( count == "end" ) {
-				this.state = StatusManager.END;
+
+		if( end != null ) {
+			if( !this.session.getAttribute( "Count").equals( count ) ) {
+				this.session.setAttribute( "Count", count );
 			}
-			this.session.setAttribute( "Count", count );
+		} else {
+			this.state = StatusManager.END;
 		}
 	}
 }

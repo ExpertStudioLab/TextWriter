@@ -29,4 +29,3 @@
         	console.log( "section called" );
         }
     </script>
-    <script type="text/javascript" src="${ pageContext.request.contextPath }/storage.js"></script>

@@ -11,4 +11,8 @@ Oct. 22. 2024, Tue. Create a auto writer that is displaying when write a text at
 Oct. 24. 2024, Thu. Enabled to draw rectangles with mouse moving. Yesterday, I was in trouble
               with this implementation. I have no time, so that develop my project more speedily I can do! 
 Oct. 26. 2024, Sat. Enabled to send Image File to the servlet.Learned about request body and saving image files.
+<<<<<<< HEAD
 
+=======
+Nov. 5, 2024, Tue. Enabled to send Image File to the servlet dynamically. But, some warnings are ignored in servlet.
+>>>>>>> branch 'test' of https://github.com/ExpertStudioLab/TextWriter
