@@ -26,7 +26,7 @@
 <% 			}
 %>
 <div id="Display-Area">
-    <div id="Preview"><img id="Illust"></img><p id="Doc"></p></div>
+    <div id="Preview"><img id="Illust"></img><p id="Doc1"></p></div>
 </div>
 <div id="Align-Containt">
     <div id="Left-Side">  
@@ -34,14 +34,14 @@
          <h3><label>テキストを入力してください。</label></h3>
         </div>
         <div class="Left-Justify">
-            <textarea id="Containts" rows="10" cols="80"></textarea>
+            <textarea id="Contents1" rows="10" cols="80"></textarea>
         </div>
     </div>
     <div id="Right-Side">
         <div><img id="Img" /></div>
         <div id="Canvas">
             <div id="drawRect"></div>
-            <canvas id="Image" height="250px" width="500px">
+            <canvas id="Image" height="350px" width="500px">
             </canvas>
         </div>
         <input type="button" id="Insert" value="挿入" />
@@ -54,6 +54,7 @@
     </div>
     <form action="TextWriter" method="post" enctype="multipart/form-data" id="SendForm" >
         <input type="submit" id="Save" value="保存" />
+        <input type="file" hidden="true" id="SendFile" />
     </form>
 </div>
 <% 		}
@@ -78,12 +79,4 @@
         sendValue( "column", column_nameOp.value );
     }
     
-    // if write a text, display at the Display-Area
-    const textOp = document.getElementById( "Containts" );
-    if( textOp != null ) textOp.addEventListener( "input", displayText );
-    function displayText( event ) {
-    		console.log( "contents" );
-            const disp = document.querySelector( "p" );
-            disp.innerText = String( textOp.value );
-    }
 </script>
