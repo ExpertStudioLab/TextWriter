@@ -52,9 +52,8 @@
     <div>
         <input type="button" id="Next" value="追加" />
     </div>
-    <form action="/TextWriter/storage" method="post" enctype="multipart/form-data" id="SendForm" >
+    <form action="TextWriter" method="post" enctype="multipart/form-data" id="SendForm" >
         <input type="submit" id="Save" value="保存" />
-        <input type="file" hidden="true" id="SendFile" />
     </form>
 </div>
 <% 		}
