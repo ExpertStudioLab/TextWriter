@@ -1,10 +1,16 @@
 /**
  * 
  */
+    let paraNumber = 2;
     let point = { x : 0, y : 0 };
+    let screen = { x : 0, y : 0 };
+    let absolutePoint = { x : 0, y : 0 };
     const cvs = document.getElementById( "Image" );
     const graph = cvs.getContext( "2d" );
     const insertBtn = document.getElementById( "Insert" );
+    const insertPBtn = document.getElementById( "Paragraph" );
+
+	// show guideline when draw picture.
     const formLine = document.getElementById( "drawRect" );
     let offSet;
     let fileNumber;
@@ -21,6 +27,8 @@
     document.body.addEventListener( "mouseup", setEnd );
 
 let flag = false;
+let invalidW = false;
+let invalidH = false;
     function setBegin( event ) {
         if( !flag ) {
             offSet = event.target.getBoundingClientRect();
@@ -30,21 +38,61 @@ let flag = false;
             formLine.style.zIndex = 10;
             formLine.style.border = "1px solid black";
             document.body.style.userSelect = "none";
-            formLine.style.left = String( Math.floor( event.clientX ) ) + "px";
-            formLine.style.top = String( Math.floor( event.clientY + window.scrollY ) ) + "px";
-
+            screen.x = Math.floor( event.clientX );
+            screen.y = Math.floor( event.clientY + window.scrollY );
+            formLine.style.left = String( screen.x ) + "px";
+            formLine.style.top = String( screen.y ) + "px";
+            absolutePoint.x = offSet.left + point.x;
+            absolutePoint.y = offSet.top + point.y;
             flag = true;
         }
     }
+
     function setMove( event ) {
         graph.restore();
         event.preventDefault();
         if( flag ) {
-            const w  = event.clientX - offSet.left - point.x;
-            const h = event.clientY - offSet.top - point.y
-
-            formLine.style.width = String( Math.floor( w ) ) + "px";
-            formLine.style.height = String( Math.floor( h ) ) + "px";
+            let w  = event.clientX - absolutePoint.x;
+            let h = event.clientY - absolutePoint.y;
+            if( w < 0 && h <0 ) {
+                if( !invalidH || !invalidW ) {
+                    invalidH = true;
+                    invalidW = true;
+                }
+                formLine.style.top = String( screen.y + h ) + "px";
+                formLine.style.left = String( screen.x + w ) + "px";
+                h = Math.abs( h );
+                w = Math.abs( w );
+            } else if( w < 0 ) {
+                if( !invalidW ) {
+                    invalidW = true;
+                }
+                if( invalidH ) {
+                    invalidH = false;
+                    formLine.style.top = String( screen.y ) + "px";
+                }
+                formLine.style.left = String( screen.x + w ) + "px";
+                w = Math.abs( w );
+            } else if( h < 0 ) {
+                if( !invalidH ) {
+                    invalidH = true;
+                }
+                if( invalidW ) {
+                    invalidW = false;
+                    formLine.style.left = String( screen.x ) + "px";
+                }
+                formLine.style.top = String( screen.y + h ) + "px";
+                h = Math.abs( h );
+            } else {
+                if( invalidW || invalidH ) {
+                    invalidW = false;
+                    invalidH = false;
+                    formLine.style.left = String( screen.x ) + "px";
+                    formLine.style.top = String( screen.y ) + "px";
+                }
+            }
+                formLine.style.width = String( Math.floor( w ) ) + "px";
+                formLine.style.height = String( Math.floor( h ) ) + "px";
         }
     }
     function setEnd( event ) {
@@ -79,28 +127,9 @@ document.body.onload = function() {
    xhr.send( null );
 };
 
-//    saveBtn.addEventListener( "click", sendData );
     insertBtn.addEventListener( "click", insertIllust );
+    insertPBtn.addEventListener( "click", insertParagraph );
 
-    function sendData( event ) {
-        const illustData = document.getElementById( "Illust" );
-        graph.drawImage( illustData, 0, 0 );
-        cvs.toBlob( ( canvasImage ) => {
-			const myHeaders = new Headers();
-        	myHeaders.append( "Content-Type", "image/png" );
-        	const myRequest = new Request( "/TextWriter/storage", {
-            method: "POST",
-            body: canvasImage,
-            headers: myHeaders
-        });
-        try{
-            const response = fetch( myRequest );
-            console.log( "Success: ", response );
-        } catch( error ) {
-            console.error( "Error: ", error );
-        }
-        });
-    }
     
     function insertIllust( ) { 
         cvs.toBlob( ( canvasImage ) => {
@@ -117,14 +146,47 @@ document.body.onload = function() {
             } catch( error ) {
                 console.error( "Error" );
             }
-
+            // prohibit skipping processes.
             window.setTimeout( () => {
                 const illust = document.getElementById( "Illust" );
                 illust.src = window.URL.createObjectURL( canvasImage );
                 illust.style.width = "500px";
-                illust.style.height = "250px";
+                illust.style.height = "350px";
             }, 2000 );
 
         });
 
+    }
+
+    function insertParagraph() {
+        const paraOp = document.createElement( "p" );
+        paraOp.style.fontSize = "24px";
+        paraOp.id = "Doc" + String( paraNumber );
+        const container = document.getElementById( "Preview" );
+        container.appendChild( paraOp );
+        const textContainer = document.createElement( "div" );
+        textContainer.className = "Left-Justify";
+        const textArea = document.createElement( "textarea" );
+        textArea.id = "Contents" + String( paraNumber );
+        textArea.style.fontSize = "24px";
+        textArea.style.width = "100%";
+        textArea.style.marginTop = "10px";
+        textArea.rows = "10";
+        textArea.cols = "80";
+        textContainer.appendChild( textArea );
+        const textInputArea = document.getElementById( "Left-Side" );
+        textInputArea.appendChild( textContainer );
+        paraNumber += 1;
+        textArea.addEventListener( "input", displayText );
+    }
+
+	const textOp = document.getElementById( "Contents1" );
+    textOp.addEventListener( "input", displayText );
+    
+    function displayText( event ) {
+        const str = String( event.target.id );
+        const idNumber = str.substring( 8, str.length );
+        const textOp = document.getElementById( "Contents" + idNumber );
+        const paragraph = document.getElementById( "Doc" + idNumber );
+        paragraph.innerText = String( textOp.value );
     }
