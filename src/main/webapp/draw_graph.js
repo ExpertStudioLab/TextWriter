@@ -64,33 +64,6 @@ let flag = false;
     }
 
 
-/*
-    saveBtn.addEventListener( "click", ( event )=> {
-        event.preventDefault();
-
-        cvs.toBlob( ( pictBlob )=>{
-            const fData = new FormData();
-            fData.append( "file", pictBlob, "sample001.png" );
-            
-            const xhr = new XMLHttpRequest();
-            xhr.open( "POST", "/TextWriter/storage", true );
-            xhr.onload = function () {
-                if( xhr.status == 200 ) {
-                    console.log( "Upload successful!" );
-                } else {
-                    console.error( "error" );
-                }
-            }
-            for( let val of fData.entries() ) {
-                console.log( val );
-            }
-            console.log( fData.getAll("file" ) );
-            xhr.send( fData );
-        });
-
-    } );
-*/
-
 document.body.onload = function() {
    const xhr = new XMLHttpRequest();
    xhr.open( "GET", "/TextWriter/storage", true );
@@ -104,12 +77,11 @@ document.body.onload = function() {
 	   }
    };
    xhr.send( null );
-   console.log( "hello" );
 };
 
 //    saveBtn.addEventListener( "click", sendData );
     insertBtn.addEventListener( "click", insertIllust );
-/*
+
     function sendData( event ) {
         const illustData = document.getElementById( "Illust" );
         graph.drawImage( illustData, 0, 0 );
@@ -129,24 +101,30 @@ document.body.onload = function() {
         }
         });
     }
-*/
-    function insertIllust( ) {
+    
+    function insertIllust( ) { 
         cvs.toBlob( ( canvasImage ) => {
-            const illust = document.getElementById( "Illust" );
-            illust.src = window.URL.createObjectURL( canvasImage );
-            illust.style.width = "500px";
-            illust.style.height = "250px";
+            const myHeaders = new Headers();
+            myHeaders.append( "Process", "Image" );
+            const myRequest = new Request( "/TextWriter/storage", {
+                method: "POST",
+                body: canvasImage,
+                headers: myHeaders
+            });
+            try {
+                window.fetch( myRequest );
+                console.log( "Success" );
+            } catch( error ) {
+                console.error( "Error" );
+            }
 
-			const fileOp = document.getElementById( "SendFile" );
-			fileOp.name = "img_" + fileNumber;
-			const sendFile = new File( [ canvasImage ], fileNumber + ".png", { type: "image/png" } );
-			const dataTransfer = new DataTransfer();
-			dataTransfer.items.add( sendFile );
-			if( fileOp.files.length > 0 ) {
-				fileOp.value = '';
-			}
-			fileOp.files = dataTransfer.files;
+            window.setTimeout( () => {
+                const illust = document.getElementById( "Illust" );
+                illust.src = window.URL.createObjectURL( canvasImage );
+                illust.style.width = "500px";
+                illust.style.height = "250px";
+            }, 2000 );
+
         });
 
     }
-
