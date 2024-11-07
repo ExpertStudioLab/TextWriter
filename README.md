@@ -13,3 +13,4 @@ Oct. 24. 2024, Thu. Enabled to draw rectangles with mouse moving. Yesterday, I w
 Oct. 26. 2024, Sat. Enabled to send Image File to the servlet.Learned about request body and saving image files.
 Nov. 5, 2024, Tue. Enabled to send Image File to the servlet dynamically. But, some warnings are ignored in servlet.
 Nov. 6, 2024, Wed. Improved a draw rectangle program.Enabled to drag to up and left side.
+Nov. 7, 2024, Thu. Enabled to select a movable graphic to coordinate its position.
