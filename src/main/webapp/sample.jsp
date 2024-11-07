@@ -24,7 +24,6 @@
             <img id="image" style="width: 200px; height: 200px;" ></img>
             <img id="image2" style="width: 300px; height: 300px;"></img>
  <!--           <div id="Section-Block"><h2>セクション</h2><canvas id="Space"></canvas></div>       -->
-
             <script>
             var array = [ 1, 2, 3 ];
             console.log( typeof( array ) );

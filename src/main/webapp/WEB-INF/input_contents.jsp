@@ -44,7 +44,15 @@
             <canvas id="Image" height="350px" width="500px">
             </canvas>
         </div>
-        <input type="button" id="Insert" value="挿入" />
+        <div>
+            <input type="button" id="Insert" value="挿入" />
+        </div>
+        <div>
+            <input type="button" id="Rect" value="▭" />
+            <input type="button" id="Round" value="◯" />
+            <input type="button" id="MoveGraph" value="図形の移動" />
+            <input type="button" id="Log" value="ログの表示" />
+        </div>
     </div>
     <div>
         <input type="button" id="Paragraph" value="段落の追加" />
