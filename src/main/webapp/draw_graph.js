@@ -3,14 +3,22 @@
  */
     let paraNumber = 2;
     let state = -1;
-    let point = { x : 0, y : 0 };
-    let screen = { x : 0, y : 0 };
-    let absolutePoint = { x : 0, y : 0 };
+    let isDraw = false;
+    let point = new Object;
+    let screen = new Object;
+    let absolutePoint = new Object;
+    let dragStartPoint = new Object();
+    let drabEndPoint = new Object();
+    let movingGraph = new Object();
     let graphics = [];
     let preview;
     let drawRectLine;
+    let draw;
+    // graphic object
     const cvs = document.getElementById( "Image" );
     const graph = cvs.getContext( "2d" );
+    let offSet;
+    // buttons
     const insertBtn = document.getElementById( "Insert" );
     const insertPBtn = document.getElementById( "Paragraph" );
     const rectBtn = document.getElementById( "Rect" );
@@ -19,7 +27,7 @@
 
 	// show guideline when draw picture.
     const formLine = document.getElementById( "drawRect" );
-    let offSet;
+    // identity of png file
     let fileNumber;
 
     graph.fillStyle = "#fff"
@@ -28,26 +36,29 @@
     graph.lineWidth = "10px";
     graph.save();
 
-    function drawSetting() {
+    // selected drawing actions
+    function drawSettings( ) {
+        deleteMoveGraphSettings();
+        graph.restore();
+        formLine.style.cssText = "";
         cvs.addEventListener( "mousedown", setBegin );
         document.body.addEventListener( "mousemove", setMove );
         document.body.addEventListener( "mouseup", setEnd );    
     }
-
+    // end of drawing actions, it disable all drawing actions
     function deleteDrawSetting() {
         cvs.removeEventListener( "mousedown", setBegin );
         document.body.removeEventListener( "mousemove", setMove );
         document.body.removeEventListener( "mouseup", setEnd );
     }
-
-    rectBtn.addEventListener( "click", setDrawRect );
-    moveBtn.addEventListener( "click", setMoveGraph );
+    // setting of buttons
+    rectBtn.addEventListener( "click", drawRectSettings );
+    moveBtn.addEventListener( "click", moveGraphSettings );
     logBtn.addEventListener( "click", showlog );
 
-
-    function setDrawRect() {
-        graph.restore();
-        drawSetting();
+    // setting for drawing rectangles
+    function drawRectSettings( event ) {
+        drawSettings( );
         drawRectLine = function() {
             formLine.style.border = "1px solid black";
         };
@@ -77,6 +88,9 @@
                         y,
                         width,
                         height
+                    },
+                    drawMethod : function() {
+                        graph.strokeRect( this.area.x, this.area.y, this.area.width, this.area.height );
                     }
                 };
                 graphics.push( graphic );
@@ -90,15 +104,30 @@
         });
     }
 
-    function setMoveGraph() {
+    function moveGraphSettings() {
         deleteDrawSetting();
         cvs.addEventListener( "click", getActive );
+        formLine.addEventListener( "dragstart", getCursorPoint );
+        formLine.addEventListener( "drag", moveGraph );
+        cvs.addEventListener( "dragover", hoverCanvas );
+        formLine.addEventListener( "dragover", hoverCanvas );
+        formLine.addEventListener( "dragend", setMoveGraphEnd);
+    }
+
+    function deleteMoveGraphSettings() {
+        cvs.removeEventListener( "click", getActive );
+        formLine.removeEventListener( "dragstart", getCursorPoint );
+        formLine.removeEventListener( "drag", moveGraph );
+        cvs.removeEventListener( "dragover", hoverCanvas );
+        formLine.removeEventListener( "dragover", hoverCanvas );
+        cvs.removeEventListener( "dragend", setMoveGraphEnd );
     }
 
 let flag = false;
 let invalidW = false;
 let invalidH = false;
     function setBegin( event ) {
+        event.preventDefault();
         if( !flag ) {
             offSet = event.target.getBoundingClientRect();
             point.x = event.clientX - offSet.left;
@@ -177,44 +206,93 @@ let invalidH = false;
         }
     }
     function setEnd( event ) {
+        event.preventDefault();
+        let w, h;
         if( flag ) {
             flag = false;
             formLine.style.cssText = "";
             document.body.style.cssText = "";
-            const w  = event.clientX - offSet.left - point.x;
-            const h = event.clientY - offSet.top - point.y
+            w  = event.clientX - offSet.left - point.x;
+            h = event.clientY - offSet.top - point.y
             graph.restore();
             draw( w, h );
         }
     }
 
     function getActive( event ) {
+        event.preventDefault();
+        offSet = event.target.getBoundingClientRect();
         const curPoint = new Object();
         curPoint.x = event.clientX - offSet.left;
         curPoint.y = event.clientY - offSet.top;
-        const index = getGraphIndex( curPoint );
-        if( index != null ) {
+        movingGraph.index = getGraphIndex( curPoint );
+        if( movingGraph.index != null ) {
             formLine.style.position = "absolute";
             formLine.style.zIndex = "10";
             document.body.style.userSelect = "none";
-            formLine.style.border = "3px solid black";
             formLine.style.backgroundColor = "rgba(32, 46, 155, 0.301)";
-            const g = graphics[ index ];
-            formLine.style.left = String( Math.floor( offSet.left ) + g.area.x ) + "px";
-            formLine.style.top = String( Math.floor( offSet.top + window.scrollY ) + g.area.y ) + "px";
+            const g = graphics[ movingGraph.index ];
+            point.left = Math.floor( offSet.left ) + g.area.x;
+            formLine.style.left = String( point.left ) + "px";
+            point.top = Math.floor( offSet.top + window.scrollY ) + g.area.y;
+            formLine.style.top = String( point.top ) + "px";
             formLine.style.width = String( g.area.width ) + "px";
             formLine.style.height = String( g.area.height ) + "px";
+            formLine.draggable = "true";
+            formLine.style.cursor = "all-scroll";
+            formLine.style.border = ( g.name == "rect" ) ? "3px solid black" : "";
         }
     }
 
     function getGraphIndex( curPoint ) {
         for( let i = graphics.length - 1; i >= 0; i-- ) {
             let g = graphics[ i ];
-            console.log( "index: [ " + i + "], name: [ " + g.name + " ], area: x: [ " + g.area.x + " ], y: [ " + g.area.y + " ], width: [ " + g.area.width + " ], height: [ " + g.area.height + " ]" );
             if( ( g.area.x <= curPoint.x ) && ( curPoint.x <= ( g.area.x + g.area.width ) ) && ( g.area.y <= curPoint.y ) && ( curPoint.y <= ( g.area.y + g.area.height) ) ) {
                 return i;
             }
         }
+    }
+
+    function getCursorPoint( event ) {
+        graph.fillRect( 0, 0, cvs.width, cvs.height );
+        for( let i = 0; i < graphics.length; i++ ) {
+            if( movingGraph.index != i ) {
+                graphics[ i ].drawMethod();
+            }
+        }
+        point.x = 0;
+        point.y = 0;
+        dragStartPoint.clientX = event.clientX;
+        dragStartPoint.clientY = event.clientY;
+    }
+
+    function moveGraph( event ) {
+        const x = Math.floor( event.clientX ) - dragStartPoint.clientX;
+        const y = Math.floor( event.clientY ) - dragStartPoint.clientY;
+        formLine.style.left = String( point.left + x ) + "px";
+        formLine.style.top = String( point.top + y ) + "px";
+    }
+
+    function setMoveGraphEnd( event ) {
+        const disX = event.clientX - dragStartPoint.clientX;
+        const left = Math.floor( point.left + disX - offSet.left );
+        const disY = event.clientY - dragStartPoint.clientY;
+        const top = Math.floor( point.top + disY - offSet.top - window.scrollY );
+
+        graphics[ movingGraph.index ].area.x = left;
+        graphics[ movingGraph.index ].area.y = top;
+        const g = graphics[ movingGraph.index ];
+        graph.strokeRect( g.area.x, g.area.y, g.area.width, g.area.height );
+        formLine.style.left = String( g.area.x ) + "px";
+        formLine.style.top = String( g.area.y ) + "px";
+        formLine.style.width = String( g.area.width ) + "px";
+        formLine.style.height = String( g.area.height ) + "px";
+        point.left = Math.floor( offSet.left ) + g.area.x;
+        point.top = Math.floor( offSet.top + window.scrollY ) + g.area.y;    
+    }
+
+    function hoverCanvas( event ) {
+        event.preventDefault();
     }
 
 document.body.onload = function() {
