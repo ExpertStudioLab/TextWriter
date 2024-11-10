@@ -1,4 +1,5 @@
 
+
    // { num : 0 } means "history.state.num = 0".
    history.pushState( { num : 0 }, null, window.location.href );
    // on update widow, make the servlet program to process orders previous values
