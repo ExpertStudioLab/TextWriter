@@ -4,6 +4,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<!--
+-->
+</script>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 <title>TextWriterSample</title>
@@ -23,8 +26,18 @@
             </div>
             <img id="image" style="width: 200px; height: 200px;" ></img>
             <img id="image2" style="width: 300px; height: 300px;"></img>
- <!--           <div id="Section-Block"><h2>セクション</h2><canvas id="Space"></canvas></div>       -->
-            <script>
+ <!--           <div id="Section-Block"><h2>セクション</h2><canvas id="Space"></canvas></div>       --> 	
+            <script type="module">
+	import { Graphic } from "${ pageContext.request.contextPath }/canvas_graphics.js";
+
+function init(){
+	console.log( "hello" );
+}
+                        const xhr = new XMLHttpRequest();
+                        const obj = new Graphic( xhr );
+                        console.log( obj.getType() );
+
+            
             var array = [ 1, 2, 3 ];
             console.log( typeof( array ) );
             const jsonArray = JSON.stringify( array, null, 8 );

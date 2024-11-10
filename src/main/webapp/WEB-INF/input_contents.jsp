@@ -50,6 +50,13 @@
         <div>
             <input type="button" id="Rect" value="▭" />
             <input type="button" id="Round" value="◯" />
+        </div>
+        <div>
+            <input type="button" id="Text" value="TEXT" />
+            <input type="text" id="Text-Label" />
+        </div>
+            <input type="button" id="Hline" value="――" />
+            <input type="button" id="Vline" value="|" />
             <input type="button" id="MoveGraph" value="図形の移動" />
             <input type="button" id="Log" value="ログの表示" />
         </div>
@@ -69,6 +76,10 @@
 		} %>
 <%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
 <script type="text/javascript" src="${pageContext.request.contextPath}/draw_graph.js"></script>
+<script type="text/javascript" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
+<script type="text/javascript" src="${ pageContext.request.contextPath }/edit_graph.js"></script>
+<script type="text/javascript" src="${ pageContext.request.contextPath }/canvas_graphics.js"></script>
+
 <%  } %>
 <script>
     function init() {
