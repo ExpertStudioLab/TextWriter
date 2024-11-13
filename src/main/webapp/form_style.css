@@ -84,7 +84,7 @@
 }
 #Align-Containt {
 	display: grid;
-	grid-template-columns: 59% 39%;
+	grid-template-columns: 39% 20% 39%;
 }
 #Left-Side {
 	width: 100%;
@@ -93,15 +93,18 @@
 #Right-Side {
 	width: 100%;
 }
-
-#Preview {
-	padding-left: 7%;
-	padding-right: 10%;
+#Center {
 	width: 100%;
+}
+.Reserved-Words {
+	width: 100px;
+}
+#Preview1 {
+	width: 60%;
 	height: fit-content;
 	background-color: darkcyan;
 }
-#Illust {
+#Illust1 {
 	margin-left: 20px;
 	float: right;
 }
@@ -111,12 +114,12 @@
 #File {
 	display: none;
 }
-#Image {
+#Image1 {
 	border: 2px solid black;
 	margin-top: 20px;
 	margin-left: 50px;
-	width: 500px;
-	height: 350px;
+	width: 350px;
+	height: 275px;
 }
 
 #Save {
