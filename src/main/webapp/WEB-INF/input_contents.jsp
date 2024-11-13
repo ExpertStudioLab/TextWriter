@@ -26,7 +26,7 @@
 <% 			}
 %>
 <div id="Display-Area">
-    <div id="Preview"><img id="Illust"></img><p id="Doc1"></p></div>
+    <div id="Preview1"><img id="Illust1"></img><p id="Doc1"></p></div>
 </div>
 <div id="Align-Containt">
     <div id="Left-Side">  
@@ -34,22 +34,33 @@
          <h3><label>テキストを入力してください。</label></h3>
         </div>
         <div class="Left-Justify">
-            <textarea id="Contents1" rows="10" cols="80"></textarea>
+            <textarea id="Contents1" rows="4" ></textarea>
+        </div>
+        <div>
+            <input type="button" id="Insert-Image1" value="画像を挿入" />
+        </div>
+        <div id="Insert-Paragraph-Button">
+            <input type="button" id="Paragraph" value="段落の追加" />
+        </div>    
+    </div>
+    <div id="Center">
+        <div>
+            <input type="text" class="Reserved-Words" id="Equals" list="Equals-List" placeholder="- A is B -">
+            <datalist id="Equals-List">
+                <option value="とは"></option>
+                <option value="というのは"></option>
+            </datalist>
+            <input type="button" class="Reserved-Words-Button" id="Insert-Equals" value="追加" />
         </div>
     </div>
     <div id="Right-Side">
-        <div><img id="Img" /></div>
-        <div id="Canvas">
-            <div id="drawRect"></div>
-            <canvas id="Image" height="350px" width="500px">
-            </canvas>
-        </div>
-        <div>
-            <input type="button" id="Insert" value="挿入" />
-        </div>
+        <div id="drawRect"></div>
+        <canvas id="Image1" height="275px" width="350px">
+        </canvas>
         <div>
             <input type="button" id="Rect" value="▭" />
             <input type="button" id="Round" value="◯" />
+            <button type="button"><img src="${ pageContext.request.contextPath }/picture/round-rect.png" width="20px" height="15px" ></button>
         </div>
         <div>
             <input type="button" id="Text" value="TEXT" />
@@ -62,23 +73,19 @@
         </div>
     </div>
     <div>
-        <input type="button" id="Paragraph" value="段落の追加" />
-    </div>
-    <div>
         <input type="button" id="Next" value="追加" />
     </div>
     <form action="TextWriter" method="post" enctype="multipart/form-data" id="SendForm" >
         <input type="submit" id="Save" value="保存" />
         <input type="file" hidden="true" id="SendFile" />
     </form>
-</div>
 <% 		}
 		} %>
 <%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
+<script type="text/javascript" src="${ pageContext.request.contextPath }/canvas_graphics.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/draw_graph.js"></script>
 <script type="text/javascript" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
 <script type="text/javascript" src="${ pageContext.request.contextPath }/edit_graph.js"></script>
-<script type="text/javascript" src="${ pageContext.request.contextPath }/canvas_graphics.js"></script>
 
 <%  } %>
 <script>

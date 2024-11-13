@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 /**
  * 
  */
@@ -12,7 +5,7 @@
     let state = -1;
     // save a point position
     let point = new Object();
-    // array of graphics which are inputted from user.
+
     let graphics = [];
 
     // the method which shows guideline to draw graphics.
@@ -25,8 +18,10 @@
     const formLine = document.getElementById( "drawRect" );
     
     // graphic object
-    const cvs = document.getElementById( "Image" );
+    const cvs = document.getElementById( "Image1" );
     const graph = cvs.getContext( "2d" );
+
+
     // buttons
     const rectBtn = document.getElementById( "Rect" );
     const textBtn = document.getElementById( "Text" );
@@ -35,21 +30,22 @@
     // text label
     const textLabel = document.getElementById( "Text-Label" );
 
+
     graph.fillStyle = "#fff"
     graph.fillRect( 0, 0, cvs.width, cvs.height );
     graph.strokeStyle = "#000";
     graph.lineWidth = "10px";
-    graph.save();
+    graph.save();    
 
     // selected drawing actions
     function drawSettings( ) {
         deleteMoveGraphSettings();
-        graph.restore();
         formLine.style.cssText = "";
         cvs.addEventListener( "mousedown", setBegin );
         document.body.addEventListener( "mousemove", setMove );
         document.body.addEventListener( "mouseup", setEnd );    
     }
+
     // setting of buttons
     rectBtn.addEventListener( "click", drawGraphSettings );
     textBtn.addEventListener( "click", drawGraphSettings );
@@ -76,8 +72,10 @@
 
         if( id == "Rect" ) {
             draw = function( w, h ) {
+                graph.restore();
                 const area = registerRect( w, h );
                 const graphic = new Graphic( area );
+                console.log( graph );
                 graphic.setContext( graph );
                 graphic.draw();
                 graphics.push( graphic );
