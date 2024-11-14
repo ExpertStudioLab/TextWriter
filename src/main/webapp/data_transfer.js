@@ -1,114 +1,131 @@
 class Document {
-    text;
-    isKeywords;
-    keywordType;
-    textPosition;
+    properties;
     textLength;
     textPieces;
-    isExists;
     currentIndex;
     currentLength;
     constructor() {
-        this.text = [];
-        this.isKeywords = [];
-        this.keywordType = [];
-        this.textPosition = [];
-        this.isExists = [];
+        this.properties = [];
+        this.properties.push( new DocumentProperties() );
         this.textLength = 0;
         this.textPieces = 0;
         this.currentIndex = 0;
         this.currentLength = 0;
     }
     setText( text ) {
-        this.currentIndex = this.text.length;
+        this.currentIndex = this.textPieces;
         let len = 0;
-        for( let value in this.text ) {
-            len += value.length;
+        for( let i = 0; i < this.textPieces; i++ ) {
+            len += String( this.properties[ i ].text ).length;
         }
         if( this.textLength == 0 ) {
-            this.isExists.push( true, false );
+            this.properties.push( new DocumentProperties() );
+            this.properties[ 0 ].isExists = true;
+            this.properties[ 1 ].isExists = false;
             this.currentLength = 0;
         } else {
-            this.isExists[ this.text.length ] = true;
-            this.isExists.push( false );
+            this.properties[ this.textPieces ].isExists = true;
+            this.properties.push( new DocumentProperties() );
+            this.properties[ this.textPieces + 1 ].isExists = false;
             this.currentLength = this.textLength;
         }
-        this.text.push( String( text ) );
-        this.isKeywords.push( false );
-        this.keywordType.push( null );
-        this.textPosition.push( new Caret( len, len + String( text ).length ) );
+        this.properties[ this.currentIndex ].text = String( text );
+        this.properties[ this.currentIndex ].isKeywords = false;
+        this.properties[ this.currentIndex ].keywordType = null;
+        this.properties[ this.currentIndex ].textPosition = new Caret( len, len + String( text ).length );
         this.textLength += String( text ).length;
         this.textPieces += 1;
 
     }
+    deleteText( index ) {}
     changeText( index, newText ) {
-        const dif = String( newText ).length - String( this.text[ index ] ).length;
-        this.text[ index ] = String( newText );
+        const dif = String( newText ).length - String( this.properties[ index ].text ).length;
+        this.properties[ index ].text = String( newText );
         this.textLength += dif;
-        this.textPosition[ index ].setEnd( this.textPosition.getEnd + dif );
+        if( parseInt( index ) != this.currentIndex ) {
+            this.currentLength += dif;
+        }
+
+        this.properties[ index ].textPosition.setEnd( this.properties[ index ].textPosition.getEnd() + dif );
+
         // change all texts textPosition parameters
-        if( this.text.length > index + 1 ) {
-            for( let i = index + 1; i < this.text.length; i++ ) {
-                this.textPosition[ i ].setStart( this.textPosition[ i ].getStart() + dif );
-                this.textPosition[ i ].setEnd( this.textPosition[ i ].getEnd() + dif );
+        if( this.textPieces > index + 1 ) {
+            for( let i = index + 1; i < this.textPieces; i++ ) {
+                this.properties[ i ].textPosition.setStart( this.properties[ i ].textPosition.getStart() + dif );
+                this.properties[ i ].textPosition.setEnd( this.properties[ i ].textPosition.getEnd() + dif );
             }
         }
-
     }
     getText( index ) {
-        return this.text[ index ];
+        return this.properties[ index ].text;
     }
     setKeyword( keyword, keywordType ) {
-        this.currentIndex = this.text.length + 1;
+        this.currentIndex = this.textPieces + 1;
         let len = 0;
-        for( let value in this.text ) {
-            len += value.length;
+        for( let i = 0; i < this.textPieces; i++ ) {
+            len += String( this.properties[ i ].text ).length;
         }
+        console.log( "len: " + len );
+
         if( this.textLength == 0 ) {
-            this.isExists.push( true, false );
+            this.properties.push( new DocumentProperties() );
+            this.properties[ 0 ].isExists = true;
+            this.properties[ 1 ].isExists = false;
         } else {
-            this.isExists[ this.text.length ] = true;
-            this.isExists.push( false );
+            this.properties[ this.textPieces ].isExists = true;
+            this.properties.push( new DocumentProperties() );
+            this.properties[ this.textPieces + 1 ].isExists = false;
         }
 
-        this.text.push( String( keyword ) );
-        this.isKeywords.push( true );
-        this.keywordType.push( parseInt( keywordType ) );
-        this.textPosition.push( new Caret( len, len + String( keyword ).length ) );
+        this.properties[ this.textPieces ].text = String( keyword );
+        this.properties[ this.textPieces ].isKeywords = true;
+        this.properties[ this.textPieces ].keywordType = parseInt( keywordType );
+        this.properties[ this.textPieces ].textPosition = new Caret( len, len + String( keyword ).length );
+
         this.textLength += String( keyword ).length;
+        this.currentLength = this.textLength;
         this.textPieces += 1;
     }
     deleteKeyword( index ) {
-        this.isKeywords[ index ] = false;
-        this.keywordType = null;
+        this.properties[ index ].isKeywords = false;
+        this.properties[ index ].keywordType = null;
     }
     isKeywordsFunc( index ) {
-        return this.isKeywords[ index ];
+        return this.properties[ index ].isKeywords;
     }
     getDocument() {
         let doc = "";
-
-        for( let i = 0; i < this.text.length; i++ ) {
-            doc += this.text[ i ];
+        for( let i = 0; i < this.textPieces; i++ ) {
+            doc += this.properties[ i ].text;
         }
         return doc;
     }
     getHTMLDocument() {
         let doc = "";
-        for( let i = 0; i < this.text.length; i++ ) {
-            if( this.isKeywords[ i ] ) {
-                doc += "<font color=\"darkmagenta\">" + this.text[ i ] + "</font>";
+        for( let i = 0; i < this.textPieces; i++ ) {
+            if( this.properties[ i ].isKeywords ) {
+                doc += "<font color=\"darkmagenta\">" + this.properties[ i ].text + "</font>";
             } else {
-                doc += this.text[ i ];
+                doc += this.properties[ i ].text;
             }
         }
         return doc;
     }
-    getTextPositions( ) {
-        return this.textPosition;
+
+    searchDocumentIndexInsert( pos ) {
+        for( let i = 0; i < this.textPieces; i++ ) {
+            const flag = Math.sign( pos - this.properties[ i ].textPosition.getStart() - 1 ) + Math.sign( this.properties[ i ].textPosition.getEnd() + 1 - pos );
+            if( flag == 2 ) {
+                return i;
+            }
+            if( flag == 1 && !this.properties[ i ].isKeywords ) {
+                return i;
+            }
+        }
     }
+
     getTextPosition( index ) {
-        return this.textPosition[ index ];
+        return this.properties[ index ].textPosition;
     }
     getLength() {
         return this.textLength;
@@ -117,7 +134,7 @@ class Document {
         return this.textPieces;
     }
     isExistsFunc( index ) {
-        return this.isExists[ index ];
+        return this.properties[ index ].isExists;
     }
     getCurrentIndex() {
         return this.currentIndex;
@@ -125,6 +142,14 @@ class Document {
     getCurrentLength() {
         return this.currentLength;
     }
+}
+
+class DocumentProperties {
+    text;
+    isKeywords;
+    keywordType;
+    textPosition;
+    isExists;
 }
 
 class Caret {
@@ -214,94 +239,95 @@ document.body.onload = function() {
     }
 
     function insertParagraph() {
-        const paraOp = document.createElement( "p" );
-        paraOp.style.fontSize = "24px";
-        paraOp.id = "Doc" + String( paraNumber );
-        const imageOp = document.createElement( "img" );
-        imageOp.id = "Illust" + String( paraNumber );
-        imageOp.style.float = "right";
-        const container = document.createElement( "div" );
-        container.id = "Preview" + String( paraNumber );
-        container.style.width = "60%";
-        container.appendChild( imageOp );
-        container.appendChild( paraOp );
-        const preview = document.getElementById( "Display-Area" );
-        preview.appendChild( container );
-        const textContainer = document.createElement( "div" );
-        textContainer.className = "Left-Justify";
-        const textArea = document.createElement( "textarea" );
-        textArea.id = "Contents" + String( paraNumber );
-        textArea.style.fontSize = "24px";
-        textArea.style.width = "100%";
-        textArea.style.marginTop = "10px";
-        textArea.rows = "4";
-        textContainer.appendChild( textArea );
-        const textInputArea = document.getElementById( "Left-Side" );
-        const btn = document.getElementById( "Insert-Paragraph-Button" );
-        textInputArea.insertBefore( textContainer, btn );
-        const btnContainer = document.createElement( "div" );
-        const insertImgBtn = document.createElement( "input" );
-        insertImgBtn.type = "button";
-        insertImgBtn.id = "Insert-Image" + String( paraNumber );
-        insertImgBtn.value = "画像を挿入";
-        btnContainer.appendChild( insertImgBtn );
-        textInputArea.insertBefore( btnContainer, btn );
+        const previewDiv = document.getElementById( "Preview" + String( paraNumber - 1 ) );
+        previewDiv.insertAdjacentHTML(
+            "afterend",
+            "<div id=\"Preview" + String( paraNumber ) + "\" style=\"width: 60%;\" >" +
+                "<img id=\"Illust" + String( paraNumber ) + "\" style=\"float: right;\" ></img>" +
+                "<p id=\"Doc" + String( paraNumber ) + "\" style=\"font-size: 24px;\" ></p>" +
+            "</div>"
+        );
+
+        const newParagraphBtn = document.getElementById( "Insert-Paragraph-Button" );
+        newParagraphBtn.insertAdjacentHTML(
+            "beforebegin",
+            "<div class=\"Left-Justify\" >" +
+                "<textarea id=\"Contents" + String( paraNumber ) + "\" rows=\"4\" style=\"font-size: 24px; width: 100%; margin-top: 10px;\" ></textarea>" +
+            "</div>" +
+            "<div>" +
+                "<input type=\"button\" id=\"Insert-Image" + String( paraNumber ) + "\" value=\"画像を挿入\" />" +
+            "</div>"
+        );
+
+        const insertImgBtn = document.getElementById( "Insert-Image" + String( paraNumber ) );
         insertImgBtn.addEventListener( "click", insertIllust );
-        paraNumber += 1;
+
+        const textArea = document.getElementById( "Contents" + String( paraNumber ) );
         textArea.addEventListener( "input", displayText );
+        textArea.addEventListener( "click", getCurrentTextArea );
+        textArea.addEventListener( "keydown", specialKeysSettings );
+        // create new Document class object
         documents.push( new Document() );
+
+        paraNumber += 1;
     }
 
     let documents = [];
     documents.push( new Document() );
+    let keyEvent;
+
 	const textOp = document.getElementById( "Contents1" );
     textOp.addEventListener( "input", displayText );
     textOp.addEventListener( "click", getCurrentTextArea );
+    textOp.addEventListener( "keydown", specialKeysSettings );
 
 
     function displayText( event ) {
         currentTextArea = String( event.target.id );
         const idNumber = currentTextArea.substring( 8, currentTextArea.length );
-        const textOp = document.getElementById( "Contents" + idNumber );
+        const textElement = document.getElementById( "Contents" + idNumber );
         const paragraph = document.getElementById( "Doc" + idNumber );
         const doc = documents[ parseInt( idNumber ) - 1 ];
-        if( textOp.textLength == textOp.selectionEnd ) {
+
+        // when appending letters
+        if( textElement.textLength == textElement.selectionEnd ) {
             if( doc.textPieces > 1 ) {
                 if( doc.isExistsFunc( doc.getCurrentIndex() ) ) {
-                    const text = String( textOp.value ).substring( doc.getCurrentLength(), textOp.textLength );
+                    const text = String( textElement.value ).substring( doc.getCurrentLength(), textElement.textLength );
                     doc.changeText( doc.getCurrentIndex(), text );
                 } else {
-                    doc.setText( textOp.value );
+                    switch( keyEvent ) {
+                        case "Normal":
+                            doc.setText( String( textElement.value ).substring( doc.getCurrentLength(), textElement.textLength ) );
+                            break;
+                        case "Backspace":
+                        case "Delete":
+                        default:
+
+                    }
                 }
             } else {
                 if( doc.textLength == 0 ) {
-                    doc.setText( textOp.value );
+                    doc.setText( textElement.value );
                 } else {
-                    doc.changeText( 0, textOp.value );
+                    doc.changeText( 0, textElement.value );
                 }
             }
+        // when inserting letters
         } else {
-            const index = serchDocumentIndex( doc, textOp.selectionEnd );
+            const index = doc.searchDocumentIndexInsert( textElement.selectionEnd );
+
             if( doc.isKeywordsFunc( index ) ) {
                 doc.deleteKeyword( index );
             }
-            const dif = textOp.textLength - doc.getLength();
-            let text = doc.getText( index );
-            const textPosition = getTextPosition( index );
-            text = String( textOp.value ).substring( textPosition.getStart(), textPosition.getEnd() + dif );
+            const dif = textElement.textLength - doc.getLength();
+            const textPosition = doc.getTextPosition( index );
+            const text = String( textElement.value ).substring( textPosition.getStart(), textPosition.getEnd() + dif );
             doc.changeText( index, text );
         }
         paragraph.innerHTML = String( doc.getHTMLDocument() );
     }
 
-    function serchDocumentIndex( doc, pos ) {
-        let textPosition = [...doc.getTextPositions()];
-        textPosition.forEach( ( value, index ) => {
-            if( value.getStart() < pos && pos < value.getEnd() ) {
-                return index;
-            }
-        });
-    }
 
     function getCurrentTextArea( event ) {
         currentTextArea = String( event.target.id );
@@ -319,4 +345,22 @@ document.body.onload = function() {
         textArea.value = textArea.value.substring( 0, textArea.selectionEnd ) + reservedWord + textArea.value.substring( textArea.selectionEnd, textArea.textLength );
         const doc = documents[ parseInt( idNumber ) - 1 ];
         doc.setKeyword( String( reservedWord ), 1 );
+    }
+
+    function specialKeysSettings( event ) {
+        switch( event.key ) {
+            case "Enter":
+            case "Tab":
+                event.preventDefault();
+                break;
+            case "Backspace":
+                keyEvent = "Backspace";
+                break;
+            case "Delete":
+                keyEvent = "Delete";
+                break;
+            default:
+                keyEvent = "Normal";
+                break;
+        }
     }
