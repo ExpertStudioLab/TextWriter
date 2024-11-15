@@ -17,3 +17,4 @@ Nov. 7, 2024, Thu. Enabled to select a movable graphic to coordinate its positio
 Nov. 8, 2024, Fri. Fixed bugs in the moving graphics program to resolve problems on exceptional using.
 Nov. 10, 2024, Sun. Created Classes in order to make codes more readable.
 Nov. 13, 2024, Wed. Created Class Document which convert documents to HTML styled documents.
+Nov. 15, 2024, Fri. Enabled to use backspace at an end of sentences.
