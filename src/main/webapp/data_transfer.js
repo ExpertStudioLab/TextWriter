@@ -6,76 +6,63 @@ class Document {
     currentLength;
     constructor() {
         this.properties = [];
-        this.properties.push( new DocumentProperties() );
-        this.properties[ 0 ].isExists = false;
         this.textLength = 0;
         this.textPieces = 0;
         this.currentIndex = 0;
         this.currentLength = 0;
+
+        this.setText( "" );
     }
     setText( text ) {
+        this.properties.push( new DocumentProperties() );
         this.currentIndex = this.textPieces;
+        this.currentLength = this.textLength;
+        this.textLength += String( text ).length;
 
-        if( !this.properties[ 0 ].isExists ) {
-            this.properties.push( new DocumentProperties() );
-            this.properties[ 0 ].isExists = true;
-            this.properties[ 1 ].isExists = false;
-            this.currentLength = 0;
-        } else {
-            this.properties[ this.textPieces ].isExists = true;
-            this.properties.push( new DocumentProperties() );
-            this.properties[ this.textPieces + 1 ].isExists = false;
-            this.currentLength = this.textLength;
-        }
         this.properties[ this.textPieces ].text = String( text );
         this.properties[ this.textPieces ].isKeywords = false;
         this.properties[ this.textPieces ].keywordType = null;
-        this.properties[ this.textPieces ].textPosition = new Caret( this.textLength, this.textLength + String( text ).length );
-        this.textLength += String( text ).length;
+        this.properties[ this.textPieces ].textPosition = new Caret( this.currentLength, this.textLength );
         this.textPieces += 1;
-
-    }
-    insertText( index, pos ) {
-        this.properties[ index ].text = "";
-        this.properties[ index ].isExists = true;
-        this.properties[ index ].isKeywords = false;
-        this.properties[ index ].keywordType = null;
-        this.properties[ index ].textPosition = new Caret( pos, pos );
-        this.textPieces += 1;
-        this.currentIndex += 1;
     }
     deleteText( index ) {
-        this.properties.splice( index, 1 );
         // if delete text at last index
-        if( index == this.currentIndex ) {
-            this.currentLength = this.properties[ index - 1 ].textPosition.getStart();
-            this.textLength = this.properties[ index - 1 ].textPosition.getEnd();
+        if( index == this.currentIndex || this.textPieces == 1 ) {
+            if( this.textPieces > 1 ) {
+                this.currentLength = this.properties[ index - 1 ].textPosition.getStart();
+                this.textLength = this.properties[ index - 1 ].textPosition.getEnd();
+                this.textPieces -= 1;
+                this.currentIndex -= 1;
+            } else {
+                return;
+            }
+        } else {
+            const dif = this.properties[ index ].textPosition.getEnd() - this.properties[ index ].textPosition.getStart();
+            this.currentLength -= dif;
+            this.textLength -= dif;
             this.textPieces -= 1;
             this.currentIndex -= 1;
-        } else {
-            this.properties.push( new DocumentProperties() );
-            this.properties[ 0 ].isExists = false;
-            this.textLength = 0;
-            this.textPieces = 0;
-            this.currentLength = 0;
         }
+        this.properties.splice( index, 1 );
     }
     createEmptyText( index ) {
-        this.properties.push( new DocumentProperties() );
-        this.properties[ index + 1 ].isExists = false;
+        this.properties.splice( index, 0, new DocumentProperties() );
+        const len = ( index < this.textPieces ) ? this.properties[ index + 1 ].textPosition.getStart() : this.properties[ index - 1 ].textPosition.getEnd();
         this.properties[ index ].text = "";
-        this.properties[ index ].textPosition = new Caret( this.currentLength, this.currentLength );
-        this.properties[ index ].isExists = true;
+        this.properties[ index ].textPosition = new Caret( len, len );
         this.properties[ index ].isKeywords = false;
         this.properties[ index ].keywordType = null;
-        this.currentLength = this.properties[ index - 1 ].textPosition.getEnd();
+//        this.currentLength = this.properties[ index - 1 ].textPosition.getEnd();
+        this.currentLength = this.properties[ this.textPieces ].textPosition.getEnd();
+        this.currentIndex = this.textPieces;
         this.textPieces += 1;
-        this.currentIndex += 1;
+
     }
     changeText( index, newText ) {
         const dif = String( newText ).length - String( this.properties[ index ].text ).length;
         this.properties[ index ].text = String( newText );
         this.textLength += dif;
+        console.log( "textLength: " + this.textLength );
         if( parseInt( index ) != this.currentIndex ) {
             this.currentLength += dif;
         }
@@ -94,17 +81,23 @@ class Document {
         return this.properties[ index ].text;
     }
     setKeyword( keyword, keywordType ) {
+        if( this.properties[ this.textPieces - 1 ].isKeywords ) {
+            console.log( "setKeyword" );
+            this.properties.push( new DocumentProperties() );
+            this.properties[ this.textPieces ].text = "";
+            this.properties[ this.textPieces ].textPosition = new Caret( this.properties[ this.textPieces - 1 ].textPosition.getEnd(), this.properties[ this.textPieces - 1 ].textPosition.getEnd() );
+            this.properties[ this.textPieces ].isKeywords = false;
+            this.properties[ this.textPieces ].keywordType = null;
+            this.textPieces += 1;
+        }
+        this.properties.push( new DocumentProperties() );
+        this.properties.push( new DocumentProperties() );
         this.currentIndex = this.textPieces + 1;
 
-        if( !this.properties[ 0 ].isExists ) {
-            this.properties.push( new DocumentProperties() );
-            this.properties[ 0 ].isExists = true;
-            this.properties[ 1 ].isExists = false;
-        } else {
-            this.properties[ this.textPieces ].isExists = true;
-            this.properties.push( new DocumentProperties() );
-            this.properties[ this.textPieces + 1 ].isExists = false;
-        }
+        this.properties[ this.textPieces + 1 ].text = "";
+        this.properties[ this.textPieces + 1 ].textPosition = new Caret( this.textLength + String( keyword ).length, this.textLength + String( keyword ).length );
+        this.properties[ this.textPieces + 1 ].isKeywords = false;
+        this.properties[ this.textPieces + 1 ].keywordType = null;
 
         this.properties[ this.textPieces ].text = String( keyword );
         this.properties[ this.textPieces ].isKeywords = true;
@@ -113,7 +106,7 @@ class Document {
 
         this.textLength += String( keyword ).length;
         this.currentLength = this.textLength;
-        this.textPieces += 1;
+        this.textPieces += 2;
     }
     deleteKeyword( index ) {
         this.properties[ index ].isKeywords = false;
@@ -141,26 +134,17 @@ class Document {
         return doc;
     }
 
-    searchDocumentIndexInsert( pos ) {
+    searchDocumentIndex( pos ) {
         for( let i = 0; i < this.textPieces; i++ ) {
-            const flag = Math.sign( pos - this.properties[ i ].textPosition.getStart() - 1 ) + Math.sign( this.properties[ i ].textPosition.getEnd() + 1 - pos );
-            if( flag == 2 ) {
+            const flag = Math.sign( pos - this.properties[ i ].textPosition.getStart() ) * Math.sign( this.properties[ i ].textPosition.getEnd() - pos );
+            if( flag == 1 ) {
                 return i;
             }
-            if( flag == 1 && !this.properties[ i ].isKeywords ) {
+            if( flag == 0 && !this.properties[ i ].isKeywords ) {
                 return i;
-            }
-            if( pos == 1 ) {
-                this.properties.unshift( new DocumentProperties() );
-                this.insertText( 0, 0 );
-                return 0;
-            }
-            if( ( pos == this.properties[ i ].textPosition.getEnd() + 1 ) && this.properties[ i + 1 ].isKeywords ) {
-                this.properties.splice( i + 1, 0, new DocumentProperties() );
-                this.insertText( i + 1, pos - 1 );
-                return i + 1;
             }
         }
+        return null;
     }
 
     getTextPosition( index ) {
@@ -171,9 +155,6 @@ class Document {
     }
     getTextPieces() {
         return this.textPieces;
-    }
-    isExistsFunc( index ) {
-        return this.properties[ index ].isExists;
     }
     getCurrentIndex() {
         return this.currentIndex;
@@ -188,7 +169,6 @@ class DocumentProperties {
     isKeywords;
     keywordType;
     textPosition;
-    isExists;
 }
 
 class Caret {
@@ -322,8 +302,10 @@ document.body.onload = function() {
     textOp.addEventListener( "input", displayText );
     textOp.addEventListener( "click", getCurrentTextArea );
     textOp.addEventListener( "keydown", specialKeysSettings );
+    textOp.addEventListener( "keyup", textSelection );
     textOp.addEventListener( "compositionstart", composeOn );
     textOp.addEventListener( "compositionend", composeOff );
+    textOp.addEventListener( "mouseup", getSelectedText );
 
     function composeOn( event ) {
         isComposing = true;
@@ -343,116 +325,72 @@ document.body.onload = function() {
         const inputText = String( textElement.value );
         const paragraph = document.getElementById( "Doc" + idNumber );
         const doc = documents[ parseInt( idNumber ) - 1 ];
-        let selectionEnd = textElement.selectionEnd;
+        let selectionStart = null;
+        let selectionEnd = textElement.selectionEnd > textElement.selectionStart ? textElement.selectionEnd : textElement.selectionStart;
+//        if( textElement. )
         if( isComposing ) {
             return;
         }
-        console.log( "currentLength: " + doc.getCurrentLength() );
-//        isBufferedText = false;
-        if( textElement.selectionStart == selectionEnd ) {
-            // when appending letters
-            if( textElement.textLength == selectionEnd ) {
-                const currentIndex = doc.getCurrentIndex();
-                const currentLength = doc.getCurrentLength();
-                // if document class have at least two textPieces.
-                if( doc.textPieces > 1 ) {
-                    if( doc.isExistsFunc( currentIndex ) ) {
-                        let newText;
-                        if( inputText.length >= currentLength ) {
-                            newText = inputText.substring( currentLength, selectionEnd );
-                            if( newText.length > 0 ) {
-                                doc.changeText( currentIndex, newText );
-                            } else {
-                                doc.deleteText( currentIndex );
-                                doc.createEmptyText( currentIndex );
-                            }
-                        // in case backspace key is pressed at text start when text contain value[""] and isExists is true.
-                        // if letters is inputted after a keyword, it will be appended into a keyword.
-                        } else {
-                            const textPosition = doc.getTextPosition( currentIndex - 1 );
-                            newText = inputText.substring( textPosition.getStart(), selectionEnd );
-                            doc.deleteText( currentIndex );
-                            if( doc.isKeywordsFunc( currentIndex - 1 ) ) {
-                                doc.deleteKeyword( currentIndex - 1 );
-                            }
-                            doc.changeText( currentIndex - 1, newText );
-                        }
-                        
-                        const text = String( doc.getText( currentIndex ) );
-                        const textPosition = doc.getTextPosition( currentIndex );
-
-                    } else {
-                        switch( keyEvent ) {
-                            case "Normal":
-                                if( !isBufferedText ) {
-                                    doc.setText( inputText.substring( doc.getCurrentLength(), selectionEnd ) );
-                                } else {
-                                    doc.setText( inputText.substring( startCaret, selectionEnd ) );
-                                }
-                                break;
-                            case "Backspace":
-                            case "Delete":
-                            default:
-
-                        }
-                    }
-                // if document class have only one textPieces
-                } else {
-                    if( doc.textLength == 0 ) {
-                        if( keyEvent == "Normal" ) {
-                            doc.setText( textElement.value );
-                        }
-                    } else {
-                        switch( keyEvent ) {
-                            case "Normal":
-                                doc.changeText( 0, textElement.value );
-                            case "Backspace":
-                                doc.changeText( 0, textElement.value );
-                                /*
-                                if( textElement.selectionEnd() != 2 ) {
-                                    doc.changeText( 0, textElement.value );
-                                } else {
-
-                                }
-                                */
-                            case "Delete":
-                        }
-                        const caret = selectionEnd;
-                        if( caret > 2 ) {
-                            doc.changeText( 0, textElement.value );
-                        } else if( caret == 2 ) {
-
-                        }
-                    }
-                }
-            // when inserting letters
+        // when appending letters
+        if( textElement.textLength == selectionEnd ) {
+            const currentIndex = doc.getCurrentIndex();
+            const currentLength = doc.getCurrentLength();
+            let newText;
+            if( inputText.length >= currentLength ) {
+                newText = inputText.substring( currentLength, selectionEnd );
+                doc.changeText( currentIndex, newText );
+            // in case backspace key is pressed at text start when text contain value[""].
+            // if letters is inputted after a keyword, it will be appended into a keyword.    
             } else {
-                const pos = selectionEnd + ( ( keyEvent == "Normal" ) ? 0 : 1 );
-                const index = doc.searchDocumentIndexInsert( pos );
-
-                if( doc.getText != "" || keyEvent == "Normal" ) {
-                    // if words at index is keyword
+                const index = doc.searchDocumentIndex( selectionEnd );
+                if( index != null ) {
+                    const textPosition = doc.getTextPosition( index );
+                    newText = inputText.substring( textPosition.getStart(), selectionEnd );
+                    for( let i = currentIndex; i > index; i-- ) {
+                        doc.deleteText( i );
+                    }
                     if( doc.isKeywordsFunc( index ) ) {
                         doc.deleteKeyword( index );
                     }
-                    const dif = textElement.textLength - doc.getLength();
-                    const textPosition = doc.getTextPosition( index );
-                    const text = inputText.substring( textPosition.getStart(), textPosition.getEnd() + dif );
-                    doc.changeText( index, text );
-                } else if( keyEvent == "Backspace" || keyEvent == "Delete" ) {
-                    // delete object at index.
-                    doc.deleteText( index );
-                    index -= ( ( keyEvent == "Backspace" ) ? 1 : 0 );
-                    doc.deleteKeyword( index );
-                    doc.changeText( index );
+                    //doc.changeText( currentIndex - 1, newText );
+                    doc.changeText( index, newText );
                 }
             }
-            console.log( "properties: ", doc.properties );
-            isBufferedText = false;
-            paragraph.innerHTML = String( doc.getHTMLDocument() );
+        // when inserting letters
         } else {
-
+            const pos = isBufferedText ? startCaret : selectionEnd - ( ( keyEvent == "Normal" ) ? 1 : 0 );
+            let index = doc.searchDocumentIndex( pos );
+            let flag = false;
+            if( doc.isKeywordsFunc( index ) ) {
+                flag = true;
+                doc.deleteKeyword( index );
+                if( keyEvent == "Backspace" && pos == ( doc.getTextPosition( index ).getEnd() - 1 ) ) {
+                    index += 1;
+                } else if( keyEvent == "Delete" ) {
+                }
+            }
+            if( keyEvent == "Normal" || !flag ) {
+                // if words at index is keyword
+                if( doc.isKeywordsFunc( index ) ) {
+                    doc.deleteKeyword( index );
+                }
+                const dif = textElement.textLength - doc.getLength();
+                const textPosition = doc.getTextPosition( index );
+                const text = inputText.substring( textPosition.getStart(), textPosition.getEnd() + dif );
+                doc.changeText( index, text );
+            } else if( keyEvent == "Backspace" || keyEvent == "Delete" ) {
+                // delete object at index.
+                doc.deleteText( index );
+                console.log( "index: " + index );
+                index -= ( ( keyEvent == "Backspace" ) ? 1 : 0 );
+                const textPosition = doc.getTextPosition( index );
+                const text = inputText.substring( textPosition.getStart(), selectionEnd );
+                doc.changeText( index, text );
+            }
         }
+        console.log( "properties: ", doc );
+        isBufferedText = false;
+        paragraph.innerHTML = String( doc.getHTMLDocument() );
     }
 
 
@@ -474,6 +412,11 @@ document.body.onload = function() {
         doc.setKeyword( String( reservedWord ), 1 );
     }
 
+    function getSelectedText( event ) {
+        const text = window.getSelection().toString();
+        console.log( text );
+    }
+
     function specialKeysSettings( event ) {
         switch( event.key ) {
             case "Enter":
@@ -491,5 +434,17 @@ document.body.onload = function() {
             default:
                 keyEvent = "Normal";
                 break;
+        }
+    }
+
+    function textSelection( event ) {
+        switch( event.key ) {
+            case "ArrowUp":
+            case "ArrowDown":
+            case "ArrowRight":
+            case "ArrowLeft":
+                getSelectedText( event );
+                break;
+            default:
         }
     }
