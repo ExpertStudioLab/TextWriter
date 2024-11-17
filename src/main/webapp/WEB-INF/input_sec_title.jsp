@@ -23,6 +23,7 @@
         function sendLabel() {
             const textOp = document.getElementById( "Section-Title" );
             sendValue( "sec-title", String( textOp.value ) );
+            setSectionTitle( String( textOp.value ) );
         }
         
         function init() {

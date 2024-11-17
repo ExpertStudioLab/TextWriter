@@ -16,6 +16,7 @@ public class StatusManager {
 	private int state = StatusManager.TITLE;
 	HttpServletRequest request;
 	HttpSession session;
+	String tagName;
 	String title;
 	String section;
 	List<String> columns;
@@ -50,8 +51,12 @@ public class StatusManager {
 
 	private void titleFunction() {
 		this.title = this.request.getParameter("title");
+		this.tagName = this.request.getParameter( "tag-name" );
+		System.out.println( "tagName: " + tagName );
+
 		if (this.title != null) {
-			this.state = this.SECTION;
+			this.state = StatusManager.SECTION;
+			this.session.setAttribute( "TitleName", this.title );
 		}
 		String num = this.request.getParameter("num");
 		if (num != null && num != "") {
@@ -81,9 +86,9 @@ public class StatusManager {
 	}
 
 	private void sectionFunction() {
-		String section = this.request.getParameter("sec-title");
+		this.section = this.request.getParameter("sec-title");
+		System.out.println( "section: " + this.section);
 		if (section != null) {
-			this.section = section;
 			this.state = StatusManager.COLUMN;
 		}
 	}
@@ -101,11 +106,11 @@ public class StatusManager {
 			this.session.setAttribute("NextOne", Boolean.FALSE);
 		}
 
-		if (end != null) {
+		if (end == null && count != null ) {
 			if (!this.session.getAttribute("Count").equals(count)) {
 				this.session.setAttribute("Count", count);
 			}
-		} else {
+		} else if( end != null ){
 			this.state = StatusManager.END;
 		}
 	}

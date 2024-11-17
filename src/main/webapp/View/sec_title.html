@@ -7,7 +7,7 @@
 </head>
 <body>
             <div id="Section-Block">
-                <h2 id="Section-Title">第1章．サーブレットプログラムでのデータベースの利用</h2>
+                <h2 id="Section-Title"></h2>
                 <div id="SecTitle-Label">
                     <canvas id="SecTitle-End"></canvas>
                 </div>
@@ -16,7 +16,10 @@
             <script type="text/javascript" src="../storage.js"></script>
             <script>
 				function init() {
-					setCanvas( "Section-Title", "#SecTitle-Label" );
+                    const sectionTitle = getSectionTitle();
+                    const hEl = document.getElementById( "Section-Title" );
+                    hEl.innerHTML = sectionTitle;
+                    setCanvas( "Section-Title", "#SecTitle-Label" );
 					drawSectionHeader( "#SecTitle-End" );
 				}
 			</script>

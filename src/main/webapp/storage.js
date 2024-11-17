@@ -1,26 +1,21 @@
 
-
    // { num : 0 } means "history.state.num = 0".
-   history.pushState( { num : 0 }, null, window.location.href );
+ //  history.pushState( { num : 0 }, null, window.location.href );
    // on update widow, make the servlet program to process orders previous values
    window.addEventListener( "DOMContentLoaded", ()=> {
       storeState();
       init();
    });
-   // on browzer back, ... 
-   window.addEventListener( "popstate", ()=> {
-      storeState();
-      // because a page will get old, update to present status.
-      // create a new tag menus list. but recent delete commands are canceled.( permit button had not clicked.)
-      window.location.reload();
-   });
+   
 
    function storeState() {
+	   check = false;
       var url = new URL( window.location.href );
       var params = url.searchParams;
       params.delete( "num" );
       params.delete( "end" );
-      history.replaceState( "", "", url.pathname );
+      
+      history.replaceState( "", "", url.pathname  );
    }
 
    function setTitle( vals ) {
@@ -31,6 +26,14 @@
    function getTitle( ) {
       const vals = { title : sessionStorage.getItem( "hTitle" ),
                      tagName : sessionStorage.getItem( "tag-name" ) };
+      return vals;
+   }
+
+   function setSectionTitle( vals ) {
+      sessionStorage.setItem( "sTitle", vals );
+   }
+   function getSectionTitle( ) {
+      const vals = sessionStorage.getItem( "sTitle" );
       return vals;
    }
 
