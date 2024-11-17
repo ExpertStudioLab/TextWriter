@@ -14,7 +14,7 @@
     <input type="text" id="Column-Name" class="Textbox" placeholder="- コラム名を入力 -" value="" />
 </div>
 <form action="TextWriter" method="get" id="send" >
-    <input type="submit" alt="送信" id="permit" disabled onclick="sendColumn()" />
+    <input type="button" value="送信" id="permit"  disabled="disabled"  /> <!-- onclick="sendColumn()"  -->
 </form>
 	<% } else { %>
     <div><span>作成されるドキュメントの書式</span></div>
@@ -131,18 +131,27 @@
 <script>
     function init() {
     	console.log( "containt called");
-    }
+        column_nameOp = document.getElementById( "Column-Name" );
+        if( column_nameOp != null ) {
+            column_nameOp.addEventListener( "input", inputChange );
 
+            permitBtn = document.getElementById( "permit" );
+            permitBtn.addEventListener( "click", sendColumn );        	
+        }
+    }
+let column_nameOp;
+let permitBtn;
     // make sure to input a column name.
-    const column_nameOp = document.getElementById( "Column-Name" );
-    if( column_nameOp != null ) column_nameOp.addEventListener( "input", inputChange );
+
     function inputChange( event ) {
         const btnOp = document.getElementById( "permit" );
         btnOp.disabled = ( event.currentTarget.value == "" );
     }
 
     function sendColumn() {
-        sendValue( "column", column_nameOp.value );
+            sendValue( "column", column_nameOp.value );
+            const form = document.getElementById( "send" );
+             form.submit();
     }
     
 </script>

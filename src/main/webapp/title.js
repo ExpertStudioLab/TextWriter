@@ -51,7 +51,8 @@
          const vals = { title : String( textOp.value ),
                         tagName : String( selectEl.value )};
          setTitle( vals );
-         sendValue( "title", "true" );
+         sendValue( "title", String( textOp.value ) );
+         sendValue( "tag-name", String( selectEl.value ) );
        }
    }
    

@@ -33,7 +33,7 @@
 	<h1><label for="Title-Name">タイトルを指定してください</label></h1>
 </div>
 <div class="Left-Justify">
-	<span><small>過去のタイトルを選択する場合は、テキストボックスをクルックしてください。</small></span>
+	<span><small>過去のタイトルを選択する場合は、テキストボックスをクリックしてください。</small></span>
 </div>
 <div class="Left-Justify">
 	<input type="text" list="Title-List" id="Title-Name" class="Textbox" placeholder="- タイトルを入力 -" />

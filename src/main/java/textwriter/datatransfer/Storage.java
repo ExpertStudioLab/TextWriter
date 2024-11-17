@@ -60,11 +60,11 @@ public class Storage extends HttpServlet {
 			outStream.flush();
 		}
 		outStream.close();
-		/*
-		 * ServletContext sc = getServletContext(); RequestDispatcher rd =
-		 * sc.getRequestDispatcher( "/WEB-INF/sample.jsp" ); rd.forward( request,
-		 * response) ;
-		 */
+
+		 ServletContext sc = getServletContext();
+		 RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/sample.jsp" );
+		 rd.forward( request, response) ;
+
 //		request.getRequestDispatcher( "/WEB-INF/" + session.getAttribute( "jsp_file") ).forward( request, response );
 
 	}
