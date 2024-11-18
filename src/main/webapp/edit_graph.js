@@ -41,7 +41,6 @@
             formLine.style.zIndex = "10";
             document.body.style.userSelect = "none";
             formLine.style.backgroundColor = "rgba(32, 46, 155, 0.301)";
-//            const g = graphics[ movingGraphIndex ];
             const g = graphics[ movingGraphIndex ];
             point.left = Math.floor( offSet.left ) + g.getArea().getX();
             formLine.style.left = String( point.left ) + "px";

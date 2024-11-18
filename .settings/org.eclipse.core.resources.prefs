@@ -11,6 +11,7 @@ encoding//src/main/webapp/WEB-INF/auto_text_writer.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/input_contents.jsp=UTF-8
 encoding//src/main/webapp/canvas_graphics.js=UTF-8
 encoding//src/main/webapp/data_transfer.js=UTF-8
+encoding//src/main/webapp/document_manager.js=UTF-8
 encoding//src/main/webapp/draw_graph.js=UTF-8
 encoding//src/main/webapp/edit_graph.js=UTF-8
 encoding//src/main/webapp/storage.js=UTF-8
