@@ -62,7 +62,7 @@ class Document {
         const dif = String( newText ).length - String( this.properties[ index ].text ).length;
         this.properties[ index ].text = String( newText );
         this.textLength += dif;
-        console.log( "textLength: " + this.textLength );
+
         if( parseInt( index ) != this.currentIndex ) {
             this.currentLength += dif;
         }
@@ -82,7 +82,6 @@ class Document {
     }
     setKeyword( keyword, keywordType ) {
         if( this.properties[ this.textPieces - 1 ].isKeywords ) {
-            console.log( "setKeyword" );
             this.properties.push( new DocumentProperties() );
             this.properties[ this.textPieces ].text = "";
             this.properties[ this.textPieces ].textPosition = new Caret( this.properties[ this.textPieces - 1 ].textPosition.getEnd(), this.properties[ this.textPieces - 1 ].textPosition.getEnd() );
@@ -135,7 +134,8 @@ class Document {
     }
 
     searchDocumentIndex( pos ) {
-        for( let i = 0; i < this.textPieces; i++ ) {
+        let i;
+        for( i = 0; i < this.textPieces; i++ ) {
             const flag = Math.sign( pos - this.properties[ i ].textPosition.getStart() ) * Math.sign( this.properties[ i ].textPosition.getEnd() - pos );
             if( flag == 1 ) {
                 return i;
@@ -144,7 +144,7 @@ class Document {
                 return i;
             }
         }
-        return null;
+        return i;
     }
 
     getTextPosition( index ) {
@@ -189,6 +189,17 @@ class Caret {
     }
     setEnd( end ) {
         this.end = end;
+    }
+}
+
+class TextBuffer {
+    before;
+    after;
+    end;
+    constructor() {
+        this.before = "";
+        this.after = "";
+        this.end = "";
     }
 }
 
@@ -294,9 +305,12 @@ document.body.onload = function() {
     let documents = [];
     documents.push( new Document() );
     let keyEvent = "";
-    let isComposing = false;
+    let inputStatus = "Normal";
+//    let selectedText = "";
+//    let isComposing = false;
     let startCaret = 0;
-    let isBufferedText = false;
+    let selection = new Object();
+//    let isBufferedText = false;
 
 	const textOp = document.getElementById( "Contents1" );
     textOp.addEventListener( "input", displayText );
@@ -308,13 +322,14 @@ document.body.onload = function() {
     textOp.addEventListener( "mouseup", getSelectedText );
 
     function composeOn( event ) {
-        isComposing = true;
-        isBufferedText = true;
-        startCaret = event.target.selectionEnd;
+//        isComposing = true;
+        inputStatus = "Compose";
+//        isBufferedText = true;
+        startCaret = event.target.selectionStart;
     }
 
     function composeOff( event ) {
-        isComposing = false;
+//        isComposing = false;
         displayText( event );
     }
 
@@ -325,13 +340,55 @@ document.body.onload = function() {
         const inputText = String( textElement.value );
         const paragraph = document.getElementById( "Doc" + idNumber );
         const doc = documents[ parseInt( idNumber ) - 1 ];
+
+        let replaceProperties = new Object()
+        let textBuffer = new TextBuffer();
+
+        replaceProperties.end = textElement.selectionEnd;
+
+        switch( inputStatus ) {
+            case "Normal":
+                replaceProperties.start = textElement.selectionStart - 1;
+                break;
+            case "Compose":
+                replaceProperties.start = startCaret;
+                break;
+            case "Select":
+                replaceProperties.start = selection.start;
+                break;
+        }
+
+        replaceProperties.replaceEnd = replaceProperties.end - textElement.textLength + doc.getLength();
+        indexStart = doc.searchDocumentIndex( replaceProperties.start );
+        indexEnd = doc.searchDocumentIndex( replaceProperties.replaceEnd );
+
+        // text0 text1 ... "[before]【insert letters】[after][end]" textn textn+1 ...
+        textBuffer.before = doc.getText( indexStart ).substring( 0, replaceProperties.start - doc.getTextPosition( indexStart ).getStart() );
+        textBuffer.end = doc.getText( indexEnd ).substring( replaceProperties.replaceEnd - doc.getTextPosition( indexEnd ).getStart(), doc.getTextPosition( indexEnd ).getEnd() );
+        if( indexStart == indexEnd && String( doc.getText( indexStart ) ).length == 1 ) {
+            textBuffer.end = "";
+        }
+        if( doc.isKeywordsFunc( indexStart ) ) {
+            doc.deleteKeyword( indexStart );
+        }
+
+        if( replaceProperties.start - replaceProperties.replaceEnd > 0 ) {
+            for( let i = indexStart + 1; i < indexEnd; i++ ) {
+                textBuffer.after.concat( doc.getText( indexStart + 1 ) );
+                doc.deleteText( indexStart + 1 );
+            }
+            doc.deleteText( indexStart + 1 );
+        }
+        doc.changeText( indexStart, textBuffer.before + inputText.substring( replaceProperties.start, replaceProperties.end ) + textBuffer.after + textBuffer.end );
+
+        /*
         let selectionStart = null;
         let selectionEnd = textElement.selectionEnd > textElement.selectionStart ? textElement.selectionEnd : textElement.selectionStart;
-//        if( textElement. )
+
         if( isComposing ) {
             return;
         }
-        // when appending letters
+
         if( textElement.textLength == selectionEnd ) {
             const currentIndex = doc.getCurrentIndex();
             const currentLength = doc.getCurrentLength();
@@ -388,6 +445,8 @@ document.body.onload = function() {
                 doc.changeText( index, text );
             }
         }
+        */
+        inputStatus = "Normal";
         console.log( "properties: ", doc );
         isBufferedText = false;
         paragraph.innerHTML = String( doc.getHTMLDocument() );
@@ -413,8 +472,10 @@ document.body.onload = function() {
     }
 
     function getSelectedText( event ) {
-        const text = window.getSelection().toString();
-        console.log( text );
+  //      selectedText = window.getSelection().toString();
+        selection.start = event.target.selectionStart;
+        selection.end = event.target.selectionEnd;
+        inputStatus = "Select";
     }
 
     function specialKeysSettings( event ) {

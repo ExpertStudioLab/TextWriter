@@ -1,7 +1,7 @@
 /**
  * 
  */
-	// the number of dropdown list menu into i
+	// set the number of dropdown list menu into i.
    const selectEl = document.getElementById( "Tag-El" );
    const textOp = document.getElementById( "Title-Name" );
    let i = selectEl.length - 1;

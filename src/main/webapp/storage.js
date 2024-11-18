@@ -6,15 +6,9 @@
       storeState();
       init();
    });
-   
 
    function storeState() {
-	   check = false;
       var url = new URL( window.location.href );
-      var params = url.searchParams;
-      params.delete( "num" );
-      params.delete( "end" );
-      
       history.replaceState( "", "", url.pathname  );
    }
 
