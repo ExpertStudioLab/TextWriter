@@ -307,7 +307,7 @@ document.body.onload = function() {
     let keyEvent = "";
     let inputStatus = "Normal";
 //    let selectedText = "";
-//    let isComposing = false;
+    let isComposing = false;
     let startCaret = 0;
     let selection = new Object();
 //    let isBufferedText = false;
@@ -322,18 +322,21 @@ document.body.onload = function() {
     textOp.addEventListener( "mouseup", getSelectedText );
 
     function composeOn( event ) {
-//        isComposing = true;
+        isComposing = true;
         inputStatus = "Compose";
 //        isBufferedText = true;
         startCaret = event.target.selectionStart;
     }
 
     function composeOff( event ) {
-//        isComposing = false;
+        isComposing = false;
         displayText( event );
     }
 
     function displayText( event ) {
+        if( isComposing ) {
+            return;
+        }
         currentTextArea = String( event.target.id );
         const idNumber = currentTextArea.substring( 8, currentTextArea.length );
         const textElement = document.getElementById( "Contents" + idNumber );
