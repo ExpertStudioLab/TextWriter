@@ -97,7 +97,8 @@ public class StatusManager {
 		String column = this.request.getParameter("column");
 		String count = this.request.getParameter("count");
 		String end = this.request.getParameter("end");
-		if (this.columns.size() > 0) {
+		System.out.println( "column: " + column );
+		if (this.columns.size() > 0 && column != null ) {
 			if (this.columns.get(this.columns.size() - 1) != column) {
 				this.columns.add(column);
 			}

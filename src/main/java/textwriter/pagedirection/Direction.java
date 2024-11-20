@@ -1,6 +1,7 @@
 package textwriter.pagedirection;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -30,9 +31,11 @@ public class Direction extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		 ServletContext sc = getServletContext();
-		 RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/auto_text_writer.jsp" );
-		 rd.forward( request, response) ;
+		response.setContentType( "application/json" );
+		PrintWriter out = response.getWriter();
+		out.print( "{ \"message\" : \"Hello from the servlet!\" }");
+		out.flush();
+		out.close();
 	}
 
 	/**
