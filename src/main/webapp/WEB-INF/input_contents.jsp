@@ -122,10 +122,8 @@
 <% 		}
 		} %>
 <%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
-<script type="text/javascript" src="${ pageContext.request.contextPath }/canvas_graphics.js"></script>
-<script type="text/javascript" src="${pageContext.request.contextPath}/draw_graph.js"></script>
-<script type="text/javascript" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
-<script type="text/javascript" src="${ pageContext.request.contextPath }/edit_graph.js"></script>
+<script type="module" src="${pageContext.request.contextPath}/draw_graph.js"></script>
+<script type="module" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
 
 <%  } %>
 <script>

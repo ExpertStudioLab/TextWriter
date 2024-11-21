@@ -8,6 +8,7 @@
 <title>Insert title here</title>
 </head>
 <body>
+<script type="text/javascript" src="${ pageContext.request.contextPath }/test01.js"></script>
 <script>
 	var xhr = new XMLHttpRequest();
 	xhr.open( "GET", "direction", true );
@@ -21,6 +22,8 @@
 		}
 	}
 	xhr.send( null );
+	
+
 </script>
 </body>
 </html>

@@ -1,12 +1,14 @@
+import { Graphic, TextGraphic, Area } from "./modules/canvas_graphics.js";
+import * as move_graph from "./move_graph.js";
 /**
  * 
  */
     // use on reducing processes
     let state = -1;
     // save a point position
-    let point = new Object();
+    export let point = new Object();
 
-    let graphics = [];
+    export let graphics = [];
 
     // the method which shows guideline to draw graphics.
     let preview;
@@ -15,11 +17,11 @@
     // the method which draws graphics on drag ends.
     let draw;
     // show guideline when draw picture.
-    const formLine = document.getElementById( "drawRect" );
+    export const formLine = document.getElementById( "drawRect" );
     
     // graphic object
-    const cvs = document.getElementById( "Image1" );
-    const graph = cvs.getContext( "2d" );
+    export const cvs = document.getElementById( "Image1" );
+    export const graph = cvs.getContext( "2d" );
 
 
     // buttons
@@ -36,6 +38,8 @@
     graph.strokeStyle = "#000";
     graph.lineWidth = "10px";
     graph.save();    
+
+
 
     // selected drawing actions
     function drawSettings( ) {
@@ -123,12 +127,12 @@
     }
 
     function deleteMoveGraphSettings() {
-        cvs.removeEventListener( "click", getActive );
-        formLine.removeEventListener( "dragstart", getCursorPoint );
-        formLine.removeEventListener( "drag", moveGraph );
-        cvs.removeEventListener( "dragover", hoverCanvas );
-        formLine.removeEventListener( "dragover", hoverCanvas );
-        cvs.removeEventListener( "dragend", setMoveGraphEnd );
+        cvs.removeEventListener( "click", move_graph.getActive );
+        formLine.removeEventListener( "dragstart", move_graph.getCursorPoint );
+        formLine.removeEventListener( "drag", move_graph.moveGraph );
+        cvs.removeEventListener( "dragover", move_graph.hoverCanvas );
+        formLine.removeEventListener( "dragover", move_graph.hoverCanvas );
+        cvs.removeEventListener( "dragend", move_graph.setMoveGraphEnd );
     }
 
 let flag = false;
@@ -226,3 +230,5 @@ let invalidH = false;
             draw( Math.floor( w ), Math.floor( h ) );
         }
     }
+
+    export { setBegin, setMove, setEnd };
