@@ -21,3 +21,4 @@ Nov. 15, 2024, Fri. Enabled to use backspace at an end of sentences.
 Nov. 16, 2024, Sat. Deleted useless codes to make it more readable.
 Nov. 17, 2024, Sun. Fixed bugs on reload.
 Nov. 20, 2024, Wed. Completed a program associated with a textarea.
+Nov. 21, 2024, Thu. Practiced to import modules in javascript.

@@ -1,15 +1,18 @@
-
+import { TextGraphic } from "./modules/canvas_graphics.js";
+import { point, cvs, graph, graphics, formLine, setBegin, setMove, setEnd } from "./draw_graph.js";
 
 /**
  * 
  */
-	// button
-    const moveBtn = document.getElementById( "MoveGraph" );
-    // listener
-    moveBtn.addEventListener( "click", moveGraphSettings );
-    // information of current moving graphics
-    let movingGraphIndex;
 
+    	// button
+        const moveBtn = document.getElementById( "MoveGraph" );
+        // listener
+        moveBtn.addEventListener( "click", moveGraphSettings );
+        // information of current moving graphics
+        let movingGraphIndex;
+    
+    
 
     // end of drawing actions, it disable all drawing actions
     function deleteDrawSetting() {
@@ -31,10 +34,10 @@
     
     function getActive( event ) {
         event.preventDefault();
-        offSet = event.target.getBoundingClientRect();
+        point.offSet = event.target.getBoundingClientRect();
         const curPoint = new Object();
-        curPoint.x = event.clientX - offSet.left;
-        curPoint.y = event.clientY - offSet.top;
+        curPoint.x = event.clientX - point.offSet.left;
+        curPoint.y = event.clientY - point.offSet.top;
         movingGraphIndex = getGraphIndex( curPoint );
         if( movingGraphIndex != null ) {
             formLine.style.position = "absolute";
@@ -42,9 +45,9 @@
             document.body.style.userSelect = "none";
             formLine.style.backgroundColor = "rgba(32, 46, 155, 0.301)";
             const g = graphics[ movingGraphIndex ];
-            point.left = Math.floor( offSet.left ) + g.getArea().getX();
+            point.left = Math.floor( point.offSet.left ) + g.getArea().getX();
             formLine.style.left = String( point.left ) + "px";
-            point.top = Math.floor( offSet.top + window.scrollY ) + g.getArea().getY();
+            point.top = Math.floor( point.offSet.top + window.scrollY ) + g.getArea().getY();
             formLine.style.top = String( point.top ) + "px";
             formLine.style.width = String( g.getArea().getWidth() ) + "px";
             formLine.style.height = String( g.getArea().getHeight() ) + "px";
@@ -75,38 +78,30 @@
         point.dragStartX = event.clientX;
         point.dragStartY = event.clientY;
     }
-let count = 0;
     function moveGraph( event ) {
         const x = Math.floor( event.clientX - point.dragStartX );
         const y = Math.floor( event.clientY - point.dragStartY );
-        if( count % 4 == 0 ) {
-            formLine.style.left = String( point.left + x ) + "px";
-            formLine.style.top = String( point.top + y ) + "px";    
-        }
-        if( count % 3 == 0 ) {
-//            const g = graphics[ movingGraphIndex ];
-//            g.draw( );
-//            console.log( "[ x, y, width, height ]: [ " + g.area.x + ", " + g.area.y + ", " + g.textWidth + ", " + g.textY + " ]" );
-//            graph.fillRect( g.area.x + x, g.area.y + y, g.textWidth, g.textHeight );
-        }
+        formLine.style.left = String( point.left + x ) + "px";
+        formLine.style.top = String( point.top + y ) + "px";    
+
     }
 
     function setMoveGraphEnd( event ) {
         const disX = event.clientX - point.dragStartX;
-        const left = Math.floor( point.left + disX - offSet.left );
+        const left = Math.floor( point.left + disX - point.offSet.left );
         const disY = event.clientY - point.dragStartY;
-        const top = Math.floor( point.top + disY - offSet.top - window.scrollY );
+        const top = Math.floor( point.top + disY - point.offSet.top - window.scrollY );
 
         graphics[ movingGraphIndex ].setX( left );
         graphics[ movingGraphIndex ].setY( top );
         const g = graphics[ movingGraphIndex ];
         g.draw();
-        formLine.style.left = String( g.area.x + Math.floor( offSet.left ) ) + "px";
-        formLine.style.top = String( g.area.y + Math.floor( offSet.top + window.scrollY ) ) + "px";
+        formLine.style.left = String( g.area.x + Math.floor( point.offSet.left ) ) + "px";
+        formLine.style.top = String( g.area.y + Math.floor( point.offSet.top + window.scrollY ) ) + "px";
         formLine.style.width = String( g.area.width ) + "px";
         formLine.style.height = String( g.area.height ) + "px";
-        point.left = Math.floor( offSet.left ) + g.area.x;
-        point.top = Math.floor( offSet.top + window.scrollY ) + g.area.y;
+        point.left = Math.floor( point.offSet.left ) + g.area.x;
+        point.top = Math.floor( point.offSet.top + window.scrollY ) + g.area.y;
 
         // moving graph test
         /*
@@ -118,4 +113,4 @@ let count = 0;
     function hoverCanvas( event ) {
         event.preventDefault();
     }
-
+export { getActive, getCursorPoint, getGraphIndex, moveGraph, setMoveGraphEnd };

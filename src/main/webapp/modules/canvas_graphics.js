@@ -51,7 +51,7 @@ class Graphic {
         this.graphicContext.save();
         this.graphicContext.font = this.font;
 
-        const textMetrics = graph.measureText( this.text );
+        const textMetrics = this.graphicContext.measureText( this.text );
         const textHalfHeight = Math.floor( ( textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent ) / 4 );
         const halfHeight = Math.floor( this.area.height / 2 );
       
@@ -128,3 +128,4 @@ class Graphic {
         this.height = h;
     }
   }
+export { Graphic, TextGraphic, Area };
