@@ -20,10 +20,8 @@
             btnOp.disabled = ( event.currentTarget.value == "" );
         }
 
-        function sendLabel() {
-            const textOp = document.getElementById( "Section-Title" );
-            sendValue( "sec-title", String( textOp.value ) );
-            setSectionTitle( String( textOp.value ) );
+        function sendLabel() {            
+            sendValue( "sec-title", String( sec_titleOp.value ) );
         }
         
         function init() {

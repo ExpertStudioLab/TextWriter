@@ -8,21 +8,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-<script type="text/javascript" src="${ pageContext.request.contextPath }/test01.js"></script>
+<script type="module" src="${ pageContext.request.contextPath }/test01.js"></script>
 <script>
-	var xhr = new XMLHttpRequest();
-	xhr.open( "GET", "direction", true );
-	xhr.onreadystatechange = function() {
-		if( xhr.readyState == 4 && xhr.status == 200 ) {
-			const jsonResource = JSON.parse( xhr.response );
-			console.log( xhr.response );
-			console.log( jsonResource.message );
-		} else {
-			console.error( "error occasion" );
-		}
-	}
-	xhr.send( null );
-	
 
 </script>
 </body>

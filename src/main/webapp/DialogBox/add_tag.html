@@ -19,13 +19,31 @@
 		<input type="button" id="Button-Style" value="OK" onclick="sendData()" />
 	</div>
 	<script>
-		function sendData() {
+		async function sendData() {
 			const txtBox = document.getElementById( "Tag-Name" );
 			const txt = txtBox.value;
+			if( txt != "" ) {
+				const params = new URLSearchParams( { "send-tag": txt });
+				const myRequest = new Request( "/TextWriter/TextWriter", {
+					method: "POST",
+					body: params,
+				});
+				window.fetch( myRequest )
+				.then( response => {
+					if( !response.ok) {
+						throw new Error( "response status: ${ response.status }" );
+					} else {
+						window.opener.appendOption( txt );
+						window.close();
+					}
+				});
+			}
+/*
 			if( txt != "" ) {
 				window.opener.getData( txt );
 				window.close();
 			}
+*/
 		}
 	</script>
 </body>

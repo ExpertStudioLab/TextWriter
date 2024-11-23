@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
@@ -20,11 +21,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
+import textwriter.process.StatusManager;
+
 /**
  * Servlet implementation class Storage
  */
 @WebServlet("/storage")
-//@MultipartConfig
+@MultipartConfig
 public class Storage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -44,11 +47,25 @@ public class Storage extends HttpServlet {
 			throws ServletException, IOException {
 
 		HttpSession session = request.getSession();
-		OutputStream outStream = response.getOutputStream();
-		if (request.getHeader("Process").equals("FileNumber")) {
+		StatusManager manager = ( StatusManager ) session.getAttribute( "StatusManager" );
+		manager.setRequest( request );
+		manager.setResponse( response );
+
+		if ( request.getHeader("Process").equals("FileNumber") ) {
+			PrintWriter outWriter = response.getWriter();
+			response.setContentType( "application/octet-stream" );
 			String num = (String) session.getAttribute("FileNumber");
-			outStream.write(num.getBytes());
-		} else {
+			outWriter.print( num );
+			outWriter.flush();
+			outWriter.close();
+
+		} else if( request.getHeader( "Process").equals( "Title" ) ) {
+			manager.sendTitle();
+		} else if( request.getHeader( "Process" ).equals( "Section" ) ) {
+			manager.sendSection();
+		}else {
+			/*
+			OutputStream outStream = response.getOutputStream();
 //		response.setContentType( "image/png");
 			response.setContentType("application/octet-stream");
 //		response.setHeader( "Content-Disposition", "attachment;filename = \"sample001.png\"" );
@@ -58,13 +75,16 @@ public class Storage extends HttpServlet {
 
 			outStream.write(dataStream);
 			outStream.flush();
+			outStream.close();
+			*/
 		}
-		outStream.close();
 
+
+/*
 		 ServletContext sc = getServletContext();
 		 RequestDispatcher rd = sc.getRequestDispatcher( "/WEB-INF/sample.jsp" );
 		 rd.forward( request, response) ;
-
+*/
 //		request.getRequestDispatcher( "/WEB-INF/" + session.getAttribute( "jsp_file") ).forward( request, response );
 
 	}
@@ -75,7 +95,24 @@ public class Storage extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		HttpSession session = request.getSession();
 		if( request.getHeader( "Process" ).equals( "Image" ) ) {
+
+			Part filePart = request.getPart( "file" );
+			System.out.println( filePart );
+			String filename = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+			String path = "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\img\\";
+			InputStream inStream = filePart.getInputStream();
+			byte[] buffer = inStream.readAllBytes();
+			ByteArrayInputStream byteStream = new ByteArrayInputStream( buffer );
+			File file = new File(path + filename);
+			file.createNewFile();
+			BufferedImage img = ImageIO.read(byteStream);
+			ImageIO.write(img, "png", file);
+			inStream.close();
+			byteStream.close();
+
+/*			
 		String path = "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\img\\";
 		ByteArrayInputStream byteStream = new ByteArrayInputStream( request.getInputStream().readAllBytes());
 		File file = new File(path + "sample003.png" );
@@ -83,23 +120,12 @@ public class Storage extends HttpServlet {
 		BufferedImage img = ImageIO.read(byteStream);
 		ImageIO.write(img, "png", file);
 		byteStream.close();
+		*/
 		}	
+		
+		
+		
 
-		HttpSession session = request.getSession();
-		
-		
-		
-		/*
-		Part filePart = request.getPart("img_" + session.getAttribute("FileNumber"));
-		String filename = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-		String path = "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\img\\";
-		ByteArrayInputStream byteStream = new ByteArrayInputStream(filePart.getInputStream().readAllBytes());
-		File file = new File(path + filename);
-		file.createNewFile();
-		BufferedImage img = ImageIO.read(byteStream);
-		ImageIO.write(img, "png", file);
-		byteStream.close();
-*/
 		/*
 		 * String filename = "sample002.png"; String path =
 		 * "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\img\\"

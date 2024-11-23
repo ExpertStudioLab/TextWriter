@@ -1,4 +1,8 @@
-
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
+    location.reload();
+  }
+});
    // { num : 0 } means "history.state.num = 0".
  //  history.pushState( { num : 0 }, null, window.location.href );
    // on update widow, make the servlet program to process orders previous values
@@ -12,26 +16,6 @@
       history.replaceState( "", "", url.pathname  );
    }
 
-   function setTitle( vals ) {
-      sessionStorage.setItem( "hTitle", vals.title );
-      sessionStorage.setItem( "tag-name", vals.tagName );
-   }
-
-   function getTitle( ) {
-      const vals = { title : sessionStorage.getItem( "hTitle" ),
-                     tagName : sessionStorage.getItem( "tag-name" ) };
-      return vals;
-   }
-
-   function setSectionTitle( vals ) {
-      sessionStorage.setItem( "sTitle", vals );
-   }
-   function getSectionTitle( ) {
-      const vals = sessionStorage.getItem( "sTitle" );
-      return vals;
-   }
-
-
      // create form to send values to the servlet
      function sendValue( vName, vValue ) { 
 		const formObj = document.getElementById( "send" );
@@ -41,3 +25,23 @@
 		inputEl.value = vValue;
 		formObj.appendChild( inputEl );
    }
+   
+   	function receiveData( process ) {
+			const myHeaders = new Headers();
+			myHeaders.append( "Process", String( process ) );
+			const myRequest = new Request( "/TextWriter/storage", {
+			   method: "GET",
+			   headers: myHeaders
+		   });
+		   try {
+			   return window.fetch( myRequest ).then( response => {
+				   if( !response.ok ) {
+					   throw new Error( "response status: ${ response.status} ");
+				   } else {
+					   return response.json();
+				   }
+			   });
+		   } catch( error ) {
+			   console.error( error );
+		   }
+	}

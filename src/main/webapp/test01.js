@@ -1,6 +1,26 @@
+import { TestClass } from "./test02.js";
 /**
  * 
  */
+	const obj = new TestClass();
+	obj.publicFunc();
+	console.log( obj );
+
+async function getData() {
+  const url = "direction";
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`レスポンスステータス: ${response.status}`);
+    }
+
+    const json = await response.json();
+    console.log(json);
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+getData();
 
  function getDate( callback ) {
 	 callback( new Date );
@@ -39,3 +59,4 @@
  .then( data => {
 	 console.log( data[ 0 ] + ", " + data[ 1 ] + ", " + data[ 2 ] );
  });
+ 

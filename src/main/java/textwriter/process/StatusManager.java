@@ -1,11 +1,16 @@
 package textwriter.process;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import json.JsonData;
 
 public class StatusManager {
 	public static final int TITLE = 0;
@@ -15,6 +20,7 @@ public class StatusManager {
 
 	private int state = StatusManager.TITLE;
 	HttpServletRequest request;
+	HttpServletResponse response;
 	HttpSession session;
 	String tagName;
 	String title;
@@ -41,47 +47,74 @@ public class StatusManager {
 		}
 	}
 
-	public void setRequest(HttpServletRequest request) {
+	public void setRequest( HttpServletRequest request ) {
 		this.request = request;
+	}
+	
+	public void setResponse( HttpServletResponse response ) {
+		this.response = response;
 	}
 
 	public int getState() {
 		return this.state;
 	}
+	
+	public void sendTitle() {
+		JsonData data = new JsonData();
+		data.push( "title", this.title );
+		data.push( "tagName", this.tagName );
+		sendData( data );
+	}
+	
+	public void sendSection() {
+		JsonData data = new JsonData();
+		data.push( "section", this.section );
+		sendData( data );
+	}
+	
+	public void sendColumn( int index ) {
+		JsonData data = new JsonData();
+		data.push( "column", this.columns.get( index ) );
+		sendData( data );
+	}
+	
+	private void sendData( JsonData data ) {
+		try {
+			this.response.setContentType( "application/json; charset=UTF-8" );
+			PrintWriter out = this.response.getWriter();
+			out.print( data.convertToJson() );
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
 
 	private void titleFunction() {
 		this.title = this.request.getParameter("title");
 		this.tagName = this.request.getParameter( "tag-name" );
-		System.out.println( "tagName: " + tagName );
 
 		if (this.title != null) {
 			this.state = StatusManager.SECTION;
 			this.session.setAttribute( "TitleName", this.title );
-		}
-		String num = this.request.getParameter("num");
-		if (num != null && num != "") {
-			int j = Integer.valueOf(num);
-			ArrayList<String> tags = (ArrayList<String>) this.session.getAttribute("Tags");
-			String in = this.request.getParameter("start-index");
-			for (int i = Integer.valueOf(in); i < j; i++) {
-				String name = this.request.getParameter("new-tag" + String.valueOf(i));
-				tags.add(name);
-			}
+
 		}
 
-		String strEnd = this.request.getParameter("end");
-		if (strEnd != null && strEnd != "") {
-			int end = Integer.valueOf(strEnd);
-			ArrayList<String> tags = (ArrayList<String>) this.session.getAttribute("Tags");
-			List<Integer> delIndex = new ArrayList<>();
-			for (int i = 0; i < end; i++) {
-				String delTag = this.request.getParameter("del-menu" + String.valueOf(i));
-				delIndex.add(Integer.valueOf(delTag));
-			}
-			Collections.sort(delIndex, Collections.reverseOrder());
-			for (int i = 0; i < end; i++) {
-				tags.remove(delIndex.get(i).intValue());
-			}
+		String name = this.request.getParameter( "send-tag" );
+		if( name != "" && name != null ) {
+			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
+			tags.add( name );
+			System.out.println( "new tag name: " + name );
+		}
+
+		name = this.request.getParameter( "delete-tag" );
+		if( name != null ) {
+			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
+			System.out.println( "before tags: " + tags );
+			tags.remove( tags.indexOf( name ) );
+			System.out.println( "delete tag name: " + name );
+			System.out.println( "after tags: " + tags );
 		}
 	}
 

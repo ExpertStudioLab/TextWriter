@@ -42,11 +42,6 @@
 	</datalist>
 </div>
 <form action="TextWriter" method="get" id="send" >
-	<input type="submit" alt="送信" id="permit" onclick="addIndex()" />
+	<input type="submit" alt="送信" id="permit" disabled onclick="sendTitle()" />
 </form>
 <script type="text/javascript" src="${pageContext.request.contextPath}/title.js" ></script>
-<script>
-	function init() {
-		console.log( "title called");
-	}
-</script>
