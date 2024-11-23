@@ -46,8 +46,22 @@
 		const selectBox = document.getElementById( "Del-Name" );
 		const delIndex = selectBox.value;
 		if( delIndex != "-1" ) {
-			window.opener.delMenu( delIndex );
-			window.close();
+			const options = selectBox.querySelectorAll( "option" );
+			console.log( options[ parseInt( delIndex ) + 1 ].innerText );
+			const params = new URLSearchParams( { "delete-tag": options[ parseInt( delIndex ) + 1 ].innerText } );
+			const myRequest = new Request( "/TextWriter/TextWriter", {
+				method: "POST",
+				body: params
+			} );
+			window.fetch( myRequest )
+			.then( response => {
+				if( !response.ok ) {
+					throw new Error( "response status: ${ response.status }" );
+				} else {
+					window.opener.delMenu( delIndex );
+					window.close();
+				}
+			})
 		}
 	}
 	var select = document.getElementById( "Del-Name" );

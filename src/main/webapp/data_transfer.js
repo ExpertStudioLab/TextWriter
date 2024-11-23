@@ -16,52 +16,97 @@ import { cvs } from "./draw_graph.js";
     // buttons for Reserved Words
     const insertEquals = document.getElementById( "Insert-Equals" );
 
-document.body.onload = function() {
-   const xhr = new XMLHttpRequest();
-   xhr.open( "GET", "/TextWriter/storage", true );
-   xhr.setRequestHeader( 'Process', 'FileNumber' );
-   xhr.onreadystatechange = function() {
-	   if( xhr.readyState == 4 && xhr.status == 200 ) {
-		   fileNumber = xhr.responseText;
-		   console.log( "Success: ", fileNumber );
-	   } else {
-		   console.log( "Error ocasion" );
-	   }
-   };
-   xhr.send( null );
-};
+window.addEventListener( "DOMContentLoaded", getFileNumber );
+//document.body.onload = getFileNumber;
+async function getFileNumber() {
+	const myHeaders = new Headers();
+    myHeaders.append( "Process", "FileNumber" );
+    const myRequest = new Request( "storage", {
+        method: "GET",
+        headers: myHeaders
+    });
+    try {
+	    window.fetch( myRequest )
+	    .then( response => {
+			if( !response.ok ) {
+				throw new Error( "response status: ${ response.status }" );
+			} else {
+				return response.text();
+			}
+		})
+		.then( number => {
+			fileNumber = parseInt( number );
+		});
+	} catch( error ) {
+		console.error( "error: ", error );
+	}
+}
+
+function sendData( process, data ) {
+    const myHeaders = new Headers();
+    myHeaders.append( "Process", String( process ) );
+    const myRequest = new Request( "storage", {
+        method: "GET",
+        headers: myHeaders,
+        body: data
+    } );
+    try {
+        window.fetch( myRequest )
+        .then( response => {
+            if( !response.ok ) {
+                throw new Error( "response status: ${ response.status }" );
+            }
+        })
+    } catch( error ) {
+        console.error( "error: ", error );
+    }
+}
 
     insertBtn.addEventListener( "click", insertIllust );
     insertPBtn.addEventListener( "click", insertParagraph );
 
     insertEquals.addEventListener( "click", insertReservedWords );
     
-    function insertIllust( event ) { 
+    async function insertIllust( event ) {
         const str = String( event.target.id );
         const idNumber = str.substring( 12, str.length );
-        console.log( idNumber );
-        cvs.toBlob( ( canvasImage ) => {
+
+        try{
+            const canvasImage = await canvasToBlob( cvs );
             const myHeaders = new Headers();
+            const formdata = new FormData();
+            formdata.append( "file", canvasImage, "img_" + fileNumber + ".png" );
             myHeaders.append( "Process", "Image" );
             const myRequest = new Request( "/TextWriter/storage", {
                 method: "POST",
-                body: canvasImage,
+                body: formdata,
                 headers: myHeaders
             });
-            try {
-                window.fetch( myRequest );
-                console.log( "Success" );
-            } catch( error ) {
-                console.error( "Error" );
-            }
-            // prohibit skipping processes.
-            window.setTimeout( () => {
+            const response = await window.fetch( myRequest );
+            if( response.ok ){
                 const illust = document.getElementById( "Illust" + String( idNumber ) );
                 illust.src = window.URL.createObjectURL( canvasImage );
                 illust.style.width = "350px";
-                illust.style.height = "275px";
-            }, 2000 );
+                illust.style.height = "275px";	
+            } else {
+                throw new Error( "response status: ${ response.status }" )
+            }
+    
+        } catch( error ) {
+            console.error( "error: ", error );
+        }
+        
+    }
 
+    function canvasToBlob( canvas ) {
+        return new Promise(( resolve, reject ) => {
+            canvas.toBlob( ( canvasImage ) => {
+                if( canvasImage ) {
+                    resolve( canvasImage );
+                } else {
+                    reject( new Error( "Failed to generate blob." ) );
+                }
+            });
         });
 
     }
@@ -91,9 +136,14 @@ document.body.onload = function() {
         insertImgBtn.addEventListener( "click", insertIllust );
 
         const textArea = document.getElementById( "Contents" + String( paraNumber ) );
+        textArea.addEventListener( "input", sendDocumentData );
         textArea.addEventListener( "input", displayText );
         textArea.addEventListener( "click", getCurrentTextArea );
         textArea.addEventListener( "keydown", specialKeysSettings );
+        textArea.addEventListener( "keyup", textSelection );
+        textArea.addEventListener( "compositionstart", composeOn );
+        textArea.addEventListener( "compositionend", composeOff );
+        textArea.addEventListener( "mouseup", getSelectedText );
         // create new Document class object
         documents.push( new Document() );
 
@@ -102,13 +152,16 @@ document.body.onload = function() {
 
     let documents = [];
     documents.push( new Document() );
+    let selection = new Object();
     let keyEvent = "";
     let inputStatus = "Normal";
     let isComposing = false;
     let startCaret = 0;
-    let selection = new Object();
+    let dataSending = false;
+    let timer;
 
 	const textOp = document.getElementById( "Contents1" );
+	textOp.addEventListener( "input", sendDocumentData );
     textOp.addEventListener( "input", displayText );
     textOp.addEventListener( "click", getCurrentTextArea );
     textOp.addEventListener( "keydown", specialKeysSettings );
@@ -123,20 +176,28 @@ document.body.onload = function() {
             inputStatus = "Compose";
         }
 
-        for( let i = 1; i < paraNumber; i++ ) {
-            const textOperator = document.getElementById( "Contents" + String( i ) );
-            textOperator.removeEventListener( "input", displayText );
-        }
+        event.target.removeEventListener( "input", displayText );
+        event.target.removeEventListener( "input", sendDocumentData );
         startCaret = event.target.selectionStart;
     }
 
     function composeOff( event ) {
         isComposing = false;
-        for( let i = 1; i < paraNumber; i++ ) {
-            const textOperator = document.getElementById( "Contents" + String( i ) );
-            textOperator.addEventListener( "input", displayText );
-        }
+
+        event.target.addEventListener( "input", displayText );
+        event.target.addEventListener( "input", sendDocumentData );
         displayText( event );
+        sendDocumentData( event );
+    }
+
+    function sendDocumentData( event ) {
+        dataSending = true;
+        event.target.removeEventListener( "input", sendDocumentData );
+        timer = window.setTimeout( () => {
+            console.log( "send data!" );
+            event.target.addEventListener( "input", sendDocumentData );
+            dataSending = false;
+        }, 1500 );
     }
 
     function displayText( event ) {
@@ -172,7 +233,6 @@ document.body.onload = function() {
         } else {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd + 1 );
         }
-//        replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd + parseInt( ( ( keyEvent == "Normal" || inputStatus == "Select" ) ? 0 : 1 ) ) );
         // text0 text1 ... "[before]【insert letters】[after][end]" textn textn+1 ...
         textBuffer.setBeforeAndEndBuffer( doc, replace)
         
@@ -191,9 +251,14 @@ document.body.onload = function() {
         console.log( "additional letters: " + textElement.value.substring( replace.start, replace.end ) );
         doc.changeText( replace.indexStart, textBuffer.before + textElement.value.substring( replace.start, replace.end ) + textBuffer.after + textBuffer.end );
         doc.concatText( replace.indexStart );
+        
+        const obj = JSON.stringify( doc );
+        const docCopy = new Document();
+        docCopy.createInstanceFromJson( obj );
+//        console.log( "docCopy: ", docCopy );
 
         inputStatus = "Normal";
-        console.log( "properties: ", doc );
+//        console.log( "properties: ", doc );
         paragraph.innerHTML = String( doc.getHTMLDocument() );
     }
 
@@ -235,6 +300,11 @@ document.body.onload = function() {
     }
 
     function specialKeysSettings( event ) {
+        if( dataSending ) {
+            window.clearTimeout( timer );
+            document.getElementById( currentTextArea ).addEventListener( "input", sendDocumentData );
+            dataSending = false;
+        }
         switch( event.key ) {
             case "Enter":
                 event.preventDefault();

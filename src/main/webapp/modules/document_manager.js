@@ -185,6 +185,22 @@ class Document {
     getCurrentLength() {
         return this.currentLength;
     }
+    createInstanceFromJson( jsonData ) {
+		const jsonObject = JSON.parse( jsonData );
+        this.textPieces = jsonObject.textPieces;
+        this.textLength = jsonObject.textLength;
+        this.currentIndex = jsonObject.currentIndex;
+        this.currentLength = jsonObject.currentLength;
+        this.properties.shift( );
+        console.log( "properties: " + this.properties.length );
+        for( let i = 0; i < this.textPieces; i++ ) {
+            this.properties.push( new DocumentProperties() );
+            this.properties[ i ].text = jsonObject.properties[ i ].text;
+            this.properties[ i ].isKeywords = jsonObject.properties[ i ].isKeywords;
+            this.properties[ i ].keywordType = jsonObject.properties[ i ].keywordType;
+            this.properties[ i ].textPosition = new Caret( jsonObject.properties[ i ].start, jsonObject.properties[ i ].end );
+        }
+    }
 }
 
 class DocumentProperties {

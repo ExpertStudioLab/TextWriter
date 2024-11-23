@@ -34,9 +34,10 @@ public class Control extends HttpServlet {
 	 *      response)
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = this.getSession(request);
-		StatusManager manager = (StatusManager) session.getAttribute("StatusManager");
-		manager.setRequest(request);
+		HttpSession session = this.getSession( request );
+		StatusManager manager = ( StatusManager ) session.getAttribute( "StatusManager" );
+		manager.setRequest( request );
+		manager.setResponse( response );
 
 		manager.execute();
 		switch (manager.getState()) {
@@ -59,19 +60,25 @@ public class Control extends HttpServlet {
 	 *      response)
 	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
+//		HttpSession session = request.getSession();
 
 		/*
 		 * String filename = "sample002.png"; String path =
 		 * "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\img\\"
 		 * ;
 		 */
+		HttpSession session = this.getSession(request);
+		StatusManager manager = (StatusManager) session.getAttribute("StatusManager");
+		manager.setRequest(request);
 
+		manager.execute();
+
+/*
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher("/WEB-INF/" + session.getAttribute("jsp_file"));
 //			RequestDispatcher rd = sc.getRequestDispatcher( "/test01.jsp" );
 		rd.forward(request, response);
-
+*/
 	}
 
 	private void initInputForm(HttpServletRequest request) {

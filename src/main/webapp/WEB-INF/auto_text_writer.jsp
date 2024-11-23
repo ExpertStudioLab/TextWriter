@@ -45,6 +45,6 @@
 											  								\"input_sec_title\" :
 											  								\"input_contents\"
 	}.jsp" />
-<script type="text/javascript" src="${pageContext.request.contextPath}/storage.js" ></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/setting.js" ></script>
 </body>
 </html>

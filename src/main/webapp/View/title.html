@@ -2,21 +2,22 @@
 <html lang="ja">
 <head>
 <link rel="stylesheet" href="style.css"/>
-<script type="text/javascript" src="../storage.js"></script>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
 <body>
 		<div id="Tag"></div>
 		<header id="Title"></header><hr>
+<script type="text/javascript" src="../setting.js"></script>
 <script>
-       function init() {
-              const vals = getTitle();
-              const hEl = document.getElementById( "Title" );
-              const tagEl = document.getElementById( "Tag" );
-				hEl.insertAdjacentHTML( "afterbegin", "<h1>" + vals.title + "</h1>" );
-				tagEl.insertAdjacentHTML( "afterbegin", "<span><small>" + vals.tagName + "</small></span>")
-       	}
+	async function init() {
+		const jsonData = await receiveData( "Title", )
+		const hEl = document.getElementById( "Title" );
+        const tagEl = document.getElementById( "Tag" );
+		hEl.insertAdjacentHTML( "afterbegin", "<h1>" + jsonData.title + "</h1>" );
+		tagEl.insertAdjacentHTML( "afterbegin", "<span><small>" + jsonData.tagName + "</small></span>");
+	}
+	
 </script>
 </body>
 </html>

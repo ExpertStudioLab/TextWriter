@@ -129,18 +129,14 @@
 <script>
     function init() {
     	console.log( "containt called");
-        column_nameOp = document.getElementById( "Column-Name" );
-        if( column_nameOp != null ) {
-            column_nameOp.addEventListener( "input", inputChange );
-
-            permitBtn = document.getElementById( "permit" );
-            permitBtn.addEventListener( "click", sendColumn );        	
-        }
     }
-let column_nameOp;
-let permitBtn;
+let permitBtn = document.getElementById( "permit" );
+let column_nameOp = document.getElementById( "Column-Name" );
+if( column_nameOp != null ) {
+    column_nameOp.addEventListener( "input", inputChange );
+    permitBtn.addEventListener( "click", sendColumn );
+}
     // make sure to input a column name.
-
     function inputChange( event ) {
         const btnOp = document.getElementById( "permit" );
         btnOp.disabled = ( event.currentTarget.value == "" );
@@ -151,5 +147,4 @@ let permitBtn;
             const form = document.getElementById( "send" );
              form.submit();
     }
-    
 </script>
