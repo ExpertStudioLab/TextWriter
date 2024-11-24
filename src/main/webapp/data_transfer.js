@@ -1,21 +1,28 @@
+import { DocumentRecorder } from "./modules/document_recorder.js";
 import { Document, TextBuffer, ReplaceProperties } from "./modules/document_manager.js";
 import { cvs } from "./draw_graph.js";
 
 /**
  * 
  */
+
+const recorder = new DocumentRecorder();
+// button to add paragraph.
+recorder.registerButton( "InsertParagraph", "Paragraph", insertParagraph );
+//recorder.registerEventListener( "InsertParagraph", "click", insertParagraph );
+recorder.registerKeywordButton( "InsertEquals", "Insert-Equals" )
+recorder.registerTextArea( "Contents1" );
     // use on identifying textareas
-    let paraNumber = 2;
+//    let paraNumber = 2;
      // identity of png file
     let fileNumber;
     // currently active TextArea Element
     let currentTextArea;
     // buttons
     const insertBtn = document.getElementById( "Insert-Image1" );
-    const insertPBtn = document.getElementById( "Paragraph" );
+//    const insertPBtn = document.getElementById( "Paragraph" );
     // buttons for Reserved Words
-    const insertEquals = document.getElementById( "Insert-Equals" );
-
+//    const insertEquals = document.getElementById( "Insert-Equals" );
 window.addEventListener( "DOMContentLoaded", getFileNumber );
 //document.body.onload = getFileNumber;
 async function getFileNumber() {
@@ -63,9 +70,9 @@ function sendData( process, data ) {
 }
 
     insertBtn.addEventListener( "click", insertIllust );
-    insertPBtn.addEventListener( "click", insertParagraph );
+//    insertPBtn.addEventListener( "click", insertParagraph );
 
-    insertEquals.addEventListener( "click", insertReservedWords );
+//    insertEquals.addEventListener( "click", insertReservedWords );
     
     async function insertIllust( event ) {
         const str = String( event.target.id );
@@ -112,6 +119,7 @@ function sendData( process, data ) {
     }
 
     function insertParagraph() {
+        const paraNumber = recorder.getParagraphNumber();
         const previewDiv = document.getElementById( "Preview" + String( paraNumber - 1 ) );
         previewDiv.insertAdjacentHTML(
             "afterend",
@@ -145,11 +153,12 @@ function sendData( process, data ) {
         textArea.addEventListener( "compositionend", composeOff );
         textArea.addEventListener( "mouseup", getSelectedText );
         // create new Document class object
-        documents.push( new Document() );
+//        documents.push( new Document() );
 
-        paraNumber += 1;
+//        paraNumber += 1;
+//        recorder.registerTextArea();
     }
-
+/*
     let documents = [];
     documents.push( new Document() );
     let selection = new Object();
@@ -335,3 +344,4 @@ function sendData( process, data ) {
             default:
         }
     }
+    */
