@@ -1,12 +1,12 @@
 /**
  * 
  */
-import { Document, TextBuffer, ReplaceProperties } from "./document_manager.js";
+import { TextBuffer, ReplaceProperties } from "./document_manager.js";
 
     export function displayText( event, params ) {
         params.currentTextArea = String( event.target.id );
-        const idNumber = params.currentTextArea.substring( 8, ( String )( params.currentTextArea ).length );
-        const textElement = document.getElementById( "Contents" + idNumber );
+        const idNumber = params.currentTextArea.substring( params.textAreaNameLength, ( String )( params.currentTextArea ).length );
+        const textElement = document.getElementById( params.textAreaName + idNumber );
         const paragraph = document.getElementById( "Doc" + idNumber );
         const doc = params.documentStructures[ parseInt( idNumber ) - 1 ];
         
@@ -16,9 +16,9 @@ import { Document, TextBuffer, ReplaceProperties } from "./document_manager.js";
 
         replace.end = textElement.selectionEnd;
 
-        switch( params.inputStatus ) {
+        switch( params.inputStatus[ params.currentIndex ] ) {
             case "Normal":
-                replace.start = parseInt( textElement.selectionStart - 1 ) + parseInt( ( params.keyEvent == "Normal" ) ? 0 : 1 );
+                replace.start = parseInt( textElement.selectionStart - 1 ) + parseInt( ( params.keyEvent[ params.currentIndex ] == "Normal" ) ? 0 : 1 );
                 replace.replaceEnd = replace.end - textElement.textLength + doc.getLength();
                 break;
             case "Compose":
@@ -26,19 +26,18 @@ import { Document, TextBuffer, ReplaceProperties } from "./document_manager.js";
                 replace.replaceEnd = params.startCaret;
                 break;
             case "Select":
-                replace.start = params.selectionStart;
-                replace.replaceEnd = params.selectionEnd;
+                replace.start = params.selectionStart[ params.currentIndex ];
+                replace.replaceEnd = params.selectionEnd[ params.currentIndex ];
                 break;
         }
 
         replace.indexStart = doc.searchDocumentIndex( replace.start );
-        if( params.keyEvent == "Normal" ||  replace.end == textElement.textLength ) {
+        if( params.keyEvent[ params.currentIndex ] == "Normal" ||  replace.end == textElement.textLength ) {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd );
         } else {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd + 1 );
         }
-        
-        console.log( replace );
+
         // text0 text1 ... "[before]【insert letters】[after][end]" textn textn+1 ...
         textBuffer.setBeforeAndEndBuffer( doc, replace)
         
@@ -58,13 +57,13 @@ import { Document, TextBuffer, ReplaceProperties } from "./document_manager.js";
         doc.changeText( replace.indexStart, textBuffer.before + textElement.value.substring( replace.start, replace.end ) + textBuffer.after + textBuffer.end );
         doc.concatText( replace.indexStart );
         
-        const obj = JSON.stringify( doc );
-        const docCopy = new Document();
-        docCopy.createInstanceFromJson( obj );
+//        const obj = JSON.stringify( doc );
+//        const docCopy = new Document();
+//        docCopy.createInstanceFromJson( obj );
 //        console.log( "docCopy: ", docCopy );
 
-        params.inputStatus = "Normal";
-//        console.log( "properties: ", doc );
+//        params.inputStatus = "Normal";
+        console.log( "properties: ", doc );
         paragraph.innerHTML = String( doc.getHTMLDocument() );
     }
 
