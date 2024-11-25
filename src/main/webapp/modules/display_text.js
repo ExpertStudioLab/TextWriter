@@ -27,7 +27,7 @@ import { Document, TextBuffer, ReplaceProperties } from "./document_manager.js";
                 break;
             case "Select":
                 replace.start = params.selectionStart;
-                replace.replaceEnd = params.selection.end;
+                replace.replaceEnd = params.selectionEnd;
                 break;
         }
 
@@ -37,6 +37,8 @@ import { Document, TextBuffer, ReplaceProperties } from "./document_manager.js";
         } else {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd + 1 );
         }
+        
+        console.log( replace );
         // text0 text1 ... "[before]【insert letters】[after][end]" textn textn+1 ...
         textBuffer.setBeforeAndEndBuffer( doc, replace)
         
