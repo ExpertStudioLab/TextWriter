@@ -1,27 +1,17 @@
-import { TestClass } from "./test02.js";
+import { TestClass, DocumentRecorder } from "./test02.js";
+
 /**
  * 
  */
+
 	const obj = new TestClass();
 	obj.publicFunc();
 	console.log( obj );
-
-async function getData() {
-  const url = "direction";
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`レスポンスステータス: ${response.status}`);
-    }
-
-    const json = await response.json();
-    console.log(json);
-  } catch (error) {
-    console.error(error.message);
-  }
-}
-getData();
-
+	
+	const doc = new DocumentRecorder();
+	console.log( "doc: " + doc.getText() + ", " + DocumentRecorder.InsertParagraph );
+	doc.registerEventListener();
+	doc.setTextArea( 1999 );
  function getDate( callback ) {
 	 callback( new Date );
  }

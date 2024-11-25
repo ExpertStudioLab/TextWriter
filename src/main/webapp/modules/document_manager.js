@@ -192,7 +192,6 @@ class Document {
         this.currentIndex = jsonObject.currentIndex;
         this.currentLength = jsonObject.currentLength;
         this.properties.shift( );
-        console.log( "properties: " + this.properties.length );
         for( let i = 0; i < this.textPieces; i++ ) {
             this.properties.push( new DocumentProperties() );
             this.properties[ i ].text = jsonObject.properties[ i ].text;
