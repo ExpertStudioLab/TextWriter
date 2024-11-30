@@ -44,54 +44,6 @@
         </div>    
     </div>
     <div id="Center">
-        <div>
-            <input type="text" class="Reserved-Words" id="Equals" list="Equals-List" placeholder="- A is B -" />
-            <datalist id="Equals-List">
-                <option value="とは"></option>
-                <option value="というのは"></option>
-            </datalist>
-            <input type="button" class="Reserved-Words-Button" id="Insert-Equals" value="追加" />
-        </div>
-        <div>
-            <input type="text" class="Reserved-Words" id="Also" list="Also-List" placeholder="- also -" />
-            <datalist id="Also-List">
-                <option value="でもあり、また"></option>
-                <option value="ともいわれ、また"></option>
-            </datalist>
-            <input type="button" class="Reserved-Words-Button" id="Insert-Also" value="追加" />
-        </div>
-        <div>
-            <input type="text" class="Reserved-Words" id="With" list="With-List" placeholder="- with A -" />
-            <datalist id="With-List">
-                <option value="を使って"></option>
-                <option value="を利用して"></option>
-            </datalist>
-            <input type="button" class="Reserved-Words-Button" id="Insert-With" value="追加" />
-        </div>
-        <div>
-            <input type="text" class="Reserved-Words" id="Of" list="Of-List" placeholder="- B of A -" />
-            <datalist id="Of-List">
-                <option value="の"></option>
-                <option value="が持つ"></option>
-            </datalist>
-            <input type="button" class="Reserved-Words-Button" id="Insert-Of" value="追加" />
-        </div>
-        <div>
-            <input type="text" class="Reserved-Words" id="Cause" list="Cause-List" placeholder="- cause -" />
-            <datalist id="Cause-List">
-                <option value="によって"></option>
-                <option value="が原因で"></option>
-            </datalist>
-            <input type="button" class="Reserved-Words-Button" id="Insert-Cause" value="追加" />
-        </div>
-        <div>
-            <input type="text" class="Reserved-Words" id="Porpose" list="Porpose-List" placeholder="- in order to -" />
-            <datalist id="Porpose-List">
-                <option value="するために"></option>
-                <option value="のために"></option>
-            </datalist>
-            <input type="button" class="Reserved-Words-Button" id="Insert-Porpose" value="追加" />
-        </div>
     </div>
     <div id="Right-Side">
         <div id="drawRect"></div>
@@ -115,10 +67,10 @@
     <div>
         <input type="button" id="Next" value="追加" />
     </div>
-    <form action="TextWriter" method="post" enctype="multipart/form-data" id="SendForm" >
+    <div id="SendForm" >
         <input type="submit" id="Save" value="保存" />
         <input type="file" hidden="true" id="SendFile" />
-    </form>
+    </div>
 <% 		}
 		} %>
 <%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>

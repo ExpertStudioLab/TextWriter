@@ -8,7 +8,6 @@
 </div>
 <div class="Right-Justify">
     <select name="Tag" class="Selector" id="Tag-El">
-        <option>ノンジャンル</option>
 
         <%
 	        if( session.getAttribute( "Tags" ) != null ) {
@@ -17,7 +16,7 @@
 	        		String tag;
         			for( int i = 0; i < tags.size(); i++ ) {
         				tag = tags.get( i );													%>
-					        <option value="<%= i %>"><%= tag %></option>
+					        <option value="<%= tag %>"><%= tag %></option>
 <%					}
         		}
         	} 																					%>
