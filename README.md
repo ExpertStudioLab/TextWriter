@@ -23,3 +23,4 @@ Nov. 17, 2024, Sun. Fixed bugs on reload.
 Nov. 20, 2024, Wed. Completed a program associated with a textarea.
 Nov. 21, 2024, Thu. Practiced to import modules in javascript.
 Nov. 25, 2024, Mon. Changed programs into modules.
+Nov. 30, 2024, Sat. Enabled to save documents.
