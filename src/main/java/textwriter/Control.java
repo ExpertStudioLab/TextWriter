@@ -87,6 +87,7 @@ public class Control extends HttpServlet {
 		StatusManager manager = new StatusManager(session);
 		session.setAttribute("StatusManager", manager);
 		List<String> tags = new ArrayList<>();
+		tags.add( "ノンジャンル" );
 		session.setAttribute("jsp_file", "auto_text_writer.jsp");
 		session.setAttribute("Tags", tags);
 		session.setAttribute("Count", "NONE");

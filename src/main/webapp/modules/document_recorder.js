@@ -9,8 +9,7 @@ class DocumentRecorder {
     #documentStructures = [];
     #paragraphName;
     #textAreaName;
-    #textAreas = [];
-    #textAreasNumber = 0;
+    #textAreasNumber = 1;
     #buttons = [];
     #eventObject;
     #eventObjectNumber;
@@ -49,6 +48,10 @@ class DocumentRecorder {
         this.addTextArea();
     }
 
+    getDocuments() {
+        return this.#documentStructures;
+    }
+
     registerButton( name, id, callback ) {
         const button = new Object();
         button.name = name;
@@ -76,27 +79,27 @@ class DocumentRecorder {
     }
 
 	eventFunction( name ) {
-        const index =this.#eventObject.findIndex( obj => obj.name == name );
+        const index = this.#eventObject.findIndex( obj => obj.name == name );
         return this.#eventObject[ index ];
     }
 
     addTextArea( ) {
 		const i = this.#textAreasNumber;
-        this.#textAreas[ i ] = document.getElementById( this.#textAreaName + String( i + 1 ) );
-        this.#textAreas[ i ].addEventListener( "input", this.eventFunction( "DataTransfer" ) );
-        this.#textAreas[ i ].addEventListener( "input", this.eventFunction( "TextArea" ) );
-        this.#textAreas[ i ].addEventListener( "click", this.eventFunction( "Focus" ) );
-        this.#textAreas[ i ].addEventListener( "keydown", this.eventFunction( "KeyType" ) );
-        this.#textAreas[ i ].addEventListener( "keyup", this.eventFunction( "Selection" ) );
-        this.#textAreas[ i ].addEventListener( "compositionstart", this.eventFunction( "ComposeBegin" ) );
-        this.#textAreas[ i ].addEventListener( "compositionend", this.eventFunction( "ComposeEnd" ) );
-        this.#textAreas[ i ].addEventListener( "mouseup", this.eventFunction( "MouseSelection" ) );
+        const textArea = document.getElementById( this.#textAreaName + String( i ) );
+        textArea.addEventListener( "input", this.eventFunction( "DataTransfer" ) );
+        textArea.addEventListener( "input", this.eventFunction( "TextArea" ) );
+        textArea.addEventListener( "click", this.eventFunction( "Focus" ) );
+        textArea.addEventListener( "keydown", this.eventFunction( "KeyType" ) );
+        textArea.addEventListener( "keyup", this.eventFunction( "Selection" ) );
+        textArea.addEventListener( "compositionstart", this.eventFunction( "ComposeBegin" ) );
+        textArea.addEventListener( "compositionend", this.eventFunction( "ComposeEnd" ) );
+        textArea.addEventListener( "mouseup", this.eventFunction( "MouseSelection" ) );
         this.#textAreasNumber += 1;
         this.#documentStructures.push( new Document );
 
-        this.#eventParams.isComposing[ i ] = false;
-        this.#eventParams.inputStatus[ i ] = "Normal";
-        this.#eventParams.dataSending[ i ] = false;
+        this.#eventParams.isComposing[ i - 1 ] = false;
+        this.#eventParams.inputStatus[ i - 1 ] = "Normal";
+        this.#eventParams.dataSending[ i - 1 ] = false;
     }
 
 }

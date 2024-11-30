@@ -1,5 +1,6 @@
 import { DocumentRecorder } from "./modules/document_recorder.js";
 import { cvs } from "./draw_graph.js";
+import { createKeywordButton } from "./modules/keyword_buttons.js";
 
 /**
  * 
@@ -8,15 +9,66 @@ import { cvs } from "./draw_graph.js";
 const recorder = new DocumentRecorder( "Doc", "Contents" );
 // button to add paragraph.
 recorder.registerButton( "InsertParagraph", "Paragraph", insertParagraph );
-recorder.registerKeywordButton( "InsertEquals", "Insert-Equals" )
-//recorder.registerTextArea( "Contents1" );
+// button to send documents to servlet
+recorder.registerButton( "SendDocuments", "Save", SendDocuments ); 
      // identity of png file
     let fileNumber;
     // buttons
     const insertBtn = document.getElementById( "Insert-Image1" );
 
-    window.addEventListener( "DOMContentLoaded", getFileNumber );
-//document.body.onload = getFileNumber;
+    window.addEventListener( "DOMContentLoaded", settings );
+
+function settings() {
+    getFileNumber();
+    getKeywords();
+}
+async function getKeywords() {
+    const myRequest = new Request( "storage", {
+        method: "GET",
+        headers: { "Process": "Keywords" }
+    });
+
+    const response = await window.fetch( myRequest );
+    try{
+        if( !response.ok ) {
+            throw new Error( "response status: ${ response.status }" );
+        } else {
+            const jsonData = await response.json();
+            jsonData.forEach( data => {
+                const statement = createKeywordButton( data.keyword, data.placeholder, data.options );
+                const div = document.getElementById( "Center" );
+                div.insertAdjacentHTML( "beforeend", statement );
+                recorder.registerKeywordButton( "Insert" + data.keyword, "Insert-" + data.keyword );
+            });
+        }
+    } catch( error ) {
+        console.error( error );
+    }
+}
+
+async function SendDocuments() {
+    const myHeaders = new Headers();
+    myHeaders.append( "Content-Type", "application/json" );
+    myHeaders.append( "Process", "Save" );
+    const blob = new Blob( [ JSON.stringify( recorder.getDocuments() ) ], { type: "application/json"} );
+    const myRequest = new Request( "storage", {
+        method: "POST",
+        headers: myHeaders,
+        body: blob
+    });
+
+    const response = await window.fetch( myRequest );
+    try {
+        if( !response.ok ) {
+            throw new Error( "response status: ${ response.status }" );
+        }
+    } catch( error ) {
+        console.error( error );
+    }
+}
+
+
+    //document.body.onload = getFileNumber;
 async function getFileNumber() {
 	const myHeaders = new Headers();
     myHeaders.append( "Process", "FileNumber" );

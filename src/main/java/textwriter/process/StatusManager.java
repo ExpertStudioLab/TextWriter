@@ -2,6 +2,11 @@ package textwriter.process;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -147,5 +152,38 @@ public class StatusManager {
 		} else if( end != null ){
 			this.state = StatusManager.END;
 		}
+	}
+	
+	public String getFileNumber() {
+		try {
+			Connection connection;
+			String url = "jdbc:mysql://localhost:3306/autotextwriter?useSSL=false";
+			String user = "root";
+			String passward = "root";
+			
+			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
+
+
+			Class.forName( "com.mysql.jdbc.Driver" );
+			connection = DriverManager.getConnection( url, user, passward );
+			CallableStatement statement = connection.prepareCall( "{ call InsertColumn( ?, ?, ?, ?, ? ) }" );
+			statement.registerOutParameter( 5, Types.VARCHAR );
+			statement.setString( 1, this.title );
+
+			int index = tags.indexOf( this.tagName );
+			statement.setInt( 2,  index );
+			statement.setString( 3, this.section );
+			statement.setString(4, this.columns.get( this.columns.size() - 1 ) );
+			statement.execute();
+	
+			return statement.getString( 5 );		
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
