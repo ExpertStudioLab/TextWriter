@@ -46,6 +46,38 @@
 #permit:active {
 	background-color: rgba(171, 166, 166, 0.693);
 }
+.Press-Button {
+	border: 2px groove darkblue;
+	background-color: lightblue;
+	width: fit-content;
+	height: 26px;
+	min-width: 38px;
+	font-size: 17px;
+	line-height: 17px;
+		box-shadow: 2px 2px 4px inset,
+							 -1px -1px 2px inset;
+}
+.Button-Preference {
+	border: 2px groove darkslategray;
+	background-color: lightgray;
+	width: fit-content;
+	height: 26px;
+	min-width: 38px;
+	font-size:  17px;
+	line-height: 17px;
+}
+.Button-Preference:hover {
+	background-color: rgb(230, 230, 230);	
+}
+.Button-Preference:active {
+	background-color: rgb( 160,  160, 160 );
+			box-shadow: 2px 2px 4px inset,
+							 -1px -1px 2px inset;
+}
+.Hover-Button {
+	background-color: rgba(223, 215, 215, 0.826);
+}
+
 /* [Add Tag] [Del Tag] button */
 .Tag-Button {
 	margin-top: 5px;

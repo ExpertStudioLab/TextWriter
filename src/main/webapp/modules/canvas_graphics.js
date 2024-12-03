@@ -5,19 +5,15 @@
 // the definition of  Graphic Object.
 class Graphic {
     area;
-    graphicContext;
-          
+
     constructor( area ) {
         this.area = new Area();
-        this.area.x = area.getX();
-        this.area.y = area.getY();
-        this.area.width = area.getWidth();
-        this.area.height = area.getHeight();
+        this.area.setX( area.getX() );
+        this.area.setY( area.getY() );
+        this.area.setWidth( area.getWidth() );
+        this.area.setHeight( area.getHeight() );
       }
-  
-    setContext( context ) {
-      this.graphicContext = context;
-    }
+
     getArea() {
         return this.area;
     }
@@ -27,8 +23,8 @@ class Graphic {
     setY( y ) {
         this.area.setY( y );
     }
-    draw() {
-      this.graphicContext.strokeRect( this.area.x, this.area.y, this.area.width, this.area.height );
+    draw( graphicContext ) {
+      graphicContext.strokeRect( this.area.getX(), this.area.getY(), this.area.getWidth(), this.area.getHeight() );
     }
 
   }
@@ -38,94 +34,96 @@ class Graphic {
     textAlign;
     fillStyle;
     text;
-    textBottom;
+    #outline;
   
-    constructor( area, text ) {
+    constructor( area, text, graphicContext ) {
         super( area );
         this.font = "25px Meiryo";
         this.textAlign = "left";
         this.fillStyle = "#000";
         this.text = text;
+        this.calculateSize( graphicContext );
     }
-    calculateSize() {
-        this.graphicContext.save();
-        this.graphicContext.font = this.font;
+    setOutline( graphicType ) {
+      console.log( "graphicType: ", graphicType );
+      if( graphicType != null ) {
+        this.#outline = new graphicType( this.area );
+      } else {
+        this.#outline = null;
+      }
+    }
+    calculateSize( graphicContext ) {
+        graphicContext.save();
+        graphicContext.font = this.font;
 
-        const textMetrics = this.graphicContext.measureText( this.text );
-        const textHalfHeight = Math.floor( ( textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent ) / 4 );
-        const halfHeight = Math.floor( this.area.height / 2 );
+        const textMetrics = graphicContext.measureText( this.text );
+
+        if( textMetrics.width > this.area.getWidth() ) {
+          this.area.setWidth( Math.floor( textMetrics.width ) );
+        }
       
-        if( halfHeight > textHalfHeight ) {
-            this.textBottom = this.area.getY() + halfHeight + textHalfHeight;
+        graphicContext.restore();
+    }
+
+    draw( graphicContext ) {
+        this.calculateSize( graphicContext );
+        graphicContext.save();
+        graphicContext.font = this.font;
+        const textMetrics = graphicContext.measureText( this.text );
+        const textQuoteHeight = Math.floor( ( textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent ) / 4 );
+        const halfHeight = Math.floor( this.area.getHeight() / 2 );
+        const x = Math.floor( this.area.getX() + ( this.area.getWidth() - textMetrics.width ) / 2 );
+        const y = Math.floor( this.area.getY() + halfHeight + textQuoteHeight );
+
+
+        graphicContext.textAlign = "left";
+        graphicContext.fillStyle = "#000";
+        graphicContext.beginPath();
+//        graphicContext.fillText( this.text, this.area.getX(), this.textBottom );
+        graphicContext.fillText( this.text, x, y );
+        graphicContext.restore();
+        if( this.#outline != null ) {
+          this.#outline.draw( graphicContext );
         }
-        else {
-            this.textBottom = this.area.getY() + textHalfHeight;
-        }
-        this.area.setY( this.textBottom - textMetrics.fontBoundingBoxAscent );
-        this.area.setHeight( this.textBottom + textMetrics.fontBoundingBoxDescent - this.area.y );
-        this.area.setWidth( textMetrics.width );
-        this.graphicContext.restore();
-    }
-    setContext( context ) {
-        this.graphicContext = context;
-        this.calculateSize();
-    }
-    setX( x ) {
-        this.area.setX( x );
-        this.calculateSize();
-    }
-    setY( y ) {
-        this.area.setY( y );
-        this.calculateSize();
-    }
-  
-    draw() {
-        this.graphicContext.save();
-        this.graphicContext.font = this.font;
-        this.graphicContext.textAlign = "left";
-        this.graphicContext.fillStyle = "#000";
-        this.graphicContext.beginPath();
-        this.graphicContext.fillText( this.text, this.area.getX(), this.textBottom );
-        this.graphicContext.restore();
     }
   }
   
   
   
   class Area {
-    x;
-    y;
-    width;
-    height;
+    #x;
+    #y;
+    #width;
+    #height;
     setArea( x, y, w, h ) {
-      this.x = x;
-      this.y = y;
-      this.width = w;
-      this.height = h;
+      this.#x = x;
+      this.#y = y;
+      this.#width = w;
+      this.#height = h;
     }
     getX() {
-      return this.x;
+      return this.#x;
     }
     setX( x ) {
-        this.x = x;
+        this.#x = x;
     }
     getY() {
-      return this.y;
+      return this.#y;
     }
     setY( y ) {
-        this.y = y;
+        this.#y = y;
     }
     getWidth() {
-      return this.width;
+      return this.#width;
     }
     setWidth( w ) {
-        this.width = w;
+        this.#width = w;
     }
     getHeight() {
-      return this.height;
+      return this.#height;
     }
     setHeight( h ) {
-        this.height = h;
+        this.#height = h;
     }
   }
 export { Graphic, TextGraphic, Area };

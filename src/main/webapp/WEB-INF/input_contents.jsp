@@ -46,22 +46,20 @@
     <div id="Center">
     </div>
     <div id="Right-Side">
-        <div id="drawRect"></div>
         <canvas id="Image1" height="275px" width="350px">
         </canvas>
         <div>
-            <input type="button" id="Rect" value="▭" />
-            <input type="button" id="Round" value="◯" />
+            <input type="button" id="Rect" class="Button-Preference" value="▭" />
+            <input type="button" id="Round" class="Button-Preference" value="◯" />
             <button type="button"><img src="${ pageContext.request.contextPath }/picture/round-rect.png" width="20px" height="15px" ></button>
         </div>
         <div>
-            <input type="button" id="Text" value="TEXT" />
+            <input type="button" id="Text" class="Button-Preference" value="TEXT" />
             <input type="text" id="Text-Label" />
         </div>
-            <input type="button" id="Hline" value="――" />
-            <input type="button" id="Vline" value="|" />
-            <input type="button" id="MoveGraph" value="図形の移動" />
-            <input type="button" id="Log" value="ログの表示" />
+            <input type="button" id="Hline" class="Button-Preference" value="―" />
+            <input type="button" id="Vline" class="Button-Preference" value="|" />
+            <input type="button" id="MoveGraph" class="Button-Pre" value="図形の移動" />
         </div>
     </div>
     <div>
@@ -74,7 +72,7 @@
 <% 		}
 		} %>
 <%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
-<script type="module" src="${pageContext.request.contextPath}/draw_graph.js"></script>
+<script type="module" src="${pageContext.request.contextPath}/edit_graph.js"></script>
 <script type="module" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
 
 <%  } %>

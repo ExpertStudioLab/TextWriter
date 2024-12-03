@@ -1,167 +1,45 @@
-import { Graphic, TextGraphic, Area } from "./modules/canvas_graphics.js";
-import * as move_graph from "./move_graph.js";
+
+import { Point  } from "./modules/illustration.js";
 /**
  * 
  */
     // use on reducing processes
     let state = -1;
     // save a point position
-    export let point = new Object();
+    let point = new Object();
 
     export let graphics = [];
-
-    // the method which shows guideline to draw graphics.
-    let preview;
-    // the method which sets border-line of formLine div.
-    let drawRectLine;
-    // the method which draws graphics on drag ends.
-    let draw;
-    // show guideline when draw picture.
-    export const formLine = document.getElementById( "drawRect" );
-    
-    // graphic object
-    export const cvs = document.getElementById( "Image1" );
-    export const graph = cvs.getContext( "2d" );
-
-
-    // buttons
-    const rectBtn = document.getElementById( "Rect" );
-    const textBtn = document.getElementById( "Text" );
-    const logBtn = document.getElementById( "Log" );
-
-    // text label
-    const textLabel = document.getElementById( "Text-Label" );
-
-
-    graph.fillStyle = "#fff"
-    graph.fillRect( 0, 0, cvs.width, cvs.height );
-    graph.strokeStyle = "#000";
-    graph.lineWidth = "10px";
-    graph.save();    
-
-
-
-    // selected drawing actions
-    function drawSettings( ) {
-        deleteMoveGraphSettings();
-        formLine.style.cssText = "";
-        cvs.addEventListener( "mousedown", setBegin );
-        document.body.addEventListener( "mousemove", setMove );
-        document.body.addEventListener( "mouseup", setEnd );    
-    }
-
-    // setting of buttons
-    rectBtn.addEventListener( "click", drawGraphSettings );
-    textBtn.addEventListener( "click", drawGraphSettings );
-    logBtn.addEventListener( "click", showlog );
-
-    // setting for drawing rectangles
-    function drawGraphSettings( event ) {
-        const id = event.target.id;
-        drawSettings( );
-        switch( id ) {
-            case "Rect":
-            case "Text":
-                drawRectLine = function() {
-                    formLine.style.border = "1px solid black";
-                };
-                break;
-        }
-
-        preview = function( w, h ) {
-            formLine.style.width = String( Math.floor( w ) ) + "px";
-            formLine.style.height = String( Math.floor( h ) ) + "px";    
-        };
-
-
-        if( id == "Rect" ) {
-            draw = function( w, h ) {
-                graph.restore();
-                const area = registerRect( w, h );
-                const graphic = new Graphic( area );
-                console.log( graph );
-                graphic.setContext( graph );
-                graphic.draw();
-                graphics.push( graphic );
-            }
-        } else if( id == "Text" ) {
-            draw = function( w, h ) {
-                const area = registerRect( w, h );
-                const graphic = new TextGraphic( area, textLabel.value );
-                graphic.setContext( graph );
-                graphic.draw();
-
-                // register Graphic Object
-                graphics.push( graphic );
-            }
-        }
-
-    }
-
-    function registerRect( w, h ) {
-        const area = new Area();
-        if( Math.sign( w ) == -1 ) {
-            w = Math.abs( w );
-            point.rectX = Math.floor( point.x - w );
-        } else {
-            point.rectX = Math.floor( point.x );
-        }
-
-        if( Math.sign( h ) == -1 ) {
-            h = Math.abs( h );
-            point.rectY = Math.floor( point.y - h );
-        } else {
-            point.rectY = Math.floor( point.y );
-        }
-
-        if( w != 0 && h != 0 ) {
-            area.setArea( point.rectX, point.rectY, w, h );
-        }
-        return area;
-    }
-
-    function showlog() {
-        graphics.forEach( g => {
-            console.log( "name: [ " + g.name + " ], area: x: [ " + g.area.x + " ], y: [ " + g.area.y + " ], width: [ " + g.area.width + " ], height: [ " + g.area.height + " ]" );
-        });
-    }
-
-    function deleteMoveGraphSettings() {
-        cvs.removeEventListener( "click", move_graph.getActive );
-        formLine.removeEventListener( "dragstart", move_graph.getCursorPoint );
-        formLine.removeEventListener( "drag", move_graph.moveGraph );
-        cvs.removeEventListener( "dragover", move_graph.hoverCanvas );
-        formLine.removeEventListener( "dragover", move_graph.hoverCanvas );
-        cvs.removeEventListener( "dragend", move_graph.setMoveGraphEnd );
-    }
 
 let flag = false;
 let invalidW = false;
 let invalidH = false;
-    function setBegin( event ) {
+    function setBegin( event, illust ) {
         event.preventDefault();
         if( !flag ) {
+            const formLine = illust.getFormLine();
             point.offSet = event.target.getBoundingClientRect();
+            // ( point.x, point.y ) on canvas
             point.x = event.clientX - point.offSet.left;
             point.y = event.clientY - point.offSet.top;
             formLine.style.position = "absolute";
             formLine.style.zIndex = 10;
             document.body.style.userSelect = "none";
-            point.screenX = Math.floor( event.clientX );
+            point.screenX = Math.floor( event.clientX + window.scrollX );
             point.screenY = Math.floor( event.clientY + window.scrollY );
             formLine.style.left = String( point.screenX ) + "px";
             formLine.style.top = String( point.screenY ) + "px";
-            point.absoluteX = point.offSet.left + point.x;
-            point.absoluteY = point.offSet.top + point.y;
+            point.absoluteX = event.clientX;
+            point.absoluteY = event.clientY;
             flag = true;
 
-            drawRectLine();
+            illust.callDrawFormLine();
         }
     }
 
-    function setMove( event ) {
-        graph.restore();
+    function setMove( event, illust ) {
+//        graph.restore();
         event.preventDefault();
+        const formLine = illust.getFormLine();
         if( flag ) {
             let w  = event.clientX - point.absoluteX;
             let h = event.clientY - point.absoluteY;
@@ -214,11 +92,13 @@ let invalidH = false;
                     state = 3;
                 }
             }
-            preview( w, h );
+            formLine.style.width = String( Math.floor( w ) ) + "px";
+            formLine.style.height = String( Math.floor( h ) ) + "px";
         }
     }
-    function setEnd( event ) {
+    function setEnd( event, illust ) {
         event.preventDefault();
+        const formLine = illust.getFormLine();
         let w, h;
         if( flag ) {
             flag = false;
@@ -226,8 +106,8 @@ let invalidH = false;
             document.body.style.cssText = "";
             w  = event.clientX - point.offSet.left - point.x;
             h = event.clientY - point.offSet.top - point.y
-            graph.restore();
-            draw( Math.floor( w ), Math.floor( h ) );
+            const pos = new Point( point.x, point.y );
+            illust.callDraw( pos, Math.floor( w ), Math.floor( h ) );
         }
     }
 

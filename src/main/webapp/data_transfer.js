@@ -1,10 +1,13 @@
+
+
 import { DocumentRecorder } from "./modules/document_recorder.js";
-import { cvs } from "./draw_graph.js";
+
 import { createKeywordButton } from "./modules/keyword_buttons.js";
 
 /**
  * 
  */
+const cvs = document.getElementById( "Image1" );
 
 const recorder = new DocumentRecorder( "Doc", "Contents" );
 // button to add paragraph.
