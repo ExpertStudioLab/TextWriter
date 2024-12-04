@@ -12,7 +12,7 @@ class Illustration {
 
     static GraphicType = {
         [ Illustration.RECTANGLE ] : Graphic,
-        [ Illustration.TEXT ] : null
+        "UNDEFINED" : null
     };
 
     #graphicObject = [];
@@ -22,13 +22,13 @@ class Illustration {
     #eventObject;
     #formLine;
     #currentTextbox;
-    #textOutline = Illustration.TEXT;
+    #textOutline = "UNDEFINED";
+    #buttonName = [];
 
     #drawFormLine;
     #draw;
 
     constructor( canvasId ) {
-
         this.#canvas = document.getElementById( canvasId );
         this.#graphicInterface = this.#canvas.getContext( "2d" );
         this.#graphicInterface.fillStyle = "#fff"
@@ -41,9 +41,9 @@ class Illustration {
         this.#formLine = document.getElementById( "formLine" );
 
         this.#eventObject = [
-            { name: "RectButton", illust: this, handleEvent: function( event ) { setDraw( event, this.illust, this.name ) } },
-            { name: "TextButton", illust: this, handleEvent: function( event ) { setText( event, this.illust, this.name ) } },
-            { name: "MoveButton", illust: this, handleEvent: function( event ) { moveGraphSettings( event, this.illust ) } },
+            { name: Illustration.RECTANGLE, illust: this, handleEvent: function( event ) { setDraw( event, this.illust, this.name ) } },
+            { name: Illustration.TEXT, illust: this, handleEvent: function( event ) { setText( event, this.illust, this.name ) } },
+            { name: Illustration.MOVE_GRAPH, illust: this, handleEvent: function( event ) { moveGraphSettings( event, this.illust ) } },
             { name: "SetBegin", illust: this, handleEvent: function( event ) { setBegin( event, this.illust ) } },
             { name: "SetMove", illust: this, handleEvent: function( event ) { setMove( event, this.illust ) } },
             { name: "SetEnd", illust: this, handleEvent: function( event ) { setEnd( event, this.illust ) } },
@@ -61,11 +61,14 @@ class Illustration {
     }
 
     setButton( btnId, btnType ) {
+        this.#buttonName[ btnId ] = btnType;
         const btn = document.getElementById( btnId );
+        btn.classList.add( "Button-Preference" );
         btn.addEventListener( "click", this.eventFunction( btnType ) );
     }
 
     setTextButton( btnId, textboxId ) {
+        this.#buttonName[ btnId ] = Illustration.TEXT;
         const btn = document.getElementById( btnId );
         this.#currentTextbox = document.getElementById( textboxId );
         btn.addEventListener( "click", this.eventFunction( "TextButton" ) );
@@ -108,17 +111,6 @@ class Illustration {
 
     }
 
-    setTextOutline( name ) {
-        if( name == this.#textOutline ) {
-            this.#textOutline = Illustration.TEXT;
-            return false;
-        } else if( name != Illustration.TEXT ) {
-            this.#textOutline = name;
-            return true;
-        }
-        return true;
-    }
-
     getFormLine() {
         return this.#formLine;
     }
@@ -128,6 +120,9 @@ class Illustration {
     getGraphicInterface() {
         return this.#graphicInterface;
     }
+    getButtonName( btnId ) {
+		return this.#buttonName[ btnId ];
+	}
     setActiveIndex( curPoint ) {
         for( let i = this.#graphicObject.length - 1; i >= 0; i-- ) {
             let g = this.#graphicObject[ i ];
@@ -136,8 +131,7 @@ class Illustration {
                 this.#activeIndex = i;
                 return i;
             }
-        }
-    
+        }    
     }
     getActiveIndex() {
         return this.#activeIndex;
@@ -145,6 +139,10 @@ class Illustration {
     setGraphicPosition( left, top ) {
         this.#graphicObject[ this.#activeIndex ].getArea().setX( left );
         this.#graphicObject[ this.#activeIndex ].getArea().setY( top );
+        if( this.#graphicObject[ this.#activeIndex ] instanceof TextGraphic ) {
+			this.#graphicObject[ this.#activeIndex ].setOutlineX( left );
+			this.#graphicObject[ this.#activeIndex ].setOutlineY( top );
+		}
     }
     repaint() {
         this.#graphicInterface.fillRect( 0, 0, this.#canvas.width, this.#canvas.height );
@@ -153,6 +151,42 @@ class Illustration {
                 this.#graphicObject[ i ].draw( this.#graphicInterface );
             }
         }    
+    }
+    setTextOutline( name ) {
+        this.#textOutline = name;
+    }
+    deleteTextOutline() {
+        this.#textOutline = "UNDEFINED";
+    }
+
+    #switchButtonStatus( btn ) {
+        if( btn.classList.contains( "Press-Button" ) ) {
+            btn.classList.remove( "Press-Button" );
+            btn.classList.add( "Button-Preference" );
+        } else {
+            btn.classList.remove( "Button-Preference" );
+            btn.classList.add( "Press-Button" );
+        }
+    }
+    setButtonStatus( event, name ) {
+        const buttons = document.querySelectorAll( ".Press-Button" );
+
+        for( let i = 0; i < buttons.length; i++ ) {
+            if( this.#buttonName[ buttons[ i ].id ] == name ) {
+                this.#switchButtonStatus( buttons[ i ] );
+                return false;
+            }
+        }
+        if( buttons.length == 2 ) {
+            for( let i = 0; i < buttons.length; i++ ) {
+                if( this.#buttonName[ buttons[ i ].id ] != Illustration.TEXT ) {
+                    this.#switchButtonStatus( buttons[ i ] );
+                }
+            }
+        }
+
+        this.#switchButtonStatus( event.target );
+        return true;
     }
 
     setMoveGraph() {
@@ -202,23 +236,37 @@ class Illustration {
 function moveGraphSettings( event, illust ) {
     illust.setMoveGraph();
 }
-function setRectangle( event, illust ) {
-    illust.setRectangle();
-}
 
 function setText( event, illust, name ) {
-    if( illust.setTextOutline( name ) ) {
+    if( illust.setButtonStatus( event, name ) ) {
+        console.log( "setText" );
         illust.setText();
     } else {
-        illust.unsetDraw()
+        const buttons = document.querySelectorAll( ".Press-Button" );
+        if( buttons.length == 0 ) {
+			console.log( "unsetText" );
+			
+            illust.unsetDraw();
+        } else if( buttons.length == 1 ) {
+			console.log( "setDraw" );
+			illust.setDraw( illust.getButtonName( buttons[ 0 ].id ) );
+		}
     }
 }
 
 function setDraw( event, illust, name ) {
-    if( illust.setTextOutline( name ) ) {
-        illust.setDraw( name );
+    if( illust.setButtonStatus( event, name ) ) {
+        illust.setTextOutline( name );
+        if( document.querySelectorAll( ".Press-Button" ).length == 1 ) {
+			console.log( "setDraw" );
+            illust.setDraw( name );
+        }
     } else {
-        illust.unsetDraw();
+        illust.deleteTextOutline();
+        if( document.querySelectorAll( ".Press-Button" ).length == 0 ) {
+			console.log( "unsetDraw" );
+            illust.unsetDraw();
+        }
     }
 }
 

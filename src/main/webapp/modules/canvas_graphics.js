@@ -44,6 +44,8 @@ class Graphic {
         this.text = text;
         this.calculateSize( graphicContext );
     }
+
+	
     setOutline( graphicType ) {
       console.log( "graphicType: ", graphicType );
       if( graphicType != null ) {
@@ -52,6 +54,17 @@ class Graphic {
         this.#outline = null;
       }
     }
+    
+    setOutlineX( x ) {
+		if( this.#outline != null ) {
+			this.#outline.setX( x );
+		}
+	}
+	setOutlineY( y ) {
+		if( this.#outline != null ) {
+			this.#outline.setY( y );
+		}
+	}
     calculateSize( graphicContext ) {
         graphicContext.save();
         graphicContext.font = this.font;
