@@ -25,3 +25,4 @@ Nov. 21, 2024, Thu. Practiced to import modules in javascript.
 Nov. 25, 2024, Mon. Changed programs into modules.
 Nov. 30, 2024, Sat. Enabled to save documents.
 Dec. 3, 2024, Tue. Enabled to draw borders when text graphics are drawn.
+Dec. 4, 2024, Wed. Create button switching function which switch a button status(on/off).
