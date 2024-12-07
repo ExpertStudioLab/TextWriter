@@ -21,6 +21,7 @@ class Illustration {
     #activeIndex = -1;
     #eventObject;
     #formLine;
+    #contextMenu;
     #currentTextbox;
     #textOutline = "UNDEFINED";
     #buttonName = [];
@@ -37,13 +38,14 @@ class Illustration {
         this.#graphicInterface.lineWidth = "10px";
         this.#graphicInterface.save();
 
-        this.#canvas.insertAdjacentHTML( "beforebegin", "<div id=\"formLine\" ></div>" );
+        this.#canvas.insertAdjacentHTML( "beforebegin", "<div id=\"formLine\" ></div><div id=\"contextMenu\" ></div>" );
         this.#formLine = document.getElementById( "formLine" );
+        this.#contextMenu = document.getElementById( "contextMenu" );
 
         this.#eventObject = [
             { name: Illustration.RECTANGLE, illust: this, handleEvent: function( event ) { setDraw( event, this.illust, this.name ) } },
             { name: Illustration.TEXT, illust: this, handleEvent: function( event ) { setText( event, this.illust, this.name ) } },
-            { name: Illustration.MOVE_GRAPH, illust: this, handleEvent: function( event ) { moveGraphSettings( event, this.illust ) } },
+            { name: Illustration.MOVE_GRAPH, illust: this, handleEvent: function( event ) { moveGraphSettings( event, this.illust, this.name ) } },
             { name: "SetBegin", illust: this, handleEvent: function( event ) { setBegin( event, this.illust ) } },
             { name: "SetMove", illust: this, handleEvent: function( event ) { setMove( event, this.illust ) } },
             { name: "SetEnd", illust: this, handleEvent: function( event ) { setEnd( event, this.illust ) } },
@@ -51,8 +53,13 @@ class Illustration {
             { name: "DragStart", illust: this, handleEvent: function( event ) { getCursorPoint( event, this.illust ) } },
             { name: "MoveGraph", illust: this, handleEvent: function( event ) { moveGraph( event, this.illust ) } },
             { name: "MoveGraphEnd", illust: this, handleEvent: function( event ) { setMoveGraphEnd( event, this.illust ) } },
-            { name: "LostActive", illust: this, handleEvent: function( event ) { lostActive( event, this.illust ) } }
+            { name: "ContextMenu", illust: this, handleEvent: function( event ) { showContextMenu( event, this.illust ) } },
+            { name: "LostFocus", illust: this, handleEvent: function( event ) { lostFocus( event, this.illust ) } }
         ];
+
+        this.#canvas.addEventListener( "contextmenu", this.eventFunction( "ContextMenu" ) );
+        document.addEventListener( "click", this.eventFunction( "LostFocus" ) );
+        document.addEventListener( "contextmenu", this.eventFunction( "LostFocus" ) );
     }
     
     eventFunction( name ) {
@@ -95,8 +102,6 @@ class Illustration {
         this.#canvas.addEventListener( "dragover", hoverCanvas );
         this.#formLine.addEventListener( "dragover", hoverCanvas );
         this.#formLine.addEventListener( "dragend", this.eventFunction( "MoveGraphEnd" ));
-        document.addEventListener( "click", this.eventFunction( "LostActive" ) );
-        document.addEventListener( "contextmenu", this.eventFunction( "LostActive" ) );
     }
 
     #deleteMoveGraphSettings() {
@@ -106,13 +111,13 @@ class Illustration {
         this.#canvas.removeEventListener( "dragover", hoverCanvas );
         this.#formLine.removeEventListener( "dragover", hoverCanvas );
         this.#canvas.removeEventListener( "dragend", this.eventFunction( "MoveGraphEnd" ) );
-        document.removeEventListener( "click", this.eventFunction( "LostActive" ) );
-        document.removeEventListener( "contextmenu", this.eventFunction( "LostActive" ) )
-
     }
 
     getFormLine() {
         return this.#formLine;
+    }
+    getContextMenu() {
+        return this.#contextMenu;
     }
     getGraphic( index ) {
         return this.#graphicObject[ index ];
@@ -168,6 +173,13 @@ class Illustration {
             btn.classList.add( "Press-Button" );
         }
     }
+    #clearButtonStatus() {
+        const buttons = document.querySelectorAll( ".Press-Button" );
+        buttons.forEach( btn => {
+            btn.classList.remove( "Press-Button" );
+            btn.classList.add( "Button-Preference" );
+        })
+    }
     setButtonStatus( event, name ) {
         const buttons = document.querySelectorAll( ".Press-Button" );
 
@@ -175,16 +187,19 @@ class Illustration {
             if( this.#buttonName[ buttons[ i ].id ] == name ) {
                 this.#switchButtonStatus( buttons[ i ] );
                 return false;
-            }
-        }
-        if( buttons.length == 2 ) {
-            for( let i = 0; i < buttons.length; i++ ) {
-                if( this.#buttonName[ buttons[ i ].id ] != Illustration.TEXT ) {
-                    this.#switchButtonStatus( buttons[ i ] );
+            } else if( this.#buttonName[ buttons[ i ].id ] != Illustration.TEXT && name != Illustration.TEXT ) {
+                if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+                    this.#clearButtonStatus();
+                    break;
                 }
+                // unset button
+                this.#switchButtonStatus( buttons[ i ] );
+                break;
+            } else if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+                this.#clearButtonStatus();
+                break;
             }
         }
-
         this.#switchButtonStatus( event.target );
         return true;
     }
@@ -192,6 +207,9 @@ class Illustration {
     setMoveGraph() {
         this.#deleteDrawSettings();
         this.#moveGraphSettings();
+    }
+    unsetMoveGraph() {
+        this.#deleteMoveGraphSettings();
     }
 
     unsetDraw() {
@@ -204,9 +222,11 @@ class Illustration {
         }
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
-            const graphic = new ( Illustration.GraphicType[ name ] )( area );
-            graphic.draw( this.#graphicInterface );
-            this.#graphicObject.push( graphic );
+            if( area != null ) {
+            	const graphic = new ( Illustration.GraphicType[ name ] )( area );
+            	graphic.draw( this.#graphicInterface );
+            	this.#graphicObject.push( graphic );
+			}
         }
     }
 
@@ -231,10 +251,23 @@ class Illustration {
         this.#draw( point, w, h );
     }
 
+    showContextMenu( left, top ) {
+		this.#contextMenu.style.zIndex = 100;
+        this.#contextMenu.style.left = String( left ) + "px";
+        this.#contextMenu.style.top = String( top ) + "px";
+        this.#contextMenu.style.width = "100px";
+        this.#contextMenu.style.height = "100px";
+        this.#contextMenu.style.backgroundColor = "blue";
+        this.#contextMenu.style.position = "absolute";
+    }
 }
 
-function moveGraphSettings( event, illust ) {
-    illust.setMoveGraph();
+function moveGraphSettings( event, illust, name ) {
+    if( illust.setButtonStatus( event, name ) ) {
+        illust.setMoveGraph();
+    } else {
+        illust.unsetMoveGraph();
+    }
 }
 
 function setText( event, illust, name ) {
@@ -270,6 +303,68 @@ function setDraw( event, illust, name ) {
     }
 }
 
+function showContextMenu( event, illust ) {
+	event.preventDefault();
+    const menu = illust.getContextMenu();
+    menu.innerHTML = "<li class=\"Graphic-Menu\" >コピー</li>"
+                   + "<li class=\"Graphic-Menu\" >切り取り</li>"
+                   + "<li class=\"Graphic-Menu\" >貼り付け</li>"
+                   + "<li class=\"Graphic-Menu\" >画像貼り付け</li>";
+    menu.style.cssText = "";
+    const x = Math.floor( event.clientX + window.scrollX );
+    const y = Math.floor( event.clientY + window.scrollY );
+    const width = 200;
+    const height = 150;
+
+    const list = document.querySelectorAll( ".Graphic-Menu" );
+    list.forEach( value => {
+       // top, right, bottom, left
+        value.style.margin = "10px 10px 10px 10px";
+        value.style.borderBottom = "2px solid rgb( 150, 140, 200 )";
+    });
+
+    menu.style.listStyleType = "none";
+    menu.style.borderRadius = "5px";
+    menu.style.boxShadow = "3px 5px 4px, -1px -1px 3px";
+    menu.style.zIndex = 100;
+    menu.style.position = "absolute";
+    menu.style.width = String( width ) + "px";
+    menu.style.height = String( height ) + "px";
+    menu.style.backgroundColor = "rgb( 240, 240, 240 )";
+    const rightRange = window.innerWidth - event.clientX
+    const bottomRange = window.innerHeight - event.clientY;
+
+    if( bottomRange > height ) {
+        menu.style.top = String( y ) + "px";
+    } else {
+        menu.style.top = String( y - height ) + "px";
+    }
+    if( rightRange > width ) {
+        menu.style.left = String( x ) + "px";
+    } else {
+        menu.style.left = String( x - width ) + "px";
+    }
+}
+
+function lostFocus( event, illust ) {
+    const buttons = document.querySelectorAll( ".Press-Button" );
+    const name = illust.getButtonName( buttons[ 0 ].id );
+    console.log( name );
+    if( name == Illustration.MOVE_GRAPH ) {
+        if( event.type == "contextmenu" && event.target.contains( illust.getFormLine() ) ) {
+            showContextMenu( event, illust );
+        } else {
+            lostActive( event, illust );
+        }
+    }
+    
+    if( !event.target.closest( illust.getContextMenu().id ) && event.type == "click" ) {
+        const menu = illust.getContextMenu();
+        menu.style.cssText = "";
+        menu.innerHTML = "";
+    }
+}
+
     
 function registerRect( point, w, h ) {
     const area = new Area();
@@ -290,7 +385,9 @@ function registerRect( point, w, h ) {
 
     if( w != 0 && h != 0 ) {
         area.setArea( rectX, rectY, w, h );
-    }
+    } else {
+		return null;
+	}
     return area;
 }
 

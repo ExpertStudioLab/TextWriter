@@ -8,7 +8,7 @@ import { Point } from "./modules/illustration.js";
 
     function lostActive( event, illust ) {
         const formLine = illust.getFormLine();
-		if( event.target.id != "Image1" ) {
+		if( event.target.id != "Image1" || event.type == "contextmenu" ) {
 			formLine.style.cssText = "";
 			document.body.style.userSelect = "auto";
 		}
