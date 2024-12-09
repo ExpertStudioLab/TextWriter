@@ -43,6 +43,9 @@ import { Point } from "./modules/illustration.js";
             formLine.draggable = "true";
             formLine.style.cursor = "all-scroll";
 
+            point.scrollX = window.scrollX;
+            point.scrollY = window.scrollY;
+
             const child = document.querySelectorAll( ".child" );
             if( child.length > 0 ) {
                 child.forEach( element => formLine.removeChild( element ) );
@@ -60,6 +63,11 @@ import { Point } from "./modules/illustration.js";
         }
     }
     function getCursorPoint( event, illust ) {
+        point.changeX = Math.floor( window.scrollX - point.scrollX );
+        point.changeY = Math.floor( window.scrollY - point.scrollY );
+        point.dragStartX += point.changeX;
+        point.dragStartY += point.changeY;
+
         illust.repaint();
         point.x = 0;
         point.y = 0;
@@ -75,6 +83,10 @@ import { Point } from "./modules/illustration.js";
         formLine.style.top = String( point.top + y ) + "px";
     }
     function keyboardMove( event, illust ) {
+        point.changeX = Math.floor( window.scrollX - point.scrollX );
+        point.changeY = Math.floor( window.scrollY - point.scrollY );
+        point.dragStartX += point.changeX;
+        point.dragStartY += point.changeY;
         event.preventDefault();
         switch( event.key ) {
             case "ArrowUp":
@@ -101,13 +113,13 @@ import { Point } from "./modules/illustration.js";
     function setMoveGraphEnd( event, illust ) {
         let left, top;
         if( event.clientX != undefined ) {
-            const disX = event.clientX - point.dragStartX;
-            left = Math.floor( point.left + disX - point.offSet.left );
-            const disY = event.clientY - point.dragStartY;
+            const disX = event.clientX - point.dragStartX + point.changeX;
+            left = Math.floor( point.left + disX - point.offSet.left - window.scrollX );
+            const disY = event.clientY - point.dragStartY + point.changeY;
             top = Math.floor( point.top + disY - point.offSet.top - window.scrollY );    
         } else {
-            left = point.left - Math.floor( point.offSet.left + window.scrollX ) - 2;
-            top = point.top - Math.floor( point.offSet.top + window.scrollY ) - 2;
+            left = point.left - Math.floor( point.offSet.left + window.scrollX - point.changeX ) - 2;
+            top = point.top - Math.floor( point.offSet.top + window.scrollY - point.changeY ) - 2;
             console.log( "( left, top ): ( " + left + ", " + top + " )" );
         }
         const index = illust.getActiveIndex();
@@ -116,8 +128,8 @@ import { Point } from "./modules/illustration.js";
         illust.setGraphicPosition( left, top );
         const g = illust.getGraphic( index );
         g.draw( illust.getGraphicInterface() );
-        point.left = Math.floor( point.offSet.left ) + g.getArea().getX() + 2;
-        point.top = Math.floor( point.offSet.top + window.scrollY ) + g.getArea().getY() + 2;
+        point.left = Math.floor( point.offSet.left + window.scrollX - point.changeX ) + g.getArea().getX() + 2;
+        point.top = Math.floor( point.offSet.top + window.scrollY - point.changeY ) + g.getArea().getY() + 2;
         formLine.style.left = String( point.left ) + "px";
         formLine.style.top = String( point.top ) + "px";
         formLine.style.width = String( g.getArea().getWidth() ) + "px";

@@ -265,7 +265,6 @@ class Illustration {
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
             const graphic = new TextGraphic( area, this.#currentTextbox.value, Illustration.GraphicType[ this.#textOutline ], this.#graphicInterface );
-//            graphic.setOutline( Illustration.GraphicType[ this.#textOutline ] );
             graphic.draw( this.#graphicInterface );
             this.#graphicObject.push( graphic );
         }
@@ -315,14 +314,17 @@ class Illustration {
         console.log( "たぬきち：「貼り付けます(^0^)/」" );
         this.#copyGraphic.setX( this.#point.x );
         this.#copyGraphic.setY( this.#point.y );
-        this.#graphicObject.push( this.#copyGraphic );
         switch( this.#copyGraphic.getClassName() ) {
             case "TextGraphic":
+                this.#copyGraphic.setOutlineX( this.#point.x );
+                this.#copyGraphic.setOutlineY( this.#point.y );
+                this.#graphicObject.push( this.#copyGraphic );
                 this.#copyGraphic = new TextGraphic( this.#copyGraphic.getArea(), this.#copyGraphic.getText(), this.#copyGraphic.getOutline(), this.#graphicInterface );
                 this.#copyGraphic.setOutlineX( this.#point.x );
                 this.#copyGraphic.setOutlineY( this.#point.y );
                 break;
             default:
+                this.#graphicObject.push( this.#copyGraphic );
                 this.#copyGraphic = new Graphic( this.#copyGraphic.getArea() );
                 break;
         }
