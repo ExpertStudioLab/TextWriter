@@ -49,17 +49,17 @@
         <canvas id="Image1" height="275px" width="350px">
         </canvas>
         <div>
-            <input type="button" id="Rect" class="Button-Preference" value="▭" />
-            <input type="button" id="Round" class="Button-Preference" value="◯" />
+            <input type="button" id="Rect" value="▭" />
+            <input type="button" id="Round" value="◯" />
             <button type="button"><img src="${ pageContext.request.contextPath }/picture/round-rect.png" width="20px" height="15px" ></button>
         </div>
         <div>
-            <input type="button" id="Text" class="Button-Preference" value="TEXT" />
+            <input type="button" id="Text" value="TEXT" />
             <input type="text" id="Text-Label" />
         </div>
-            <input type="button" id="Hline" class="Button-Preference" value="―" />
-            <input type="button" id="Vline" class="Button-Preference" value="|" />
-            <input type="button" id="MoveGraph" class="Button-Pre" value="図形の移動" />
+            <input type="button" id="Hline" value="―" />
+            <input type="button" id="Vline" value="|" />
+            <input type="button" id="MoveGraph" value="図形の移動" />
         </div>
     </div>
     <div>

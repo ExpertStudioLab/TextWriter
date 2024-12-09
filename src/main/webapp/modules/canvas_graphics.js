@@ -26,36 +26,50 @@ class Graphic {
     draw( graphicContext ) {
       graphicContext.strokeRect( this.area.getX(), this.area.getY(), this.area.getWidth(), this.area.getHeight() );
     }
-
-  }
-  
-  class TextGraphic extends Graphic {
-    font;
-    textAlign;
-    fillStyle;
-    text;
-    #outline;
-  
-    constructor( area, text, graphicContext ) {
-        super( area );
-        this.font = "25px Meiryo";
-        this.textAlign = "left";
-        this.fillStyle = "#000";
-        this.text = text;
-        this.calculateSize( graphicContext );
-    }
-
-	
-    setOutline( graphicType ) {
-      console.log( "graphicType: ", graphicType );
-      if( graphicType != null ) {
-        this.#outline = new graphicType( this.area );
+    getClassName() {
+      if( this instanceof TextGraphic ) {
+        return "TextGraphic";
       } else {
-        this.#outline = null;
+        return "Graphic";
       }
     }
+  }
+  
+class TextGraphic extends Graphic {
+  font;
+  textAlign;
+  fillStyle;
+  #outlineClass;
+  #text;
+  #outline;
+  
+  constructor( area, text, outlineClass, graphicContext ) {
+    super( area );
+    this.font = "25px Meiryo";
+    this.textAlign = "left";
+    this.fillStyle = "#000";
+    this.#text = text;
+    this.#outlineClass = outlineClass;
+    this.#setOutline( outlineClass );
+    this.#calculateSize( graphicContext );
+  }
+
+  getText() {
+    return this.#text;
+  }
+  getOutline() {
+    return this.#outlineClass;
+  }
+	
+  #setOutline( graphicType ) {
+    if( graphicType != null ) {
+      this.#outline = new graphicType( this.area );
+    } else {
+      this.#outline = null;
+    }
+  }
     
-    setOutlineX( x ) {
+  setOutlineX( x ) {
 		if( this.#outline != null ) {
 			this.#outline.setX( x );
 		}
@@ -65,41 +79,40 @@ class Graphic {
 			this.#outline.setY( y );
 		}
 	}
-    calculateSize( graphicContext ) {
-        graphicContext.save();
-        graphicContext.font = this.font;
+  #calculateSize( graphicContext ) {
+    graphicContext.save();
+    graphicContext.font = this.font;
 
-        const textMetrics = graphicContext.measureText( this.text );
+    const textMetrics = graphicContext.measureText( this.#text );
 
-        if( textMetrics.width > this.area.getWidth() ) {
-          this.area.setWidth( Math.floor( textMetrics.width ) );
-        }
-      
-        graphicContext.restore();
+    if( textMetrics.width > this.area.getWidth() ) {
+      this.area.setWidth( Math.floor( textMetrics.width ) );
     }
+      
+    graphicContext.restore();
+  }
 
-    draw( graphicContext ) {
-        this.calculateSize( graphicContext );
-        graphicContext.save();
-        graphicContext.font = this.font;
-        const textMetrics = graphicContext.measureText( this.text );
-        const textQuoteHeight = Math.floor( ( textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent ) / 4 );
-        const halfHeight = Math.floor( this.area.getHeight() / 2 );
-        const x = Math.floor( this.area.getX() + ( this.area.getWidth() - textMetrics.width ) / 2 );
-        const y = Math.floor( this.area.getY() + halfHeight + textQuoteHeight );
+  draw( graphicContext ) {
+    this.#calculateSize( graphicContext );
+    graphicContext.save();
+    graphicContext.font = this.font;
+    const textMetrics = graphicContext.measureText( this.#text );
+    const textQuoteHeight = Math.floor( ( textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent ) / 4 );
+    const halfHeight = Math.floor( this.area.getHeight() / 2 );
+    const x = Math.floor( this.area.getX() + ( this.area.getWidth() - textMetrics.width ) / 2 );
+    const y = Math.floor( this.area.getY() + halfHeight + textQuoteHeight );
 
 
-        graphicContext.textAlign = "left";
-        graphicContext.fillStyle = "#000";
-        graphicContext.beginPath();
-//        graphicContext.fillText( this.text, this.area.getX(), this.textBottom );
-        graphicContext.fillText( this.text, x, y );
-        graphicContext.restore();
-        if( this.#outline != null ) {
-          this.#outline.draw( graphicContext );
-        }
+    graphicContext.textAlign = "left";
+    graphicContext.fillStyle = "#000";
+    graphicContext.beginPath();
+    graphicContext.fillText( this.#text, x, y );
+    graphicContext.restore();
+    if( this.#outline != null ) {
+      this.#outline.draw( graphicContext );
     }
   }
+}
   
   
   

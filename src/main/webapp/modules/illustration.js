@@ -2,20 +2,30 @@
  * 
  */
 import { setBegin, setEnd, setMove } from "../draw_graph.js";
-import { getActive, lostActive, moveGraph, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "../move_graph.js";
+import { getActive, lostActive, moveGraph, keyboardMove, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "../move_graph.js";
 import { Graphic, TextGraphic, Area } from "../modules/canvas_graphics.js";
 
 class Illustration {
     static RECTANGLE = "RectButton";
     static TEXT = "TextButton";
     static MOVE_GRAPH = "MoveButton";
+    static MENU = "Graphic-Menu";
+    static LOST_ACTIVE = 0;
+    static ACTIVE = 1;
 
     static GraphicType = {
         [ Illustration.RECTANGLE ] : Graphic,
         "UNDEFINED" : null
     };
+    static MenuList = [
+        { actionType: Illustration.ACTIVE, eventHandler: copy, value: "コピー" },
+        { actionType: Illustration.ACTIVE, eventHandler: cut, value: "切り取り" },
+        { actionType: Illustration.LOST_ACTIVE, eventHandler: paste, value: "貼り付け" }
+    ];
 
     #graphicObject = [];
+    #copyGraphic = null;
+    #point = new Object();
     #canvas;
     #graphicInterface;
     #activeIndex = -1;
@@ -53,10 +63,14 @@ class Illustration {
             { name: "DragStart", illust: this, handleEvent: function( event ) { getCursorPoint( event, this.illust ) } },
             { name: "MoveGraph", illust: this, handleEvent: function( event ) { moveGraph( event, this.illust ) } },
             { name: "MoveGraphEnd", illust: this, handleEvent: function( event ) { setMoveGraphEnd( event, this.illust ) } },
-            { name: "ContextMenu", illust: this, handleEvent: function( event ) { showContextMenu( event, this.illust ) } },
+            { name: "KeyboardMove", illust: this, handleEvent: function( event ) { keyboardMove( event, this.illust ) } },
+            { name: "ContextMenu", illust: this, handleEvent: function( event ) { showContextMenu( event, this.illust, Illustration.LOST_ACTIVE ) } },
+            { name: "TargetContextMenu", illust: this, handleEvent: function( event ) { showContextMenu( event, this.illust, Illustration.ACTIVE ) } },
+            { name: "ClickMenu", illust: this, handleEvent: function( event ) { clickMenuList( event, this.illust ) } },
             { name: "LostFocus", illust: this, handleEvent: function( event ) { lostFocus( event, this.illust ) } }
         ];
 
+        this.#formLine.addEventListener( "contextmenu", this.eventFunction( "TargetContextMenu" ) );
         this.#canvas.addEventListener( "contextmenu", this.eventFunction( "ContextMenu" ) );
         document.addEventListener( "click", this.eventFunction( "LostFocus" ) );
         document.addEventListener( "contextmenu", this.eventFunction( "LostFocus" ) );
@@ -77,6 +91,7 @@ class Illustration {
     setTextButton( btnId, textboxId ) {
         this.#buttonName[ btnId ] = Illustration.TEXT;
         const btn = document.getElementById( btnId );
+        btn.classList.add( "Button-Preference" );
         this.#currentTextbox = document.getElementById( textboxId );
         btn.addEventListener( "click", this.eventFunction( "TextButton" ) );
     }
@@ -101,7 +116,8 @@ class Illustration {
         this.#formLine.addEventListener( "drag", this.eventFunction( "MoveGraph" ) );
         this.#canvas.addEventListener( "dragover", hoverCanvas );
         this.#formLine.addEventListener( "dragover", hoverCanvas );
-        this.#formLine.addEventListener( "dragend", this.eventFunction( "MoveGraphEnd" ));
+        this.#formLine.addEventListener( "dragend", this.eventFunction( "MoveGraphEnd" ) );
+        document.body.addEventListener( "keydown", this.eventFunction( "KeyboardMove" ) );
     }
 
     #deleteMoveGraphSettings() {
@@ -111,6 +127,7 @@ class Illustration {
         this.#canvas.removeEventListener( "dragover", hoverCanvas );
         this.#formLine.removeEventListener( "dragover", hoverCanvas );
         this.#canvas.removeEventListener( "dragend", this.eventFunction( "MoveGraphEnd" ) );
+        document.body.removeEventListener( "keydown", this.eventFunction( "KeyboardMove" ) );
     }
 
     getFormLine() {
@@ -119,8 +136,14 @@ class Illustration {
     getContextMenu() {
         return this.#contextMenu;
     }
+    getCanvas() {
+        return this.#canvas;
+    }
     getGraphic( index ) {
         return this.#graphicObject[ index ];
+    }
+    getCopyGraphic() {
+        return this.#copyGraphic;
     }
     getGraphicInterface() {
         return this.#graphicInterface;
@@ -156,6 +179,10 @@ class Illustration {
                 this.#graphicObject[ i ].draw( this.#graphicInterface );
             }
         }    
+    }
+    setPoint( x, y ) {
+        this.#point.x = Math.floor( x );
+        this.#point.y = Math.floor( y );
     }
     setTextOutline( name ) {
         this.#textOutline = name;
@@ -237,8 +264,8 @@ class Illustration {
         }
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
-            const graphic = new TextGraphic( area, this.#currentTextbox.value, this.#graphicInterface );
-            graphic.setOutline( Illustration.GraphicType[ this.#textOutline ] );
+            const graphic = new TextGraphic( area, this.#currentTextbox.value, Illustration.GraphicType[ this.#textOutline ], this.#graphicInterface );
+//            graphic.setOutline( Illustration.GraphicType[ this.#textOutline ] );
             graphic.draw( this.#graphicInterface );
             this.#graphicObject.push( graphic );
         }
@@ -251,14 +278,55 @@ class Illustration {
         this.#draw( point, w, h );
     }
 
-    showContextMenu( left, top ) {
-		this.#contextMenu.style.zIndex = 100;
-        this.#contextMenu.style.left = String( left ) + "px";
-        this.#contextMenu.style.top = String( top ) + "px";
-        this.#contextMenu.style.width = "100px";
-        this.#contextMenu.style.height = "100px";
-        this.#contextMenu.style.backgroundColor = "blue";
-        this.#contextMenu.style.position = "absolute";
+    copy( ) {
+        console.log( "たぬきち：「コピーします！」" );
+        const graphic = this.getGraphic( this.getActiveIndex() );
+
+        switch( graphic.getClassName() ) {
+            case "TextGraphic":
+                this.#copyGraphic = new TextGraphic( graphic.getArea(), graphic.getText(), graphic.getOutline(), this.#graphicInterface );
+                break;
+            case "Graphic":
+                this.#copyGraphic = new Graphic( graphic.getArea() );
+                break;
+            default:
+        }
+    }
+
+    cut( ) {
+        console.log( "たぬきち：「切り取りましょうか(;ﾟロﾟ)」" );
+        const graphic = this.getGraphic( this.getActiveIndex() );
+        switch( graphic.getClassName() ) {
+            case "TextGraphic":
+                this.#copyGraphic = new TextGraphic( graphic.getArea(), graphic.getText(), graphic.getOutline(), this.#graphicInterface );
+                break;
+            case "Graphic":
+                this.#copyGraphic = new Graphic( graphic.getArea() );
+                break;
+            default:
+        }
+        this.#formLine.style.cssText = "";
+        document.body.style.cssText = "";
+        this.repaint();
+        this.#graphicObject.splice( this.#activeIndex, 1 );
+    }
+
+    paste() {
+        console.log( "たぬきち：「貼り付けます(^0^)/」" );
+        this.#copyGraphic.setX( this.#point.x );
+        this.#copyGraphic.setY( this.#point.y );
+        this.#graphicObject.push( this.#copyGraphic );
+        switch( this.#copyGraphic.getClassName() ) {
+            case "TextGraphic":
+                this.#copyGraphic = new TextGraphic( this.#copyGraphic.getArea(), this.#copyGraphic.getText(), this.#copyGraphic.getOutline(), this.#graphicInterface );
+                this.#copyGraphic.setOutlineX( this.#point.x );
+                this.#copyGraphic.setOutlineY( this.#point.y );
+                break;
+            default:
+                this.#copyGraphic = new Graphic( this.#copyGraphic.getArea() );
+                break;
+        }
+        this.#copyGraphic.draw( this.#graphicInterface );
     }
 }
 
@@ -271,6 +339,7 @@ function moveGraphSettings( event, illust, name ) {
 }
 
 function setText( event, illust, name ) {
+    lostActive( event, illust );
     if( illust.setButtonStatus( event, name ) ) {
         console.log( "setText" );
         illust.setText();
@@ -288,6 +357,7 @@ function setText( event, illust, name ) {
 }
 
 function setDraw( event, illust, name ) {
+    lostActive( event, illust );
     if( illust.setButtonStatus( event, name ) ) {
         illust.setTextOutline( name );
         if( document.querySelectorAll( ".Press-Button" ).length == 1 ) {
@@ -303,26 +373,57 @@ function setDraw( event, illust, name ) {
     }
 }
 
-function showContextMenu( event, illust ) {
+function setContextMenuList( menu, value ) {
+    const menuList = document.createElement( "li" );
+    const menuName = document.createElement( "span" );
+    menuName.innerText = value;
+    menuList.className = Illustration.MENU;
+    menuList.appendChild( menuName );
+    menu.appendChild( menuList );
+}
+
+
+function showContextMenu( event, illust, actionType ) {
 	event.preventDefault();
+    const offSet = event.target.getBoundingClientRect();
+    const canvasX = event.clientX - offSet.left;
+    const canvasY = event.clientY - offSet.top;
+    illust.setPoint( canvasX, canvasY );
     const menu = illust.getContextMenu();
-    menu.innerHTML = "<li class=\"Graphic-Menu\" >コピー</li>"
-                   + "<li class=\"Graphic-Menu\" >切り取り</li>"
-                   + "<li class=\"Graphic-Menu\" >貼り付け</li>"
-                   + "<li class=\"Graphic-Menu\" >画像貼り付け</li>";
-    menu.style.cssText = "";
+    menu.innerHTML = "";
+    for( const item of Illustration.MenuList ) {
+        setContextMenuList( menu, item.value );
+    }
     const x = Math.floor( event.clientX + window.scrollX );
     const y = Math.floor( event.clientY + window.scrollY );
     const width = 200;
-    const height = 150;
+    const height = 180;
 
-    const list = document.querySelectorAll( ".Graphic-Menu" );
-    list.forEach( value => {
-       // top, right, bottom, left
-        value.style.margin = "10px 10px 10px 10px";
-        value.style.borderBottom = "2px solid rgb( 150, 140, 200 )";
-    });
+    const list = document.querySelectorAll( "." + Illustration.MENU );
+    list.forEach( async ( value ) => {
+        const index = Illustration.MenuList.findIndex( item => item.value == value.innerText );
+        const clipboardFlag = ( ( illust.getCopyGraphic() != null && actionType != Illustration.ACTIVE ) || actionType == Illustration.ACTIVE ) ? true : false;
+        const flag = Illustration.MenuList[ index ].actionType == actionType && clipboardFlag;
+        const menuName = value.querySelector( "span" );
+        menuName.style.color = flag ? "black" : "darkgray";
+        value.style.marginBottom = "8px";
+        value.style.borderRadius = "1px";
+        value.style.paddingLeft = "10px";
+        value.style.boxShadow = "2px 2px 4px", "-1px -1px 2px";
+        value.style.backgroundColor = flag ? "aliceblue" : "lightgray";
+        value.style.cursor = "default";
+        value.style.userSelect = "none";
+        value.style.lineHeight = "30px";
+        if( flag ) {
+            value.addEventListener( "mouseover", hoverMenuList );
+            value.addEventListener( "mouseleave", leaveMenuList );
+            value.addEventListener( "mousedown", mousedownMenuList );
+            value.addEventListener( "click", illust.eventFunction( "ClickMenu" ) );    
+        }
+    } );
 
+  
+    menu.style.padding = "10px 10px 10px 10px";
     menu.style.listStyleType = "none";
     menu.style.borderRadius = "5px";
     menu.style.boxShadow = "3px 5px 4px, -1px -1px 3px";
@@ -330,7 +431,7 @@ function showContextMenu( event, illust ) {
     menu.style.position = "absolute";
     menu.style.width = String( width ) + "px";
     menu.style.height = String( height ) + "px";
-    menu.style.backgroundColor = "rgb( 240, 240, 240 )";
+    menu.style.backgroundColor = "rgb(225, 240, 255)";
     const rightRange = window.innerWidth - event.clientX
     const bottomRange = window.innerHeight - event.clientY;
 
@@ -346,22 +447,74 @@ function showContextMenu( event, illust ) {
     }
 }
 
-function lostFocus( event, illust ) {
-    const buttons = document.querySelectorAll( ".Press-Button" );
-    const name = illust.getButtonName( buttons[ 0 ].id );
-    console.log( name );
-    if( name == Illustration.MOVE_GRAPH ) {
-        if( event.type == "contextmenu" && event.target.contains( illust.getFormLine() ) ) {
-            showContextMenu( event, illust );
-        } else {
-            lostActive( event, illust );
+function deleteContextMenu( event, illust ) {
+    const menu = illust.getContextMenu();
+    const list = document.querySelectorAll( "." + Illustration.MENU );
+    if( list.length == 0 ) {
+        return;
+    }
+    list.forEach( value => {
+        value.removeEventListener( "mouseover", hoverMenuList );
+        value.removeEventListener( "mouseleave", leaveMenuList );
+        value.removeEventListener( "mousedown", mousedownMenuList );
+        value.removeEventListener( "click", illust.eventFunction( "ClickMenu" ) );
+    });
+    menu.style.cssText = "";
+    menu.innerHTML = "";
+}
+
+function hoverMenuList() {
+    this.style.backgroundColor = "lightblue";
+}
+function leaveMenuList() {
+    this.style.backgroundColor = "aliceblue";
+}
+function mousedownMenuList() {
+    this.style.backgroundColor = "rgb(114, 197, 224)";
+    this.style.fontColor = "white";
+}
+function clickMenuList( event, illust) {
+    deleteContextMenu( event, illust );
+    for( const item of Illustration.MenuList ) {
+        if( event.target.innerText == item.value ) {
+            item.eventHandler( event, illust );
         }
     }
-    
-    if( !event.target.closest( illust.getContextMenu().id ) && event.type == "click" ) {
-        const menu = illust.getContextMenu();
-        menu.style.cssText = "";
-        menu.innerHTML = "";
+}
+function copy( event, illust ) {
+    illust.copy();
+}
+function cut( event, illust ) {
+    illust.cut();
+}
+function paste( event, illust ) {
+    illust.paste();
+}
+
+function lostFocus( event, illust ) {
+    const buttons = document.querySelectorAll( ".Press-Button" );
+    let name = ( buttons.length > 0 ) ? illust.getButtonName( buttons[ 0 ].id ) : null;
+    if( name == Illustration.MOVE_GRAPH ) {
+        if( event.target.closest( "#" + illust.getContextMenu().id ) ) {
+            // select menu
+        } else if( event.type == "contextmenu" && event.target.contains( illust.getFormLine() ) ) {
+            showContextMenu( event, illust, Illustration.ACTIVE );
+        } else if( event.type == "contextmenu" && event.target.contains( illust.getCanvas() ) ) {
+            lostActive( event, illust );
+            showContextMenu( event, illust, Illustration.LOST_ACTIVE );
+        } else {
+            lostActive( event, illust );
+            deleteContextMenu( event, illust, Illustration.LOST_ACTIVE );
+        }
+    } else {
+        if( event.target.closest( "#" + illust.getContextMenu().id ) ) {
+            event.preventDefault();
+            // select menu
+        } else if( event.type == "contextmenu" && event.target.contains( illust.getCanvas() ) ) {
+            showContextMenu( event, illust, Illustration.LOST_ACTIVE );
+        } else {
+            deleteContextMenu( event,illust, Illustration.LOST_ACTIVE );
+        }
     }
 }
 
