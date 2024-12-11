@@ -28,3 +28,4 @@ Dec. 3, 2024, Tue. Enabled to draw borders when text graphics are drawn.
 Dec. 4, 2024, Wed. Create button switching function which switch a button status(on/off).
 Dec. 7, 2024, Sat. Fixed mouse event on canvas.
 Dec. 9, 2024, Mon. Enabled to copy & paste graphics.
+Dec. 11, 2024, Wed. Enabled to copy & paste texts.
