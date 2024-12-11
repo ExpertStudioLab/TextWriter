@@ -4,6 +4,7 @@
 import { setBegin, setEnd, setMove } from "../draw_graph.js";
 import { getActive, lostActive, moveGraph, keyboardMove, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "../move_graph.js";
 import { Graphic, TextGraphic, Area } from "../modules/canvas_graphics.js";
+import { canvasToBlob } from "../data_transfer.js";
 
 class Illustration {
     static RECTANGLE = "RectButton";
@@ -22,11 +23,17 @@ class Illustration {
         { actionType: Illustration.ACTIVE, eventHandler: cut, value: "切り取り" },
         { actionType: Illustration.LOST_ACTIVE, eventHandler: paste, value: "貼り付け" }
     ];
+    static reservedButtons = [
+        Illustration.RECTANGLE,
+        Illustration.TEXT,
+        Illustration.MOVE_GRAPH
+    ];
 
     #graphicObject = [];
     #copyGraphic = null;
     #point = new Object();
     #canvas;
+    #canvasImage;
     #graphicInterface;
     #activeIndex = -1;
     #eventObject;
@@ -82,18 +89,70 @@ class Illustration {
     }
 
     setButton( btnId, btnType ) {
-        this.#buttonName[ btnId ] = btnType;
+//        this.#buttonName[ btnId ] = btnType;
+		this.#buttonName.push( { id: btnId, name: btnType } );
         const btn = document.getElementById( btnId );
         btn.classList.add( "Button-Preference" );
         btn.addEventListener( "click", this.eventFunction( btnType ) );
     }
 
     setTextButton( btnId, textboxId ) {
-        this.#buttonName[ btnId ] = Illustration.TEXT;
+//        this.#buttonName[ btnId ] = Illustration.TEXT;
+		this.#buttonName.push( { id: btnId, name: Illustration.TEXT } );
         const btn = document.getElementById( btnId );
         btn.classList.add( "Button-Preference" );
         this.#currentTextbox = document.getElementById( textboxId );
         btn.addEventListener( "click", this.eventFunction( "TextButton" ) );
+    }
+
+    deleteAllSettings() {
+        this.#graphicInterface.fillStyle = "#fff"
+        this.#graphicInterface.fillRect( 0, 0, this.#canvas.width, this.#canvas.height );
+        this.#graphicInterface.strokeStyle = "#000";
+        this.#graphicInterface.lineWidth = "10px";
+        this.#graphicInterface.save();
+
+
+        this.#deleteDrawSettings();
+        this.#deleteMoveGraphSettings();
+
+        for( const name of Illustration.reservedButtons ) {
+            const button = document.getElementById( this.getButtonId( name ) );
+            button.removeEventListener( "click", this.eventFunction( name ) );
+        }
+
+        const buttons = document.querySelectorAll( ".Press-Button" );
+        for( const button of buttons ) {
+            this.#switchButtonStatus( button );
+        }
+
+        this.#formLine.removeEventListener( "contextmenu", this.eventFunction( "TargetContextMenu" ) );
+        this.#canvas.removeEventListener( "contextmenu", this.eventFunction( "ContextMenu" ) );
+        document.removeEventListener( "click", this.eventFunction( "LostFocus" ) );
+        document.removeEventListener( "contextmenu", this.eventFunction( "LostFocus" ) );
+
+        const parent = document.getElementById( "Right-Side" );
+        parent.removeChild( this.#formLine );
+        parent.removeChild( this.#contextMenu );
+    }
+    restoreAllSettings() {
+        for( const name of Illustration.reservedButtons ) {
+            const button = document.getElementById( this.getButtonId( name ) );
+            button.addEventListener( "click", this.eventFunction( name ) );
+        }
+
+        for( const graphic of this.#graphicObject ) {
+            graphic.draw( this.#graphicInterface );
+        }
+
+        this.#formLine.addEventListener( "contextmenu", this.eventFunction( "TargetContextMenu" ) );
+        this.#canvas.addEventListener( "contextmenu", this.eventFunction( "ContextMenu" ) );
+        document.addEventListener( "click", this.eventFunction( "LostFocus" ) );
+        document.addEventListener( "contextmenu", this.eventFunction( "LostFocus" ) );
+        
+        this.#canvas.insertAdjacentHTML( "beforebegin", "<div id=\"formLine\" ></div><div id=\"contextMenu\" ></div>" );
+        this.#formLine = document.getElementById( "formLine" );
+        this.#contextMenu = document.getElementById( "contextMenu" );
     }
 
     #drawSettings() {
@@ -139,6 +198,9 @@ class Illustration {
     getCanvas() {
         return this.#canvas;
     }
+    getCanvasImage() {
+        return this.#canvasImage;
+    }
     getGraphic( index ) {
         return this.#graphicObject[ index ];
     }
@@ -149,8 +211,15 @@ class Illustration {
         return this.#graphicInterface;
     }
     getButtonName( btnId ) {
-		return this.#buttonName[ btnId ];
+		//return this.#buttonName[ btnId ];
+		const index = this.#buttonName.findIndex( btn => btn.id == btnId );
+        return this.#buttonName[ index ].name;
 	}
+    getButtonId( btnName ) {
+        const index = this.#buttonName.findIndex( btn => btn.name == btnName );
+        return this.#buttonName[ index ].id;
+    }
+	
     setActiveIndex( curPoint ) {
         for( let i = this.#graphicObject.length - 1; i >= 0; i-- ) {
             let g = this.#graphicObject[ i ];
@@ -211,18 +280,23 @@ class Illustration {
         const buttons = document.querySelectorAll( ".Press-Button" );
 
         for( let i = 0; i < buttons.length; i++ ) {
-            if( this.#buttonName[ buttons[ i ].id ] == name ) {
+//            if( this.#buttonName[ buttons[ i ].id ] == name ) {
+            const btnName = this.getButtonName( buttons[ i ].id );
+            if( btnName == name ) {
                 this.#switchButtonStatus( buttons[ i ] );
                 return false;
-            } else if( this.#buttonName[ buttons[ i ].id ] != Illustration.TEXT && name != Illustration.TEXT ) {
-                if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+//            } else if( this.#buttonName[ buttons[ i ].id ] != Illustration.TEXT && name != Illustration.TEXT ) {
+            } else if( btnName != Illustration.TEXT && name != Illustration.TEXT ) {
+//                if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+                if( btnName == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
                     this.#clearButtonStatus();
                     break;
                 }
                 // unset button
                 this.#switchButtonStatus( buttons[ i ] );
                 break;
-            } else if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+//            } else if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+            } else if( btnName == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
                 this.#clearButtonStatus();
                 break;
             }
@@ -264,6 +338,7 @@ class Illustration {
         }
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
+            console.log( "area: ", area );
             const graphic = new TextGraphic( area, this.#currentTextbox.value, Illustration.GraphicType[ this.#textOutline ], this.#graphicInterface );
             graphic.draw( this.#graphicInterface );
             this.#graphicObject.push( graphic );
@@ -275,6 +350,7 @@ class Illustration {
     }
     callDraw( point, w, h ) {
         this.#draw( point, w, h );
+        this.saveImage();
     }
 
     copy( ) {
@@ -308,6 +384,7 @@ class Illustration {
         document.body.style.cssText = "";
         this.repaint();
         this.#graphicObject.splice( this.#activeIndex, 1 );
+        this.saveImage();
     }
 
     paste() {
@@ -329,6 +406,15 @@ class Illustration {
                 break;
         }
         this.#copyGraphic.draw( this.#graphicInterface );
+        this.saveImage();
+    }
+
+    async saveImage() {
+        try {
+            this.#canvasImage = await canvasToBlob( this.#canvas );
+        } catch( error ) {
+            console.error( "error: ", error );
+        }
     }
 }
 

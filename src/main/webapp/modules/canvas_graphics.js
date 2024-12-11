@@ -87,7 +87,9 @@ class TextGraphic extends Graphic {
 
     if( textMetrics.width > this.area.getWidth() ) {
       this.area.setWidth( Math.floor( textMetrics.width ) );
-      this.#outline.area.setWidth( Math.floor( textMetrics.width ) );
+      if( this.#outline != null ) {
+        this.#outline.area.setWidth( Math.floor( textMetrics.width ) );
+      }
     }
       
     graphicContext.restore();

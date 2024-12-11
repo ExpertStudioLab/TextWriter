@@ -47,6 +47,9 @@ import { displayText } from "./display_text.js";
     function composeOff( event, params ) {
 		params.isComposing[ params.currentIndex ] = false;
 
+        event.target.addEventListener( "input", params.recorder.eventFunction( "TextArea" ) );
+        event.target.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
+
         displayText( event, params );
         sendDocumentData( event, params );
     }
@@ -58,7 +61,6 @@ import { displayText } from "./display_text.js";
 
 
     function getSelectedText( event, params ) {
-  //      selectedText = window.getSelection().toString();
         params.selectionStart[ params.currentIndex ] = event.target.selectionStart;
         params.selectionEnd[ params.currentIndex ] = event.target.selectionEnd;
         if( params.selectionStart[ params.currentIndex ] > params.selectionEnd[ params.currentIndex ] ) {
@@ -72,8 +74,6 @@ import { displayText } from "./display_text.js";
 
     function specialKeysSettings( event, params ) {
 		if( params.inputStatus[ params.currentIndex ] == "Compose" && !params.isComposing[ params.currentIndex ] ) {
-        	event.target.addEventListener( "input", params.recorder.eventFunction( "TextArea" ) );
-        	event.target.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
 			if( params.inputStatus[ params.currentIndex ] != "Select" ) {
 				params.inputStatus[ params.currentIndex ] = "Normal";
 			}
@@ -114,5 +114,12 @@ import { displayText } from "./display_text.js";
         }
     }
 
+    function editText( event, params ) {
+        params.isEdit = true;
+        params.editStart = event.target.selectionStart;
+        params.editEnd = event.target.selectionEnd;
+    }
+
+
 export { composeOn, composeOff, sendDocumentData, getCurrentTextArea,
-				insertReservedWords, getSelectedText, specialKeysSettings, textSelection }
+				insertReservedWords, getSelectedText, specialKeysSettings, textSelection, editText }

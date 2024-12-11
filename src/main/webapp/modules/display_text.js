@@ -9,7 +9,11 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
         const textElement = document.getElementById( params.textAreaName + idNumber );
         const paragraph = document.getElementById( "Doc" + idNumber );
         const doc = params.documentStructures[ parseInt( idNumber ) - 1 ];
-        
+
+        if( params.isEdit ) {
+            params.inputStatus[ params.currentIndex ] = "Paste";
+            params.keyEvent[ params.currentIndex ] = "Normal";
+        }
 
         let replace = new ReplaceProperties();
         let textBuffer = new TextBuffer();
@@ -29,6 +33,9 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
                 replace.start = params.selectionStart[ params.currentIndex ];
                 replace.replaceEnd = params.selectionEnd[ params.currentIndex ];
                 break;
+            case "Paste":
+                replace.start = params.editStart;
+                replace.replaceEnd = params.editEnd;
         }
 
         replace.indexStart = doc.searchDocumentIndex( replace.start );
@@ -65,5 +72,10 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
 //        params.inputStatus = "Normal";
         console.log( "properties: ", doc );
         paragraph.innerHTML = String( doc.getHTMLDocument() );
+
+        if( params.isEdit ) {
+            params.isEdit = false;
+            params.inputStatus[ params.currentIndex ] = "Normal";
+        }
     }
 

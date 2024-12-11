@@ -26,22 +26,14 @@
 <% 			}
 %>
 <div id="Display-Area">
-    <div id="Preview1"><img id="Illust1"></img><p id="Doc1"></p></div>
 </div>
 <div id="Align-Containt">
     <div id="Left-Side">  
         <div class="Left-Justify">
          <h3><label>テキストを入力してください。</label></h3>
         </div>
-        <div class="Left-Justify">
-            <textarea id="Contents1" rows="4" ></textarea>
-        </div>
-        <div>
-            <input type="button" id="Insert-Image1" value="画像を挿入" />
-        </div>
-        <div id="Insert-Paragraph-Button">
-            <input type="button" id="Paragraph" value="段落の追加" />
-        </div>    
+        
+        <div id="Basic-Div" class="Left-Justify" ></div>
     </div>
     <div id="Center">
     </div>
@@ -57,9 +49,17 @@
             <input type="button" id="Text" value="TEXT" />
             <input type="text" id="Text-Label" />
         </div>
+        <div>
             <input type="button" id="Hline" value="―" />
             <input type="button" id="Vline" value="|" />
             <input type="button" id="MoveGraph" value="図形の移動" />
+        </div>
+        <div id="Previous-Image"></div>
+        <div>
+        	<input type="button" id="New-Image" value="新しい画像" />
+        </div>
+        <div>
+        	<input type="button" id="Download" value="画像のダウンロード" />
         </div>
     </div>
     <div>
@@ -69,10 +69,10 @@
         <input type="submit" id="Save" value="保存" />
         <input type="file" hidden="true" id="SendFile" />
     </div>
+</div>
 <% 		}
 		} %>
 <%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
-<script type="module" src="${pageContext.request.contextPath}/edit_graph.js"></script>
 <script type="module" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
 
 <%  } %>

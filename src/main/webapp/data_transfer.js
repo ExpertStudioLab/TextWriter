@@ -1,7 +1,8 @@
 
 
 import { DocumentRecorder } from "./modules/document_recorder.js";
-
+import { Illustration } from "./modules/illustration.js";
+import { IllustrationRecorder } from "./modules/illustration_recorder.js";
 import { createKeywordButton } from "./modules/keyword_buttons.js";
 
 /**
@@ -9,17 +10,25 @@ import { createKeywordButton } from "./modules/keyword_buttons.js";
  */
 const cvs = document.getElementById( "Image1" );
 
-const recorder = new DocumentRecorder( "Doc", "Contents" );
-// button to add paragraph.
-recorder.registerButton( "InsertParagraph", "Paragraph", insertParagraph );
+const recorder = new DocumentRecorder( "Basic-Div", "Display-Area" );
+
 // button to send documents to servlet
-recorder.registerButton( "SendDocuments", "Save", SendDocuments ); 
+const sendBtn = document.getElementById( "Save" );
+sendBtn.addEventListener( "click", SendDocuments );
+
+
+const illustRecorder = new IllustrationRecorder( "Image1", "New-Image" );
+
+illustRecorder.setTextButton( "Text", "Text-Label" );
+illustRecorder.setButton( "Rect", Illustration.RECTANGLE );
+illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
+
      // identity of png file
     let fileNumber;
     // buttons
-    const insertBtn = document.getElementById( "Insert-Image1" );
+const insertBtn = document.getElementById( "Insert-Image1" );
 
-    window.addEventListener( "DOMContentLoaded", settings );
+window.addEventListener( "DOMContentLoaded", settings );
 
 function settings() {
     getFileNumber();
@@ -41,7 +50,7 @@ async function getKeywords() {
                 const statement = createKeywordButton( data.keyword, data.placeholder, data.options );
                 const div = document.getElementById( "Center" );
                 div.insertAdjacentHTML( "beforeend", statement );
-                recorder.registerKeywordButton( "Insert" + data.keyword, "Insert-" + data.keyword );
+                recorder.registerKeywordButton( "Insert-" + data.keyword );
             });
         }
     } catch( error ) {
@@ -116,9 +125,9 @@ function sendData( process, data ) {
     }
 }
 
-    insertBtn.addEventListener( "click", insertIllust );
+//    insertBtn.addEventListener( "click", insertIllust );
     
-    async function insertIllust( event ) {
+    export async function insertIllust( event ) {
         const str = String( event.target.id );
         const idNumber = str.substring( 12, str.length );
 
@@ -149,7 +158,7 @@ function sendData( process, data ) {
         
     }
 
-    function canvasToBlob( canvas ) {
+    export function canvasToBlob( canvas ) {
         return new Promise(( resolve, reject ) => {
             canvas.toBlob( ( canvasImage ) => {
                 if( canvasImage ) {
@@ -162,31 +171,3 @@ function sendData( process, data ) {
 
     }
 
-    function insertParagraph() {
-        const paraNumber = recorder.getParagraphNumber();
-        const previewDiv = document.getElementById( "Preview" + String( paraNumber - 1 ) );
-        previewDiv.insertAdjacentHTML(
-            "afterend",
-            "<div id=\"Preview" + String( paraNumber ) + "\" style=\"width: 60%;\" >" +
-                "<img id=\"Illust" + String( paraNumber ) + "\" style=\"float: right;\" ></img>" +
-                "<p id=\"Doc" + String( paraNumber ) + "\" style=\"font-size: 24px;\" ></p>" +
-            "</div>"
-        );
-
-        const newParagraphBtn = document.getElementById( "Insert-Paragraph-Button" );
-        newParagraphBtn.insertAdjacentHTML(
-            "beforebegin",
-            "<div class=\"Left-Justify\" >" +
-                "<textarea id=\"Contents" + String( paraNumber ) + "\" rows=\"4\" style=\"font-size: 24px; width: 100%; margin-top: 10px;\" ></textarea>" +
-            "</div>" +
-            "<div>" +
-                "<input type=\"button\" id=\"Insert-Image" + String( paraNumber ) + "\" value=\"画像を挿入\" />" +
-            "</div>"
-        );
-
-        const insertImgBtn = document.getElementById( "Insert-Image" + String( paraNumber ) );
-        insertImgBtn.addEventListener( "click", insertIllust );
-
-		recorder.addTextArea();
-//        recorder.registerTextArea( "Contents" + String( paraNumber ) );
-    }
