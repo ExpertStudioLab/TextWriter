@@ -30,8 +30,15 @@ export class IllustrationRecorder {
 		return this.#eventObject[ index ];
 	}
 
+	getIllustration( index ) {
+		return this.#illustration[ index ];
+	}
 	getIllustrations() {
 		return this.#illustration;
+	}
+
+	getCurrentIndex() {
+		return this.#currentIndex;
 	}
 
 	addIllustration() {
@@ -82,7 +89,7 @@ export class IllustrationRecorder {
 
 
 function addIllustration( event, recorder ) {
-	record.addIllustration();
+	recorder.addIllustration();
 }
 
 function changeIllustration( event, recorder ) {

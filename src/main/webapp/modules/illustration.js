@@ -29,7 +29,7 @@ class Illustration {
         Illustration.MOVE_GRAPH
     ];
 
-    #graphicObject = [];
+    graphicObject = [];
     #copyGraphic = null;
     #point = new Object();
     #canvas;
@@ -141,7 +141,7 @@ class Illustration {
             button.addEventListener( "click", this.eventFunction( name ) );
         }
 
-        for( const graphic of this.#graphicObject ) {
+        for( const graphic of this.graphicObject ) {
             graphic.draw( this.#graphicInterface );
         }
 
@@ -202,7 +202,7 @@ class Illustration {
         return this.#canvasImage;
     }
     getGraphic( index ) {
-        return this.#graphicObject[ index ];
+        return this.graphicObject[ index ];
     }
     getCopyGraphic() {
         return this.#copyGraphic;
@@ -221,8 +221,8 @@ class Illustration {
     }
 	
     setActiveIndex( curPoint ) {
-        for( let i = this.#graphicObject.length - 1; i >= 0; i-- ) {
-            let g = this.#graphicObject[ i ];
+        for( let i = this.graphicObject.length - 1; i >= 0; i-- ) {
+            let g = this.graphicObject[ i ];
             if( ( g.getArea().getX() <= curPoint.getX() ) && ( curPoint.getX() <= ( g.getArea().getX() + g.getArea().getWidth() ) )
                     && ( g.getArea().getY() <= curPoint.getY() ) && ( curPoint.getY() <= ( g.getArea().getY() + g.getArea().getHeight() ) ) ) {
                 this.#activeIndex = i;
@@ -234,18 +234,18 @@ class Illustration {
         return this.#activeIndex;
     }
     setGraphicPosition( left, top ) {
-        this.#graphicObject[ this.#activeIndex ].getArea().setX( left );
-        this.#graphicObject[ this.#activeIndex ].getArea().setY( top );
-        if( this.#graphicObject[ this.#activeIndex ] instanceof TextGraphic ) {
-			this.#graphicObject[ this.#activeIndex ].setOutlineX( left );
-			this.#graphicObject[ this.#activeIndex ].setOutlineY( top );
+        this.graphicObject[ this.#activeIndex ].getArea().setX( left );
+        this.graphicObject[ this.#activeIndex ].getArea().setY( top );
+        if( this.graphicObject[ this.#activeIndex ] instanceof TextGraphic ) {
+			this.graphicObject[ this.#activeIndex ].setOutlineX( left );
+			this.graphicObject[ this.#activeIndex ].setOutlineY( top );
 		}
     }
     repaint() {
         this.#graphicInterface.fillRect( 0, 0, this.#canvas.width, this.#canvas.height );
-        for( let i = 0; i < this.#graphicObject.length; i++ ) {
+        for( let i = 0; i < this.graphicObject.length; i++ ) {
             if( this.#activeIndex != i ) {
-                this.#graphicObject[ i ].draw( this.#graphicInterface );
+                this.graphicObject[ i ].draw( this.#graphicInterface );
             }
         }    
     }
@@ -326,7 +326,7 @@ class Illustration {
             if( area != null ) {
             	const graphic = new ( Illustration.GraphicType[ name ] )( area );
             	graphic.draw( this.#graphicInterface );
-            	this.#graphicObject.push( graphic );
+            	this.graphicObject.push( graphic );
 			}
         }
     }
@@ -341,7 +341,7 @@ class Illustration {
             console.log( "area: ", area );
             const graphic = new TextGraphic( area, this.#currentTextbox.value, Illustration.GraphicType[ this.#textOutline ], this.#graphicInterface );
             graphic.draw( this.#graphicInterface );
-            this.#graphicObject.push( graphic );
+            this.graphicObject.push( graphic );
         }
 
     }
@@ -383,7 +383,7 @@ class Illustration {
         this.#formLine.style.cssText = "";
         document.body.style.cssText = "";
         this.repaint();
-        this.#graphicObject.splice( this.#activeIndex, 1 );
+        this.graphicObject.splice( this.#activeIndex, 1 );
         this.saveImage();
     }
 
@@ -395,13 +395,13 @@ class Illustration {
             case "TextGraphic":
                 this.#copyGraphic.setOutlineX( this.#point.x );
                 this.#copyGraphic.setOutlineY( this.#point.y );
-                this.#graphicObject.push( this.#copyGraphic );
+                this.graphicObject.push( this.#copyGraphic );
                 this.#copyGraphic = new TextGraphic( this.#copyGraphic.getArea(), this.#copyGraphic.getText(), this.#copyGraphic.getOutline(), this.#graphicInterface );
                 this.#copyGraphic.setOutlineX( this.#point.x );
                 this.#copyGraphic.setOutlineY( this.#point.y );
                 break;
             default:
-                this.#graphicObject.push( this.#copyGraphic );
+                this.graphicObject.push( this.#copyGraphic );
                 this.#copyGraphic = new Graphic( this.#copyGraphic.getArea() );
                 break;
         }

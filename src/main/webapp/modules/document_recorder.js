@@ -5,7 +5,7 @@ import { Document } from "./document_manager.js";
 import * as action from "./document_actions.js";
 import { displayText } from "./display_text.js";
 import { insertIllust } from "../data_transfer.js";
-import { Illustration } from "./illustration.js";
+
 
 class DocumentRecorder {
 	static INSERT_PARAGRAPH = "InsertParagraph";
@@ -116,6 +116,10 @@ class DocumentRecorder {
         this.#eventParams.isComposing[ i - 1 ] = false;
         this.#eventParams.inputStatus[ i - 1 ] = "Normal";
         this.#eventParams.dataSending[ i - 1 ] = false;
+    }
+
+    setImage( idNumber, illust ) {
+        this.#documentStructures[ idNumber - 1 ].setImage( illust );
     }
 
     insertParagraph() {

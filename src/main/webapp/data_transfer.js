@@ -23,10 +23,6 @@ illustRecorder.setTextButton( "Text", "Text-Label" );
 illustRecorder.setButton( "Rect", Illustration.RECTANGLE );
 illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 
-     // identity of png file
-    let fileNumber;
-    // buttons
-const insertBtn = document.getElementById( "Insert-Image1" );
 
 window.addEventListener( "DOMContentLoaded", settings );
 
@@ -63,10 +59,15 @@ async function SendDocuments() {
     myHeaders.append( "Content-Type", "application/json" );
     myHeaders.append( "Process", "Save" );
     const blob = new Blob( [ JSON.stringify( recorder.getDocuments() ) ], { type: "application/json"} );
+    const illustBlob = new Blob( [ JSON.stringify( illustRecorder.getIllustrations() ) ], { type: "application/json" } );
+
+    const formData = new FormData();
+    formData.append( "Docs", blob );
+    formData.append( "Illusts", illustBlob );
     const myRequest = new Request( "storage", {
         method: "POST",
         headers: myHeaders,
-        body: blob
+        body: formData
     });
 
     const response = await window.fetch( myRequest );
@@ -80,82 +81,35 @@ async function SendDocuments() {
 }
 
 
-    //document.body.onload = getFileNumber;
-async function getFileNumber() {
-	const myHeaders = new Headers();
-    myHeaders.append( "Process", "FileNumber" );
-    const myRequest = new Request( "storage", {
-        method: "GET",
-        headers: myHeaders
-    });
-    try {
-	    window.fetch( myRequest )
-	    .then( response => {
-			if( !response.ok ) {
-				throw new Error( "response status: ${ response.status }" );
-			} else {
-				return response.text();
-			}
-		})
-		.then( number => {
-			fileNumber = parseInt( number );
-		});
-	} catch( error ) {
-		console.error( "error: ", error );
-	}
-}
 
-function sendData( process, data ) {
-    const myHeaders = new Headers();
-    myHeaders.append( "Process", String( process ) );
-    const myRequest = new Request( "storage", {
-        method: "GET",
-        headers: myHeaders,
-        body: data
-    } );
-    try {
-        window.fetch( myRequest )
-        .then( response => {
-            if( !response.ok ) {
-                throw new Error( "response status: ${ response.status }" );
-            }
-        })
-    } catch( error ) {
-        console.error( "error: ", error );
-    }
-}
-
-//    insertBtn.addEventListener( "click", insertIllust );
-    
     export async function insertIllust( event ) {
         const str = String( event.target.id );
         const idNumber = str.substring( 12, str.length );
 
-        try{
-            const canvasImage = await canvasToBlob( cvs );
-            const myHeaders = new Headers();
-            const formdata = new FormData();
-            formdata.append( "file", canvasImage, "img_" + fileNumber + ".png" );
-            myHeaders.append( "Process", "Image" );
-            const myRequest = new Request( "/TextWriter/storage", {
-                method: "POST",
-                body: formdata,
-                headers: myHeaders
-            });
-            const response = await window.fetch( myRequest );
-            if( response.ok ){
-                const illust = document.getElementById( "Illust" + String( idNumber ) );
-                illust.src = window.URL.createObjectURL( canvasImage );
-                illust.style.width = "350px";
-                illust.style.height = "275px";	
-            } else {
-                throw new Error( "response status: ${ response.status }" )
+        const illust = document.getElementById( "Illust" + String( idNumber ) );
+        illust.src = cvs.toDataURL();
+        illust.style.width = "350px";
+        illust.style.height = "275px";
+
+        recorder.setImage( parseInt( idNumber ), illustRecorder.getIllustration( illustRecorder.getCurrentIndex() ) );
+
+        /*
+        const blob = new Blob( [ JSON.stringify( recorder.getDocuments() ) ], { type: "application/json" } );
+        const illustBlob = new Blob( [ JSON.stringify( illustRecorder.getIllustrations() ) ], { type: "application/json" } );
+        const promise = await blob.text();
+        const illustPromise = await illustBlob.text();
+
+        const documents = recorder.getDocuments();
+        for( const obj of documents ) {
+            if( obj.isContainImage() ) {
+                const imageBlob = obj.getImage();
             }
-    
-        } catch( error ) {
-            console.error( "error: ", error );
         }
-        
+
+        console.log( "blob" + promise );
+        console.log( "blob" + illustPromise );
+        */
+
     }
 
     export function canvasToBlob( canvas ) {

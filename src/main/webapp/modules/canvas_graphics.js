@@ -4,6 +4,7 @@
 // canvas_graphics.js
 // the definition of  Graphic Object.
 class Graphic {
+    classType;
     area;
 
     constructor( area ) {
@@ -12,6 +13,7 @@ class Graphic {
         this.area.setY( area.getY() );
         this.area.setWidth( area.getWidth() );
         this.area.setHeight( area.getHeight() );
+        this.classType = "Graphic";
       }
 
     getArea() {
@@ -36,59 +38,60 @@ class Graphic {
   }
   
 class TextGraphic extends Graphic {
-  font;
-  textAlign;
-  fillStyle;
-  #outlineClass;
-  #text;
-  #outline;
+  #font;
+  #textAlign;
+  #fillStyle;
+  outlineClass;
+  text;
+  outline;
   
   constructor( area, text, outlineClass, graphicContext ) {
     super( area );
-    this.font = "25px Meiryo";
-    this.textAlign = "left";
-    this.fillStyle = "#000";
-    this.#text = text;
-    this.#outlineClass = outlineClass;
+    this.#font = "25px Meiryo";
+    this.#textAlign = "left";
+    this.#fillStyle = "#000";
+    this.text = text;
+    this.outlineClass = outlineClass;
     this.#setOutline( outlineClass );
     this.#calculateSize( graphicContext );
+    this.classType = "TextGraphic";
   }
 
   getText() {
-    return this.#text;
+    return this.text;
   }
   getOutline() {
-    return this.#outlineClass;
+    return this.outlineClass;
   }
 	
   #setOutline( graphicType ) {
     if( graphicType != null ) {
-      this.#outline = new graphicType( this.area );
+      this.outline = new graphicType( this.area );
     } else {
-      this.#outline = null;
+      this.outline = null;
     }
   }
     
   setOutlineX( x ) {
-		if( this.#outline != null ) {
-			this.#outline.setX( x );
+		if( this.outline != null ) {
+			this.outline.setX( x );
 		}
 	}
 	setOutlineY( y ) {
-		if( this.#outline != null ) {
-			this.#outline.setY( y );
+		if( this.outline != null ) {
+			this.outline.setY( y );
 		}
 	}
   #calculateSize( graphicContext ) {
     graphicContext.save();
-    graphicContext.font = this.font;
+    graphicContext.font = this.#font;
 
-    const textMetrics = graphicContext.measureText( this.#text );
+    const textMetrics = graphicContext.measureText( this.text );
 
     if( textMetrics.width > this.area.getWidth() ) {
       this.area.setWidth( Math.floor( textMetrics.width ) );
-      if( this.#outline != null ) {
-        this.#outline.area.setWidth( Math.floor( textMetrics.width ) );
+      if( this.outline != null ) {
+        this.outline.area.setWidth( Math.floor( textMetrics.width ) );
       }
     }
       
@@ -98,8 +101,8 @@ class TextGraphic extends Graphic {
   draw( graphicContext ) {
     this.#calculateSize( graphicContext );
     graphicContext.save();
-    graphicContext.font = this.font;
-    const textMetrics = graphicContext.measureText( this.#text );
+    graphicContext.font = this.#font;
+    const textMetrics = graphicContext.measureText( this.text );
     const textQuoteHeight = Math.floor( ( textMetrics.fontBoundingBoxAscent + textMetrics.fontBoundingBoxDescent ) / 4 );
     const halfHeight = Math.floor( this.area.getHeight() / 2 );
     const x = Math.floor( this.area.getX() + ( this.area.getWidth() - textMetrics.width ) / 2 );
@@ -109,10 +112,10 @@ class TextGraphic extends Graphic {
     graphicContext.textAlign = "left";
     graphicContext.fillStyle = "#000";
     graphicContext.beginPath();
-    graphicContext.fillText( this.#text, x, y );
+    graphicContext.fillText( this.text, x, y );
     graphicContext.restore();
-    if( this.#outline != null ) {
-      this.#outline.draw( graphicContext );
+    if( this.outline != null ) {
+      this.outline.draw( graphicContext );
     }
   }
 }
@@ -120,39 +123,39 @@ class TextGraphic extends Graphic {
   
   
   class Area {
-    #x;
-    #y;
-    #width;
-    #height;
+    x;
+    y;
+    width;
+    height;
     setArea( x, y, w, h ) {
-      this.#x = x;
-      this.#y = y;
-      this.#width = w;
-      this.#height = h;
+      this.x = x;
+      this.y = y;
+      this.width = w;
+      this.height = h;
     }
     getX() {
-      return this.#x;
+      return this.x;
     }
     setX( x ) {
-        this.#x = x;
+        this.x = x;
     }
     getY() {
-      return this.#y;
+      return this.y;
     }
     setY( y ) {
-        this.#y = y;
+        this.y = y;
     }
     getWidth() {
-      return this.#width;
+      return this.width;
     }
     setWidth( w ) {
-        this.#width = w;
+        this.width = w;
     }
     getHeight() {
-      return this.#height;
+      return this.height;
     }
     setHeight( h ) {
-        this.#height = h;
+        this.height = h;
     }
   }
 export { Graphic, TextGraphic, Area };

@@ -1,3 +1,4 @@
+//import { Illustration } from "./illustration.js";
 /**
  * 
  */
@@ -7,6 +8,8 @@ class Document {
     textPieces;
     currentIndex;
     currentLength;
+    #imageBlob = null;
+    containImage = false;
     constructor() {
         this.properties = [];
         this.textLength = 0;
@@ -199,6 +202,19 @@ class Document {
             this.properties[ i ].keywordType = jsonObject.properties[ i ].keywordType;
             this.properties[ i ].textPosition = new Caret( jsonObject.properties[ i ].start, jsonObject.properties[ i ].end );
         }
+    }
+    setImage( illust ) {
+        this.#imageBlob = illust.getCanvasImage();
+        this.containImage = true;
+    }
+    isContainImage() {
+        return this.containImage;
+    }
+    getImage() {
+        return this.#imageBlob;
+    }
+    deleteImage() {
+        this.#imageBlob = null;
     }
 }
 
