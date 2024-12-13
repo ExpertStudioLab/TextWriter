@@ -78,6 +78,12 @@ export class IllustrationRecorder {
 			this.#illustration[ i ].setTextButton( btnId, textboxId );
 		}
 	}
+	setImageButton( btnId, fileSelectorId, textboxId ) {
+		this.#registeredButtons.push( { id: btnId, fileSelectorId: fileSelectorId, textboxId: textboxId, type: Illustration.IMAGE } );
+		for( let i = 0; i < this.#imageNumber; i++ ) {
+			this.#illustration[ i ].setImageButton( btnId, fileSelectorId, textboxId );
+		}
+	}
 
 	changeIllustration( event ) {
 		this.#illustration[ this.#currentIndex ].deleteAllSettings();

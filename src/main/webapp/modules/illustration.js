@@ -3,13 +3,14 @@
  */
 import { setBegin, setEnd, setMove } from "../draw_graph.js";
 import { getActive, lostActive, moveGraph, keyboardMove, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "../move_graph.js";
-import { Graphic, TextGraphic, Area } from "../modules/canvas_graphics.js";
+import { Graphic, ImageGraphic, TextGraphic, Area } from "../modules/canvas_graphics.js";
 import { canvasToBlob } from "../data_transfer.js";
 
 class Illustration {
     static RECTANGLE = "RectButton";
     static TEXT = "TextButton";
     static MOVE_GRAPH = "MoveButton";
+    static IMAGE = "ImageButton";
     static MENU = "Graphic-Menu";
     static LOST_ACTIVE = 0;
     static ACTIVE = 1;
@@ -35,11 +36,14 @@ class Illustration {
     #canvas;
     #canvasImage;
     #graphicInterface;
+    #currentImage;
     #activeIndex = -1;
     #eventObject;
     #formLine;
     #contextMenu;
     #currentTextbox;
+    #imageTextbox;
+    #fileSelector;
     #textOutline = "UNDEFINED";
     #buttonName = [];
 
@@ -62,7 +66,12 @@ class Illustration {
         this.#eventObject = [
             { name: Illustration.RECTANGLE, illust: this, handleEvent: function( event ) { setDraw( event, this.illust, this.name ) } },
             { name: Illustration.TEXT, illust: this, handleEvent: function( event ) { setText( event, this.illust, this.name ) } },
+            { name: Illustration.IMAGE, illust: this, handleEvent: function( event ) { setImage( event, this.illust, this.name ) } },
             { name: Illustration.MOVE_GRAPH, illust: this, handleEvent: function( event ) { moveGraphSettings( event, this.illust, this.name ) } },
+            { name: "FileSelector", illust: this, handleEvent: function( event ) { fileSelect( event, this.illust, this.name ) } },
+            { name: "GetFileName", illust: this, handleEvent: function( event ) { setImageFile( event, this.illust, this.name ) } },
+            { name: "Cancel", illust: this, handleEvent: function( event ) { cancelFileSelect( event, this.illust, this.name ) } },
+            { name: "LoadImage", illust: this, handleEvent: function( event ) { loadImage( event, this.illust, this.name ) } },
             { name: "SetBegin", illust: this, handleEvent: function( event ) { setBegin( event, this.illust ) } },
             { name: "SetMove", illust: this, handleEvent: function( event ) { setMove( event, this.illust ) } },
             { name: "SetEnd", illust: this, handleEvent: function( event ) { setEnd( event, this.illust ) } },
@@ -102,7 +111,19 @@ class Illustration {
         const btn = document.getElementById( btnId );
         btn.classList.add( "Button-Preference" );
         this.#currentTextbox = document.getElementById( textboxId );
-        btn.addEventListener( "click", this.eventFunction( "TextButton" ) );
+        btn.addEventListener( "click", this.eventFunction( Illustration.TEXT ) );
+    }
+
+    setImageButton( btnId, fileSelectorId, textboxId ) {
+        this.#buttonName.push( { id: btnId, name: Illustration.IMAGE } );
+        const btn = document.getElementById( btnId );
+        btn.classList.add( "Button-Preference" );
+        this.#imageTextbox = document.getElementById( textboxId );
+        this.#fileSelector = document.getElementById( fileSelectorId );
+        btn.addEventListener( "click", this.eventFunction( Illustration.IMAGE ) );
+        this.#fileSelector.addEventListener( "click", this.eventFunction( "FileSelector" ) );
+        this.#fileSelector.addEventListener( "change", this.eventFunction( "GetFileName" ) );
+        this.#fileSelector.addEventListener( "cancel", this.eventFunction( "Cancel" ) );
     }
 
     deleteAllSettings() {
@@ -274,29 +295,31 @@ class Illustration {
         buttons.forEach( btn => {
             btn.classList.remove( "Press-Button" );
             btn.classList.add( "Button-Preference" );
-        })
+        });
     }
     setButtonStatus( event, name ) {
         const buttons = document.querySelectorAll( ".Press-Button" );
 
         for( let i = 0; i < buttons.length; i++ ) {
-//            if( this.#buttonName[ buttons[ i ].id ] == name ) {
             const btnName = this.getButtonName( buttons[ i ].id );
             if( btnName == name ) {
                 this.#switchButtonStatus( buttons[ i ] );
                 return false;
-//            } else if( this.#buttonName[ buttons[ i ].id ] != Illustration.TEXT && name != Illustration.TEXT ) {
             } else if( btnName != Illustration.TEXT && name != Illustration.TEXT ) {
-//                if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
                 if( btnName == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+                    this.#clearButtonStatus();
+                    break;
+                } else if( btnName == Illustration.IMAGE || name == Illustration.IMAGE ) {
                     this.#clearButtonStatus();
                     break;
                 }
                 // unset button
                 this.#switchButtonStatus( buttons[ i ] );
                 break;
-//            } else if( this.#buttonName[ buttons[ i ].id ] == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
             } else if( btnName == Illustration.MOVE_GRAPH || name == Illustration.MOVE_GRAPH ) {
+                this.#clearButtonStatus();
+                break;
+            } else if( btnName == Illustration.IMAGE || name == Illustration.IMAGE ) {
                 this.#clearButtonStatus();
                 break;
             }
@@ -323,6 +346,9 @@ class Illustration {
         }
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
+            console.log( "point: ", point );
+            console.log( "w: " + w );
+            console.log( "h: " + h );
             if( area != null ) {
             	const graphic = new ( Illustration.GraphicType[ name ] )( area );
             	graphic.draw( this.#graphicInterface );
@@ -338,12 +364,28 @@ class Illustration {
         }
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
-            console.log( "area: ", area );
-            const graphic = new TextGraphic( area, this.#currentTextbox.value, Illustration.GraphicType[ this.#textOutline ], this.#graphicInterface );
-            graphic.draw( this.#graphicInterface );
-            this.graphicObject.push( graphic );
+            if( area != null ) {
+                const graphic = new TextGraphic( area, this.#currentTextbox.value, Illustration.GraphicType[ this.#textOutline ], this.#graphicInterface );
+                graphic.draw( this.#graphicInterface );
+                this.graphicObject.push( graphic );    
+            }
         }
 
+    }
+
+    setImage() {
+        this.#drawSettings();
+        this.#drawFormLine = function() {
+            this.#formLine.style.border = "1px solid black";
+        }
+        this.#draw = function( point, w, h ) {
+            const area = registerRect( point, w, h );
+            if( area != null ) {
+                const graphic = new ImageGraphic( area, this.#currentImage.src );
+                graphic.draw( this.#graphicInterface );
+                this.graphicObject.push( graphic );
+            }
+        }
     }
     callDrawFormLine( ) {
         this.#drawFormLine( );
@@ -375,6 +417,9 @@ class Illustration {
             case "TextGraphic":
                 this.#copyGraphic = new TextGraphic( graphic.getArea(), graphic.getText(), graphic.getOutline(), this.#graphicInterface );
                 break;
+            case "ImageGraphic":
+				this.#copyGraphic = new ImageGraphic( graphic.getArea(), graphic.getImage().src );
+				break;
             case "Graphic":
                 this.#copyGraphic = new Graphic( graphic.getArea() );
                 break;
@@ -400,6 +445,10 @@ class Illustration {
                 this.#copyGraphic.setOutlineX( this.#point.x );
                 this.#copyGraphic.setOutlineY( this.#point.y );
                 break;
+            case "ImageGraphic":
+				this.graphicObject.push( this.#copyGraphic );
+				this.#copyGraphic = new ImageGraphic( this.#copyGraphic.getArea(), this.#copyGraphic.getImage().src );
+				break;
             default:
                 this.graphicObject.push( this.#copyGraphic );
                 this.#copyGraphic = new Graphic( this.#copyGraphic.getArea() );
@@ -416,13 +465,78 @@ class Illustration {
             console.error( "error: ", error );
         }
     }
+
+    cancelFileSelect( event ) {
+        const files = event.target.files;
+        console.log( "cancelFileSelect()" );
+        if( files.length == 0 ) {
+            this.unsetDraw();
+            this.#clearButtonStatus();
+        }
+    }
+    setFileName( event ) {
+        const files = event.target.files;
+        console.log( "setFileName" );
+
+        if( files.length > 0 ) {
+            this.#imageTextbox.value = files[ 0 ].name;
+            const reader = new FileReader();
+            reader.readAsDataURL( files[ 0 ] );
+            reader.addEventListener( "load", this.eventFunction( "LoadImage" ) );    
+        } else {
+            this.unsetDraw();
+            this.#clearButtonStatus();
+        }
+    }
+    resetTextbox() {
+        this.#imageTextbox.value = "";
+    }
+    setImageSource( event ) {
+        this.#currentImage = new Image();
+        this.#currentImage.src = event.target.result;
+    }
+
+    sendClickEvent() {
+        const myEvent = new Event( "click" );
+        this.#fileSelector.dispatchEvent( myEvent );
+    }
 }
+
+function fileSelect( event, illust, name ) {
+    event.target.click();
+}
+
+function cancelFileSelect( event, illust, name ) {
+    illust.cancelFileSelect( event );
+}
+
+function setImageFile( event, illust, name ) {
+    illust.setFileName( event );
+}
+
+function loadImage( event, illust, name ) {
+    illust.setImageSource( event );
+}
+
+
 
 function moveGraphSettings( event, illust, name ) {
     if( illust.setButtonStatus( event, name ) ) {
         illust.setMoveGraph();
     } else {
         illust.unsetMoveGraph();
+    }
+}
+
+function setImage( event, illust, name ) {
+    lostActive( event, illust );
+
+    if( illust.setButtonStatus( event, name ) ) {
+        illust.sendClickEvent();
+        illust.setImage();
+    } else {
+        illust.unsetDraw();
+        illust.resetTextbox();
     }
 }
 

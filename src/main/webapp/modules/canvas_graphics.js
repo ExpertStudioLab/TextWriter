@@ -14,7 +14,7 @@ class Graphic {
         this.area.setWidth( area.getWidth() );
         this.area.setHeight( area.getHeight() );
         this.classType = "Graphic";
-      }
+    }
 
     getArea() {
         return this.area;
@@ -26,16 +26,70 @@ class Graphic {
         this.area.setY( y );
     }
     draw( graphicContext ) {
-      graphicContext.strokeRect( this.area.getX(), this.area.getY(), this.area.getWidth(), this.area.getHeight() );
+      	graphicContext.strokeRect( this.area.getX(), this.area.getY(), this.area.getWidth(), this.area.getHeight() );
     }
     getClassName() {
-      if( this instanceof TextGraphic ) {
-        return "TextGraphic";
-      } else {
-        return "Graphic";
-      }
-    }
-  }
+      	if( this instanceof TextGraphic ) {
+        	return "TextGraphic";
+      	} else if( this instanceof ImageGraphic ) {
+			  return "ImageGraphic";
+		} else {
+        	return "Graphic";
+      	}
+	}
+}
+  
+class ImageGraphic extends Graphic {
+	#image = new Image;
+	#eventObject = { image: this, handleEvent: function( event ) { setImageGraphic( event, this.image ) } };
+	#flag = false;
+	constructor( area, image ) {
+		super( area );
+		this.#image.src = image;
+		this.#image.addEventListener( "load", this.#eventObject );
+	}
+	
+	setFlag() {
+		this.#flag = true;
+	}
+	getFlag() {
+		return this.#flag;
+	}
+	getImage() {
+		return this.#image;
+	}
+	
+	async draw( graphicContext ) {
+		for( let i = 0; i < 10; i++ ) {
+			if( await timer( 200, this ) ) {
+				break;
+			}
+		}
+		graphicContext.drawImage( this.#image, this.area.getX(), this.area.getY(), this.area.getWidth(), this.area.getHeight() );
+	}
+}
+
+function setImageGraphic( event, image ) {
+	const width = image.getArea().getWidth();
+	const rate = event.target.height / event.target.width;
+	const height = Math.floor( width * rate );
+	console.log( "area.height: " + image.getArea().getHeight() );
+	console.log( "height: " + height );
+	image.getArea().setHeight( height );
+	image.setFlag();
+}
+
+function timer( time, image ) {
+	return new Promise( ( resolve ) => {
+		window.setTimeout( () => {
+			if( image.getFlag() ){
+				resolve( true );
+			} else {
+				resolve( false );
+			}
+		}, time );
+	} );
+}
   
 class TextGraphic extends Graphic {
   #font;
@@ -158,4 +212,4 @@ class TextGraphic extends Graphic {
         this.height = h;
     }
   }
-export { Graphic, TextGraphic, Area };
+export { Graphic, ImageGraphic, TextGraphic, Area };

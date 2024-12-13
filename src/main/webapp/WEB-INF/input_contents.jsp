@@ -50,6 +50,11 @@
             <input type="text" id="Text-Label" />
         </div>
         <div>
+        	<input type="file" id="FileImage" accept="image/*" style="display: none;" />
+        	<input type= "button" id="Insert-File" value="画像の指定" />
+			<input type= "text" id="ImageFileName" readonly style="width: 200px;" />
+        </div>
+        <div>
             <input type="button" id="Hline" value="―" />
             <input type="button" id="Vline" value="|" />
             <input type="button" id="MoveGraph" value="図形の移動" />

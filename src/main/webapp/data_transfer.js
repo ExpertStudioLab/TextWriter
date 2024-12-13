@@ -20,6 +20,7 @@ sendBtn.addEventListener( "click", SendDocuments );
 const illustRecorder = new IllustrationRecorder( "Image1", "New-Image" );
 
 illustRecorder.setTextButton( "Text", "Text-Label" );
+illustRecorder.setImageButton( "Insert-File", "FileImage", "ImageFileName" );
 illustRecorder.setButton( "Rect", Illustration.RECTANGLE );
 illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 
@@ -27,7 +28,6 @@ illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 window.addEventListener( "DOMContentLoaded", settings );
 
 function settings() {
-    getFileNumber();
     getKeywords();
 }
 async function getKeywords() {
