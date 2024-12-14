@@ -4,7 +4,6 @@
 import { setBegin, setEnd, setMove } from "../draw_graph.js";
 import { getActive, lostActive, moveGraph, keyboardMove, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "../move_graph.js";
 import { Graphic, ImageGraphic, TextGraphic, Area } from "../modules/canvas_graphics.js";
-import { canvasToBlob } from "../data_transfer.js";
 
 class Illustration {
     static RECTANGLE = "RectButton";
@@ -12,6 +11,7 @@ class Illustration {
     static MOVE_GRAPH = "MoveButton";
     static IMAGE = "ImageButton";
     static MENU = "Graphic-Menu";
+
     static LOST_ACTIVE = 0;
     static ACTIVE = 1;
 
@@ -27,16 +27,18 @@ class Illustration {
     static reservedButtons = [
         Illustration.RECTANGLE,
         Illustration.TEXT,
-        Illustration.MOVE_GRAPH
+        Illustration.MOVE_GRAPH,
+        Illustration.IMAGE
     ];
 
     graphicObject = [];
     #copyGraphic = null;
     #point = new Object();
     #canvas;
-    #canvasImage;
+//    #canvasImage;
     #graphicInterface;
     #currentImage;
+    #currentImageType;
     #activeIndex = -1;
     #eventObject;
     #formLine;
@@ -98,7 +100,6 @@ class Illustration {
     }
 
     setButton( btnId, btnType ) {
-//        this.#buttonName[ btnId ] = btnType;
 		this.#buttonName.push( { id: btnId, name: btnType } );
         const btn = document.getElementById( btnId );
         btn.classList.add( "Button-Preference" );
@@ -106,7 +107,6 @@ class Illustration {
     }
 
     setTextButton( btnId, textboxId ) {
-//        this.#buttonName[ btnId ] = Illustration.TEXT;
 		this.#buttonName.push( { id: btnId, name: Illustration.TEXT } );
         const btn = document.getElementById( btnId );
         btn.classList.add( "Button-Preference" );
@@ -133,7 +133,6 @@ class Illustration {
         this.#graphicInterface.lineWidth = "10px";
         this.#graphicInterface.save();
 
-
         this.#deleteDrawSettings();
         this.#deleteMoveGraphSettings();
 
@@ -141,6 +140,9 @@ class Illustration {
             const button = document.getElementById( this.getButtonId( name ) );
             button.removeEventListener( "click", this.eventFunction( name ) );
         }
+        this.#fileSelector.removeEventListener( "click", this.eventFunction( "FileSelector" ) );
+        this.#fileSelector.removeEventListener( "change", this.eventFunction( "GetFileName" ) );
+        this.#fileSelector.removeEventListener( "cancel", this.eventFunction( "Cancel" ) );
 
         const buttons = document.querySelectorAll( ".Press-Button" );
         for( const button of buttons ) {
@@ -152,7 +154,8 @@ class Illustration {
         document.removeEventListener( "click", this.eventFunction( "LostFocus" ) );
         document.removeEventListener( "contextmenu", this.eventFunction( "LostFocus" ) );
 
-        const parent = document.getElementById( "Right-Side" );
+//        const parent = document.getElementById( "Right-Side" );
+        const parent = this.#canvas.parentElement;
         parent.removeChild( this.#formLine );
         parent.removeChild( this.#contextMenu );
     }
@@ -161,6 +164,10 @@ class Illustration {
             const button = document.getElementById( this.getButtonId( name ) );
             button.addEventListener( "click", this.eventFunction( name ) );
         }
+        this.#fileSelector.addEventListener( "click", this.eventFunction( "FileSelector" ) );
+        this.#fileSelector.addEventListener( "change", this.eventFunction( "GetFileName" ) );
+        this.#fileSelector.addEventListener( "cancel", this.eventFunction( "Cancel" ) );
+
 
         for( const graphic of this.graphicObject ) {
             graphic.draw( this.#graphicInterface );
@@ -219,12 +226,19 @@ class Illustration {
     getCanvas() {
         return this.#canvas;
     }
+    /*
     getCanvasImage() {
         return this.#canvasImage;
     }
+    */
     getGraphic( index ) {
         return this.graphicObject[ index ];
     }
+
+    getGraphics() {
+        return this.graphicObject;
+    }
+    
     getCopyGraphic() {
         return this.#copyGraphic;
     }
@@ -232,7 +246,6 @@ class Illustration {
         return this.#graphicInterface;
     }
     getButtonName( btnId ) {
-		//return this.#buttonName[ btnId ];
 		const index = this.#buttonName.findIndex( btn => btn.id == btnId );
         return this.#buttonName[ index ].name;
 	}
@@ -346,9 +359,6 @@ class Illustration {
         }
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
-            console.log( "point: ", point );
-            console.log( "w: " + w );
-            console.log( "h: " + h );
             if( area != null ) {
             	const graphic = new ( Illustration.GraphicType[ name ] )( area );
             	graphic.draw( this.#graphicInterface );
@@ -370,7 +380,6 @@ class Illustration {
                 this.graphicObject.push( graphic );    
             }
         }
-
     }
 
     setImage() {
@@ -381,7 +390,7 @@ class Illustration {
         this.#draw = function( point, w, h ) {
             const area = registerRect( point, w, h );
             if( area != null ) {
-                const graphic = new ImageGraphic( area, this.#currentImage.src );
+                const graphic = new ImageGraphic( area, this.#currentImage.src, this.#currentImageType );
                 graphic.draw( this.#graphicInterface );
                 this.graphicObject.push( graphic );
             }
@@ -392,7 +401,7 @@ class Illustration {
     }
     callDraw( point, w, h ) {
         this.#draw( point, w, h );
-        this.saveImage();
+        //   this.saveImage();
     }
 
     copy( ) {
@@ -403,6 +412,9 @@ class Illustration {
             case "TextGraphic":
                 this.#copyGraphic = new TextGraphic( graphic.getArea(), graphic.getText(), graphic.getOutline(), this.#graphicInterface );
                 break;
+            case "ImageGraphic":
+				this.#copyGraphic = new ImageGraphic( graphic.getArea(), graphic.getImage().src, graphic.getImageType() );
+				break;
             case "Graphic":
                 this.#copyGraphic = new Graphic( graphic.getArea() );
                 break;
@@ -418,7 +430,7 @@ class Illustration {
                 this.#copyGraphic = new TextGraphic( graphic.getArea(), graphic.getText(), graphic.getOutline(), this.#graphicInterface );
                 break;
             case "ImageGraphic":
-				this.#copyGraphic = new ImageGraphic( graphic.getArea(), graphic.getImage().src );
+				this.#copyGraphic = new ImageGraphic( graphic.getArea(), graphic.getImage().src, graphic.getImageType() );
 				break;
             case "Graphic":
                 this.#copyGraphic = new Graphic( graphic.getArea() );
@@ -429,7 +441,7 @@ class Illustration {
         document.body.style.cssText = "";
         this.repaint();
         this.graphicObject.splice( this.#activeIndex, 1 );
-        this.saveImage();
+        //   this.saveImage();
     }
 
     paste() {
@@ -447,7 +459,7 @@ class Illustration {
                 break;
             case "ImageGraphic":
 				this.graphicObject.push( this.#copyGraphic );
-				this.#copyGraphic = new ImageGraphic( this.#copyGraphic.getArea(), this.#copyGraphic.getImage().src );
+				this.#copyGraphic = new ImageGraphic( this.#copyGraphic.getArea(), this.#copyGraphic.getImage().src, this.#copyGraphic.getImageType() );
 				break;
             default:
                 this.graphicObject.push( this.#copyGraphic );
@@ -455,20 +467,21 @@ class Illustration {
                 break;
         }
         this.#copyGraphic.draw( this.#graphicInterface );
-        this.saveImage();
+        //   this.saveImage();
     }
-
+/*
     async saveImage() {
         try {
-            this.#canvasImage = await canvasToBlob( this.#canvas );
+//            this.#canvasImage = await canvasToBlob( this.#canvas );
+            this.#canvasImage = await createBlob( this.#canvas, "image/png" );
         } catch( error ) {
             console.error( "error: ", error );
         }
     }
+    */
 
     cancelFileSelect( event ) {
         const files = event.target.files;
-        console.log( "cancelFileSelect()" );
         if( files.length == 0 ) {
             this.unsetDraw();
             this.#clearButtonStatus();
@@ -476,10 +489,12 @@ class Illustration {
     }
     setFileName( event ) {
         const files = event.target.files;
-        console.log( "setFileName" );
 
         if( files.length > 0 ) {
-            this.#imageTextbox.value = files[ 0 ].name;
+			const filename = files[ 0 ].name;
+            this.#imageTextbox.value = filename;
+            const fileType = filename.substring( filename.lastIndexOf( "." ) + 1, filename.length );
+            this.#currentImageType = "image/" + fileType;
             const reader = new FileReader();
             reader.readAsDataURL( files[ 0 ] );
             reader.addEventListener( "load", this.eventFunction( "LoadImage" ) );    
@@ -517,8 +532,6 @@ function setImageFile( event, illust, name ) {
 function loadImage( event, illust, name ) {
     illust.setImageSource( event );
 }
-
-
 
 function moveGraphSettings( event, illust, name ) {
     if( illust.setButtonStatus( event, name ) ) {

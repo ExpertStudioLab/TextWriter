@@ -49,10 +49,12 @@ export class IllustrationRecorder {
 		this.#currentIndex = this.#imageNumber;
 		this.#illustration.push( new Illustration( this.#canvasId ) );
 		for( const button of this.#registeredButtons ) {
-			if( button.type != Illustration.TEXT ) {
+			if( button.type != Illustration.TEXT && button.type != Illustration.IMAGE ) {
 				this.#illustration[ this.#currentIndex ].setButton( button.id, button.type );
-			} else {
+			} else if( button.type == Illustration.TEXT ) {
 				this.#illustration[ this.#currentIndex ].setTextButton( button.id, button.textboxId );
+			} else {
+				this.#illustration[ this.#currentIndex ].setImageButton( button.id, button.fileSelectorId, button.textboxId );
 			}
 		}
 

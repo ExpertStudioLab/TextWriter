@@ -8,7 +8,7 @@ class Document {
     textPieces;
     currentIndex;
     currentLength;
-    #imageBlob = null;
+//    #imageBlob = null;
     containImage = false;
     constructor() {
         this.properties = [];
@@ -204,18 +204,20 @@ class Document {
         }
     }
     setImage( illust ) {
-        this.#imageBlob = illust.getCanvasImage();
+//        this.#imageBlob = illust.getCanvasImage();
         this.containImage = true;
     }
     isContainImage() {
         return this.containImage;
     }
+    /*
     getImage() {
         return this.#imageBlob;
     }
     deleteImage() {
         this.#imageBlob = null;
     }
+    */
 }
 
 class DocumentProperties {

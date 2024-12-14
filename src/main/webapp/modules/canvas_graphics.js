@@ -39,14 +39,18 @@ class Graphic {
 	}
 }
   
+ 
 class ImageGraphic extends Graphic {
-	#image = new Image;
+	#image = new Image();
+	#imageType;
 	#eventObject = { image: this, handleEvent: function( event ) { setImageGraphic( event, this.image ) } };
 	#flag = false;
-	constructor( area, image ) {
+	constructor( area, image, imageType ) {
 		super( area );
 		this.#image.src = image;
+		this.#imageType = imageType;
 		this.#image.addEventListener( "load", this.#eventObject );
+		this.classType = "ImageGraphic";
 	}
 	
 	setFlag() {
@@ -57,6 +61,9 @@ class ImageGraphic extends Graphic {
 	}
 	getImage() {
 		return this.#image;
+	}
+	getImageType() {
+		return this.#imageType;
 	}
 	
 	async draw( graphicContext ) {
@@ -73,8 +80,6 @@ function setImageGraphic( event, image ) {
 	const width = image.getArea().getWidth();
 	const rate = event.target.height / event.target.width;
 	const height = Math.floor( width * rate );
-	console.log( "area.height: " + image.getArea().getHeight() );
-	console.log( "height: " + height );
 	image.getArea().setHeight( height );
 	image.setFlag();
 }

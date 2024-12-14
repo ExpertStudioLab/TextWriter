@@ -1,5 +1,6 @@
 
 
+import { ImageGraphic } from "./modules/canvas_graphics.js";
 import { DocumentRecorder } from "./modules/document_recorder.js";
 import { Illustration } from "./modules/illustration.js";
 import { IllustrationRecorder } from "./modules/illustration_recorder.js";
@@ -10,13 +11,12 @@ import { createKeywordButton } from "./modules/keyword_buttons.js";
  */
 const cvs = document.getElementById( "Image1" );
 
-const recorder = new DocumentRecorder( "Basic-Div", "Display-Area" );
-
 // button to send documents to servlet
 const sendBtn = document.getElementById( "Save" );
 sendBtn.addEventListener( "click", SendDocuments );
 
-
+// recorders
+const recorder = new DocumentRecorder( "Basic-Div", "Display-Area" );
 const illustRecorder = new IllustrationRecorder( "Image1", "New-Image" );
 
 illustRecorder.setTextButton( "Text", "Text-Label" );
@@ -24,17 +24,13 @@ illustRecorder.setImageButton( "Insert-File", "FileImage", "ImageFileName" );
 illustRecorder.setButton( "Rect", Illustration.RECTANGLE );
 illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 
+window.onload = getKeywords();
 
-window.addEventListener( "DOMContentLoaded", settings );
-
-function settings() {
-    getKeywords();
-}
 async function getKeywords() {
     const myRequest = new Request( "storage", {
         method: "GET",
         headers: { "Process": "Keywords" }
-    });
+    } );
 
     const response = await window.fetch( myRequest );
     try{
@@ -56,19 +52,42 @@ async function getKeywords() {
 
 async function SendDocuments() {
     const myHeaders = new Headers();
-    myHeaders.append( "Content-Type", "application/json" );
     myHeaders.append( "Process", "Save" );
     const blob = new Blob( [ JSON.stringify( recorder.getDocuments() ) ], { type: "application/json"} );
     const illustBlob = new Blob( [ JSON.stringify( illustRecorder.getIllustrations() ) ], { type: "application/json" } );
+    const illustrations = illustRecorder.getIllustrations();
 
     const formData = new FormData();
     formData.append( "Docs", blob );
     formData.append( "Illusts", illustBlob );
+
+    let fileNumber = 1;
+    for( let i = 0; i < illustrations.length; i++ ) {
+        const graphics = illustrations[ i ].getGraphics();
+        for( let j = 0; j < graphics.length; j++ ) {
+            if( graphics[ j ] instanceof ImageGraphic ) {
+                console.log( "tanukichi error!!" );
+                const image = graphics[ j ].getImage();
+                const imageType = graphics[ j ].getImageType();
+                const canvas = document.createElement( "canvas" );
+                const drawDevice = canvas.getContext( "2d" );
+                canvas.width = image.width;
+                canvas.height = image.height;
+                drawDevice.drawImage( image, 0, 0 );
+                const imageBlob = await createBlob( canvas, imageType );
+                formData.append( "Image" + String( fileNumber ), imageBlob );
+                fileNumber += 1;
+            }
+        }
+    }
+    const imageFileNumber = new Blob( [ String( fileNumber - 1 ) ], { type: "text/plain" } );
+    formData.append( "FileNumber", imageFileNumber );
+
     const myRequest = new Request( "storage", {
         method: "POST",
         headers: myHeaders,
         body: formData
-    });
+    } );
 
     const response = await window.fetch( myRequest );
     try {
@@ -79,8 +98,6 @@ async function SendDocuments() {
         console.error( error );
     }
 }
-
-
 
     export async function insertIllust( event ) {
         const str = String( event.target.id );
@@ -112,16 +129,15 @@ async function SendDocuments() {
 
     }
 
-    export function canvasToBlob( canvas ) {
-        return new Promise(( resolve, reject ) => {
+    export function createBlob( canvas, imageType ) {
+        return new Promise( ( resolve ) => {
             canvas.toBlob( ( canvasImage ) => {
                 if( canvasImage ) {
                     resolve( canvasImage );
                 } else {
-                    reject( new Error( "Failed to generate blob." ) );
+                    throw new Error( "Failed to generate blob." );
                 }
-            });
-        });
-
+            }, imageType );
+        } );
     }
 
