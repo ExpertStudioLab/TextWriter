@@ -31,3 +31,5 @@ Dec. 9, 2024, Mon. Enabled to copy & paste graphics.
 Dec. 11, 2024, Wed. Enabled to copy & paste texts.
 Dec. 12, 2024, Thu. Enabled to change from Document Objects to JSON data in order to send and save data.
 Dec. 13, 2024, Fri. Enabled to draw Image Graphics.
+Dec. 14, 2024, Sat. Enabled to save documents.
+
