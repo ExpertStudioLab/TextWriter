@@ -1,3 +1,4 @@
+
 window.addEventListener('pageshow', (event) => {
   if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
     location.reload();
@@ -8,6 +9,8 @@ window.addEventListener('pageshow', (event) => {
    // on update widow, make the servlet program to process orders previous values
    window.addEventListener( "DOMContentLoaded", ()=> {
       storeState();
+      document.body.style.width = String( Math.floor( window.innerWidth ) - 100 ) + "px";
+	  document.body.style.height = String( Math.floor( window.scrollHeight ) - 100 ) + "px";
       init();
    });
 
@@ -45,3 +48,8 @@ window.addEventListener('pageshow', (event) => {
 			   console.error( error );
 		   }
 	}
+
+	window.addEventListener( "resize", () => {
+		document.body.style.width = String( Math.floor( window.innerWidth ) - 100 ) + "px";
+		document.body.style.height = String( Math.floor( window.scrollHeight ) - 100 ) + "px";
+	});

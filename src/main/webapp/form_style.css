@@ -1,4 +1,10 @@
 @charset "UTF-8";
+
+body {
+	margin: 0 auto auto auto;
+	padding: 30px 0 30px 10px;
+	border: solid 30px black;
+}
 /* display on right side */
 .Right-Justify {
 	display: flex;

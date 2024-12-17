@@ -1,0 +1,7 @@
+DELIMITER //
+CREATE PROCEDURE GetTagCount( OUT counts TINYINT )
+BEGIN
+SELECT COUNT( * ) INTO counts
+    FROM タグ名;
+END//
+DELIMITER ;

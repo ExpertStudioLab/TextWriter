@@ -15,15 +15,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import database.DatabaseAdapter;
 import json.JsonData;
 
 public class StatusManager {
+	public static final int ABORT = 999;
 	public static final int TITLE = 0;
 	public static final int SECTION = 1;
 	public static final int COLUMN = 2;
 	public static final int END = -1;
 
-	private int state = StatusManager.TITLE;
+	private int state = StatusManager.ABORT;
 	HttpServletRequest request;
 	HttpServletResponse response;
 	HttpSession session;
@@ -50,6 +52,10 @@ public class StatusManager {
 			this.columnFunction();
 			break;
 		}
+	}
+	
+	public void setStatus( int state ) {
+		this.state = state;
 	}
 
 	public void setRequest( HttpServletRequest request ) {
@@ -108,8 +114,14 @@ public class StatusManager {
 
 		String name = this.request.getParameter( "send-tag" );
 		if( name != "" && name != null ) {
-			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
-			tags.add( name );
+			DatabaseAdapter adapter = new DatabaseAdapter();
+			boolean check = adapter.addTag( name );
+			if( check ) {
+				ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
+				tags.add( name );
+			} else {
+				System.out.println( "タグ名[ " + name +" ]は存在します。" );
+			}
 			System.out.println( "new tag name: " + name );
 		}
 
@@ -166,17 +178,26 @@ public class StatusManager {
 
 			Class.forName( "com.mysql.jdbc.Driver" );
 			connection = DriverManager.getConnection( url, user, passward );
-			CallableStatement statement = connection.prepareCall( "{ call InsertColumn( ?, ?, ?, ?, ? ) }" );
+			CallableStatement statement = connection.prepareCall( "{ call CreateRecord() }" );
+			statement.execute();
+			statement = connection.prepareCall( "{ call InsertColumn( ?, ?, ?, ?, ? ) }" );
 			statement.registerOutParameter( 5, Types.VARCHAR );
 			statement.setString( 1, this.title );
 
-			int index = tags.indexOf( this.tagName );
+			int index = tags.indexOf( this.tagName ) + 1;
+			System.out.println( "たぬきち：「" + this.tagName + "」" );
+			System.out.println( index );
 			statement.setInt( 2,  index );
 			statement.setString( 3, this.section );
 			statement.setString(4, this.columns.get( this.columns.size() - 1 ) );
 			statement.execute();
+			
+			String result = statement.getString( 5 );
+			
+			statement = connection.prepareCall( "{ call DeleteRecord }" );
+			statement.execute();
 	
-			return statement.getString( 5 );		
+			return result;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

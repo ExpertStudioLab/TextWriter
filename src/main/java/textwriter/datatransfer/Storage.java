@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
+import database.DatabaseAdapter;
 import objstream.ObjectStream;
 
 import java.sql.Connection;
@@ -111,62 +112,25 @@ public class Storage extends HttpServlet {
 		manager.setResponse( response );
 
 		if( request.getHeader( "Process" ).equals( "Save" ) ) {
+			System.out.println( "たぬきち：「セーブ！！！！」" );
 			List<Record> records = new ArrayList<Record>();
 			BufferedData bufferedData = new BufferedData( request );
 			byte[] buffer = bufferedData.getData( "Docs" );
-			/*
-			Part filePart = request.getPart( "Docs" );
-			InputStream inStream = filePart.getInputStream();
-			byte[] buffer = inStream.readAllBytes();
-			*/
 			records.add( new Record( buffer, Record.TEXT ) );
-			/*
-			inStream.close();
-			filePart = request.getPart( "Illusts" );
-			inStream = filePart.getInputStream();
-			buffer = inStream.readAllBytes();
-			*/
+
 			buffer = bufferedData.getData( "Illusts" );
 			records.add( new Record( buffer, Record.TEXT ) );
-			/*
-			inStream.close();
-			filePart = request.getPart( "FileNumber" );
-			inStream = filePart.getInputStream();
-			buffer = inStream.readAllBytes();
-			*/
+
 			buffer = bufferedData.getData( "FileNumber" );
 			records.add( new Record( buffer, Record.TEXT ) );
-			/*
-			System.out.println( new String( buffer ) );
-			inStream.close();
-			*/
 			int length = Integer.valueOf( new String( buffer ) );
 			
 			for( int i = 0; i < length; i++ ) {
 				buffer = bufferedData.getData( "Image" + String.valueOf( i + 1 ) );
 				records.add( new Record( buffer, Record.BINARY ) );
-				/*
-				filePart = request.getPart( "Image" + String.valueOf( i + 1 ) );
-				inStream = filePart.getInputStream();
-				buffer = inStream.readAllBytes();
-				inStream.close();
-				
-				List<Record> records = new ArrayList<Record>();
-				records.add( new Record( buffer, Record.BINARY ) );
-
-				
-				List<Record> result = new ArrayList<Record>();
-				ObjectStream<Record> loadStream = new ObjectStream<>( result, webapp + "\\Doc\\sample001.dat" );
-				loadStream.read();
-				ByteArrayInputStream byteStream = new ByteArrayInputStream( result.get( 0 ).getRecord() );
-				File inFile = new File( webapp + "\\img\\sample001.png" );
-				inFile.createNewFile();
-				BufferedImage image = ImageIO.read( byteStream );
-				ImageIO.write( image, "png", inFile );
-				byteStream.close();
-				*/
 			}
-			ObjectStream<Record> saveStream = new ObjectStream<>( records, webapp + "\\Doc\\sample001.dat");
+			String fileNumber = manager.getFileNumber();
+			ObjectStream<Record> saveStream = new ObjectStream<>( records, webapp + "\\Doc\\" + fileNumber + ".dat");
 			saveStream.write();
 			/*
 			InputStream inStream = ( InputStream ) request.getInputStream();

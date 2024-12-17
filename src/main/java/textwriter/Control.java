@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import database.DatabaseAdapter;
 import textwriter.process.StatusManager;
 
 /**
@@ -48,10 +50,11 @@ public class Control extends HttpServlet {
 			session.setAttribute("SectionTitle", Boolean.TRUE);
 			break;
 		}
-		System.out.println( "hello ねこまる" );
+		System.out.println( "hello ねこ丸" );
+		
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher("/WEB-INF/" + session.getAttribute("jsp_file"));
-//		RequestDispatcher rd = sc.getRequestDispatcher( "/test01.jsp" );
+//		RequestDispatcher rd = sc.getRequestDispatcher( "/editor" );
 		rd.forward(request, response);
 	}
 
@@ -62,11 +65,6 @@ public class Control extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //		HttpSession session = request.getSession();
 
-		/*
-		 * String filename = "sample002.png"; String path =
-		 * "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\img\\"
-		 * ;
-		 */
 		HttpSession session = this.getSession(request);
 		StatusManager manager = (StatusManager) session.getAttribute("StatusManager");
 		manager.setRequest(request);
@@ -86,9 +84,15 @@ public class Control extends HttpServlet {
 		session.setAttribute("Session", session);
 		StatusManager manager = new StatusManager(session);
 		session.setAttribute("StatusManager", manager);
+		DatabaseAdapter adapter = new DatabaseAdapter();
+		int count = adapter.getTagCount();
 		List<String> tags = new ArrayList<>();
-		tags.add( "ノンジャンル" );
-		session.setAttribute("jsp_file", "auto_text_writer.jsp");
+		for( int i = 1; i <= count; i++ ) {
+			String tag = adapter.getTag( i );
+			tags.add( tag );
+		}
+//		session.setAttribute("jsp_file", "auto_text_writer.jsp");
+		session.setAttribute( "jsp_file", "home.jsp" );
 		session.setAttribute("Tags", tags);
 		session.setAttribute("Count", "NONE");
 		session.setAttribute("HeaderTitle", Boolean.FALSE);
@@ -107,3 +111,4 @@ public class Control extends HttpServlet {
 		}
 	}
 }
+
