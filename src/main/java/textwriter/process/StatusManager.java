@@ -32,12 +32,10 @@ public class StatusManager {
 	String tagName;
 	String title;
 	String section;
-	List<String> columns;
+	String column;
 
 	public StatusManager(HttpSession session) {
 		this.session = session;
-		columns = new ArrayList<>();
-		session.setAttribute("column_names", columns);
 	}
 
 	public void execute() {
@@ -83,9 +81,9 @@ public class StatusManager {
 		sendData( data );
 	}
 	
-	public void sendColumn( int index ) {
+	public void sendColumn() {
 		JsonData data = new JsonData();
-		data.push( "column", this.columns.get( index ) );
+		data.push( "column", this.column );
 		sendData( data );
 	}
 	
@@ -109,7 +107,6 @@ public class StatusManager {
 		if (this.title != null) {
 			this.state = StatusManager.SECTION;
 			this.session.setAttribute( "TitleName", this.title );
-
 		}
 
 		String name = this.request.getParameter( "send-tag" );
@@ -145,25 +142,14 @@ public class StatusManager {
 
 	private void columnFunction() {
 		String column = this.request.getParameter("column");
-		String count = this.request.getParameter("count");
-		String end = this.request.getParameter("end");
 		System.out.println( "column: " + column );
-		if (this.columns.size() > 0 && column != null ) {
-			if (this.columns.get(this.columns.size() - 1) != column) {
-				this.columns.add(column);
-			}
-		} else if (column != null) {
-			this.columns.add(column);
-			this.session.setAttribute("NextOne", Boolean.FALSE);
+
+		if( column != null ) {
+			this.column = column;
+//			this.session.setAttribute( "NextOne", Boolean.FALSE );
+			this.session.setAttribute( "ColumnName", Boolean.TRUE );
 		}
 
-		if (end == null && count != null ) {
-			if (!this.session.getAttribute("Count").equals(count)) {
-				this.session.setAttribute("Count", count);
-			}
-		} else if( end != null ){
-			this.state = StatusManager.END;
-		}
 	}
 	
 	public String getFileNumber() {
@@ -189,7 +175,7 @@ public class StatusManager {
 			System.out.println( index );
 			statement.setInt( 2,  index );
 			statement.setString( 3, this.section );
-			statement.setString(4, this.columns.get( this.columns.size() - 1 ) );
+			statement.setString(4, this.column );
 			statement.execute();
 			
 			String result = statement.getString( 5 );

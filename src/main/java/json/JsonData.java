@@ -12,6 +12,9 @@ public class JsonData {
 	public void push( String key, String value ) {
 		data.put( key, value );
 	}
+	public String get( String key ) {
+		return data.get( key );
+	}
 	public String convertToJson() {
 		String result = "{";
 		for( Map.Entry<String, String> entry : this.data.entrySet() ) {

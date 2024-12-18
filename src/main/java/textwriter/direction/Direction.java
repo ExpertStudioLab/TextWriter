@@ -38,10 +38,15 @@ public class Direction extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		HttpSession session = request.getSession();
+		StatusManager manager = ( StatusManager ) session.getAttribute( "StatusManager" );
+		manager.setRequest( request );
+		manager.setResponse( response );
+
 		if( request.getHeader( "Process" ).equals( "New-Document" ) ) {
-			StatusManager manager = ( StatusManager ) session.getAttribute( "StatusManager" );
 			manager.setStatus( StatusManager.TITLE );
 			session.setAttribute( "jsp_file", "auto_text_writer.jsp" );
+		}else if( request.getHeader( "Process" ).equals( "Edit-Document" ) ) {
+			session.setAttribute( "jsp_file", "document_list.jsp" );
 		}
 	}
 

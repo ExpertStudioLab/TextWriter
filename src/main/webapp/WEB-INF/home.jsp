@@ -61,18 +61,31 @@
 	</form>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/setting.js"></script>
 	<script>
-		const newDocument = document.getElementById( "New" );
-		newDocument.addEventListener( "click", selectNew );
 		
 		function init() {
 			console.log( "home" );
+			
+			const newDocument = document.getElementById( "New" );
+			newDocument.addEventListener( "click", selectMenu );
+			const editDocument = document.getElementById( "Edit" );
+			editDocument.addEventListener( "click", selectMenu )
 		}
 		
-		async function selectNew( event ) {
+		function selectMenu( event ) {
+			event.preventDefault();
+			
+			if( this.id == "New" ) {
+				pageDirection( "New-Document" );
+			} else {
+				pageDirection( "Edit-Document" );
+			}
+		}
+		
+		async function pageDirection( process) {
 			event.preventDefault();
 			
 			const myHeaders = new Headers();
-			myHeaders.append( "Process", "New-Document" );
+			myHeaders.append( "Process", process );
 			const myRequest = new Request( "direction", {
 				method: "POST",
 				headers: myHeaders
@@ -84,7 +97,8 @@
 				} else {
 					const submitBtn = document.createElement( "input" );
 					submitBtn.type = "submit";
-					const sendForm = document.getElementById( "New-Document" );
+					submitBtn.style.display = "none";
+					const sendForm = document.getElementById( process );
 					console.log( sendForm );
 					sendForm.appendChild( submitBtn );
 					submitBtn.click();

@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="java.util.ArrayList" %>
-<% 	ArrayList<String> cols = ( ArrayList<String> )session.getAttribute( "column_names" );
-		final int  len = cols.size() > 0 ? cols.size() : 1;
-		for( int i = 0; i < len; i++ ) {
-			if( session.getAttribute( "NextOne").equals( true ) ) {
+
+<%
+	if( session.getAttribute( "ColumnName" ).equals( false ) ) {
 %>
+
 <div class="Left-Justify">
     <h1><label for="Column-Name">コラム名を指定してください</label></h1>
 </div>
+
 <div class="Left-Justify">
     <input type="text" id="Column-Name" class="Textbox" placeholder="- コラム名を入力 -" value="" />
 </div>
+
 <form action="TextWriter" method="get" id="send" >
     <input type="button" value="送信" id="permit"  disabled="disabled"  /> <!-- onclick="sendColumn()"  -->
 </form>
-	<% } else { %>
-    <div><span>作成されるドキュメントの書式</span></div>
-<%			if( cols.size() > 0 ) {
-				%>
-<div class="Left-Justify">
-<h3><%= cols.get( i ) %></h3>
-</div>
-<% 			}
+
+<%
+	} else {
 %>
+    <div><span>作成されるドキュメントの書式</span></div>
+
+<div class="Left-Justify">
+	<h3 id="Column-Title"></h3>
+</div>
+
 <div id="Display-Area">
 </div>
 <div id="Align-Containt">
     <div id="Left-Side">  
         <div class="Left-Justify">
-         <h3><label>テキストを入力してください。</label></h3>
+        	<h3><label>テキストを入力してください。</label></h3>
         </div>
         
         <div id="Basic-Div" class="Left-Justify" ></div>
@@ -75,22 +77,28 @@
         <input type="file" hidden="true" id="SendFile" />
     </div>
 </div>
-<% 		}
-		} %>
-<%  if( session.getAttribute( "NextOne" ).equals( false ) ) { %>
+<% 	}
+%>
+<%  if( session.getAttribute( "ColumnName" ).equals( true ) ) { %>
 <script type="module" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
 
 <%  } %>
 <script>
-    function init() {
+	let permitBtn = document.getElementById( "permit" );
+	let column_nameOp = document.getElementById( "Column-Name" );
+
+    async function init() {
     	console.log( "containt called");
+    	if( column_nameOp != null ) {
+    	    column_nameOp.addEventListener( "input", inputChange );
+    	    permitBtn.addEventListener( "click", sendColumn );
+    	} else {
+    		const jsonData = await receiveData( "Column" );
+    		const column = document.getElementById( "Column-Title" );
+    		column.innerHTML = jsonData.column;
+    	}    	
     }
-let permitBtn = document.getElementById( "permit" );
-let column_nameOp = document.getElementById( "Column-Name" );
-if( column_nameOp != null ) {
-    column_nameOp.addEventListener( "input", inputChange );
-    permitBtn.addEventListener( "click", sendColumn );
-}
+
     // make sure to input a column name.
     function inputChange( event ) {
         const btnOp = document.getElementById( "permit" );

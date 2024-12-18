@@ -93,12 +93,11 @@ public class Control extends HttpServlet {
 		}
 //		session.setAttribute("jsp_file", "auto_text_writer.jsp");
 		session.setAttribute( "jsp_file", "home.jsp" );
-		session.setAttribute("Tags", tags);
-		session.setAttribute("Count", "NONE");
-		session.setAttribute("HeaderTitle", Boolean.FALSE);
-		session.setAttribute("SectionTitle", Boolean.FALSE);
-		session.setAttribute("NextOne", Boolean.TRUE);
-		session.setAttribute("FileNumber", "1");
+		session.setAttribute( "Tags", tags );
+		session.setAttribute( "HeaderTitle", Boolean.FALSE );
+		session.setAttribute( "SectionTitle", Boolean.FALSE );
+		session.setAttribute( "ColumnName", Boolean.FALSE );
+		session.setAttribute( "FileNumber", "1");
 	}
 
 	private HttpSession getSession(HttpServletRequest request) {

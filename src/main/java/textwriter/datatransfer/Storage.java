@@ -32,6 +32,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import database.DatabaseAdapter;
+import json.JsonData;
 import objstream.ObjectStream;
 
 import java.sql.Connection;
@@ -78,6 +79,8 @@ public class Storage extends HttpServlet {
 			manager.sendTitle();
 		} else if( request.getHeader( "Process" ).equals( "Section" ) ) {
 			manager.sendSection();
+		} else if( request.getHeader( "Process" ).equals( "Column" ) ) {
+			manager.sendColumn();
 		} else if( request.getHeader( "Process" ).equals( "Keywords") ) {
 			response.setContentType( "application/json" );
 			response.setCharacterEncoding( "UTF-8" );
@@ -96,8 +99,41 @@ public class Storage extends HttpServlet {
 			inStreamReader.close();
 			bufferedReader.close();
 			outWriter.close();
+		} else if( request.getHeader( "Process" ).equals( "List" ) ) {
+			DatabaseAdapter adapter = new DatabaseAdapter();
+			adapter.createRecordView();
+			response.setContentType( "application/json; charset=UTF-8" );
+			PrintWriter out = response.getWriter();
+			if( request.getHeader( "Option" ).equals( "Count" ) ) {
+				System.out.println( "たぬきち：「数をかぞえる！！！」(._.)" );
+				int count = adapter.getRecordCount();
+				session.setAttribute( "Count", String.valueOf( count ) );
+				JsonData data = new JsonData();
+				data.push( "count", String.valueOf( count ) );
+				out.print( data.convertToJson() );
+			} else if( request.getHeader( "Option" ).equals( "Get-Record" ) ) {
+				System.out.println( "たぬきち：「レコードを返す！！！」('_')" );
+				String result = "[";
+				ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
+				int length = Integer.valueOf( ( String ) session.getAttribute( "Count" ) );
+				for( int i = 0; i < length; i++ ) {
+					JsonData data = adapter.getRecord( i + 1 );
+					int index = Integer.valueOf( data.get( "tagIndex" ) ) - 1;
+					String tagName = tags.get( index );
+					data.push( "tag", tagName );
+					result += data.convertToJson();
+					System.out.println( result );
+					if( i != length - 1 ) {
+						result += ",";
+					}
+				}
+				result += "]";
+				out.print( result );
+			}
+			out.flush();
+			out.close();
+			adapter.deleteRecordView();
 		}
-
 	}
 
 	/**
