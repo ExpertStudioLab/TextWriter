@@ -1,4 +1,4 @@
-Oct. 14, 2024, Mon. Prototype for automatically creating documents program. 
+ Oct. 14, 2024, Mon. Prototype for automatically creating documents program. 
 Oct. 15, 2024, Tue. Learned about how to use javascript. And, changed graphics of the section block title. 
 Oct. 16, 2024, Wed. Enabled to include external jsp files from a jsp file. With a problem associated 
               with "Expression Language(EL)", I didn't create a program smoothly, I expected.. 
@@ -33,3 +33,4 @@ Dec. 12, 2024, Thu. Enabled to change from Document Objects to JSON data in orde
 Dec. 13, 2024, Fri. Enabled to draw Image Graphics.
 Dec. 14, 2024, Sat. Enabled to save documents.
 Dec. 17, 2024, Tue. Created a title menu display.
+Dec. 18, 2024, Wed. Enabled to receive document list from servlet.
