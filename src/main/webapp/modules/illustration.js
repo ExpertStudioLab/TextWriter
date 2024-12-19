@@ -1,9 +1,9 @@
 /**
  * 
  */
-import { setBegin, setEnd, setMove } from "../draw_graph.js";
-import { getActive, lostActive, moveGraph, keyboardMove, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "../move_graph.js";
-import { Graphic, ImageGraphic, TextGraphic, Area } from "../modules/canvas_graphics.js";
+import { setBegin, setEnd, setMove } from "./draw_graph.js";
+import { getActive, lostActive, moveGraph, keyboardMove, setMoveGraphEnd, hoverCanvas, getCursorPoint } from "./move_graph.js";
+import { Graphic, ImageGraphic, TextGraphic, Area } from "./canvas_graphics.js";
 
 class Illustration {
     static RECTANGLE = "RectButton";

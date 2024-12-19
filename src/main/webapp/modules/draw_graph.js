@@ -1,5 +1,5 @@
 
-import { Point  } from "./modules/illustration.js";
+import { Point  } from "./illustration.js";
 /**
  * 
  */

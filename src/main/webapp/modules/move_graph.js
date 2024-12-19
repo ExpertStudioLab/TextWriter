@@ -1,4 +1,4 @@
-import { Point } from "./modules/illustration.js";
+import { Point } from "./illustration.js";
 
 
 /**
@@ -135,7 +135,6 @@ import { Point } from "./modules/illustration.js";
         formLine.style.top = String( point.top ) + "px";
         formLine.style.width = String( g.getArea().getWidth() ) + "px";
         formLine.style.height = String( g.getArea().getHeight() ) + "px";
-        illust.saveImage();
     }
 
     function hoverCanvas( event ) {
