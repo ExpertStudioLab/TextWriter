@@ -34,3 +34,4 @@ Dec. 13, 2024, Fri. Enabled to draw Image Graphics.
 Dec. 14, 2024, Sat. Enabled to save documents.
 Dec. 17, 2024, Tue. Created a title menu display.
 Dec. 18, 2024, Wed. Enabled to receive document list from servlet.
+Dec. 19, 2024, Thu. Created a module "DocumentList" class.
