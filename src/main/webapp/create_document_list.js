@@ -60,16 +60,14 @@ let target = null;
 let targetDiv = null;
 let spaceDiv = null;
 let spaceRect = new Object();
-let lineHeight;
+let lineHalfHeight;
 let offSet;
 let className;
 function dragStart( event ) {
     if( event.target.tagName != "SPAN" ) return;    
     target = event.target;
-    const height = target.style.lineHeight;
-    const h = height.substring( 0, height.indexOf( "px" ) )
-    lineHeight = Math.floor( parseInt( h ) / 2 );
     targetDiv = event.target.parentElement.parentElement;
+    lineHalfHeight = Math.floor( targetDiv.clientHeight / 2 );
     className = targetDiv.className;
     offSet = Math.floor( targetDiv.clientHeight / 5 );
     const parent = targetDiv.parentElement;
@@ -132,53 +130,37 @@ function dragRecord( event ) {
             checkCount += 1;
         }
         if( !insertDiv && !lost && count == 1 ) {
-//            if( curLeft >= point.leftEnd && curLeft <= point.rightEnd ) {
-                const y = Math.floor( curTop + offSet - window.scrollY );
-                const elements = document.elementsFromPoint( point.targetRect.left, y );
-//                const index = elements.findIndex( element => element.className == "Space" );
-                const index = elements.findIndex( element => element.className == className );
-                if( index != -1 ) {
-                    const spaceDivs = elements[ index ].querySelectorAll( ".Space" );
-                    if( spaceDivs.length > 1 ) {
+            const y = Math.floor( curTop + offSet - window.scrollY );
+            const elements = document.elementsFromPoint( point.targetRect.left, y );
+            const index = elements.findIndex( element => element.className == className );
+            if( index != -1 ) {
+                const bounds = elements[ index ].getBoundingClientRect();
 
-                    } else {
-                        spaceDiv = spaceDivs[ 0 ];
-                    }
-//                    spaceDiv = elements[ index ];
-                    spaceDiv.style.backgroundColor = "red";
-//                    const bounds = spaceDiv.getBoundingClientRect();
-                    const bounds = elements[ index ].getBoundingClientRect();
-                    spaceRect = {
-                        top : Math.floor( bounds.top + window.scrollY ) + offSet * 2,
-//                        left : Math.floor( bounds.left + window.scrollX ),
-                        bottom : Math.floor( bounds.bottom + window.scrollY ) - offSet,
-//                        right : Math.floor( bounds.right + window.scrollX )
-                    };
-                    insertDiv = true;
-                }
-//            }
-        } else if( !lost && insertDiv ) {
-            /*
-            if( curBottom < spaceRect.top || curTop > spaceRect.bottom
-                    || curLeft < point.leftEnd || curLeft > point.rightEnd ) {
-                insertDiv = false;
-                spaceDiv.style.backgroundColor = "white";
+                spaceDiv = elements[ index ].querySelector( ".Space" );
+                spaceDiv.style.backgroundColor = "red";
+
+                spaceRect = {
+                    top : Math.floor( bounds.top + window.scrollY ) + offSet * 2,
+                    bottom : Math.floor( bounds.bottom + window.scrollY ) - offSet,
+                };
+                insertDiv = true;
             }
-                */
-            if( curLeft < point.leftEnd || curLeft > point.rightEnd
-                    || curTop < spaceRect.top || curTop > spaceRect.bottom
-            ){
+        } else if( !lost && insertDiv ) {
+            if( ( curTop < spaceRect.top || curTop > spaceRect.bottom ||  curLeft < point.leftEnd || curLeft > point.rightEnd ) ){
                 insertDiv = false;
                 spaceDiv.style.backgroundColor = "white";
                 spaceDiv = null;
                 lost = true;
+                if(  curLeft < point.leftEnd || curLeft > point.rightEnd ) {
+                    lost = true;
+                    lostRange = true;
+                }
             }
         } else if( lost ) {
-            const curBottom = curTop + lineHeight * 2;
-
+            const curBottom = curTop + lineHalfHeight * 2;
             if( ( curTop > spaceRect.top || curBottom < spaceRect.bottom ) && !lostRange ) {
                 lost = false;
-            } else if( curLeft >= point.leftEnd || curLeft <= point.rightEnd ) {
+            } else if( ( curLeft >= point.leftEnd && curLeft <= point.rightEnd ) && lostRange ) {
                 lost = false;
                 lostRange = false;
             }
@@ -202,6 +184,7 @@ function dragRecord( event ) {
 function mouseUp( event ) {
     drag = false;
     if( insertDiv ) {
+        console.log( target.innerText );
         insertDiv = false;
         spaceDiv.style.backgroundColor = "white";
         spaceDiv = null;
@@ -244,4 +227,3 @@ async function receiveData( process ) {
         console.log( error );
     }
 }
-

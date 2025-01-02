@@ -46,8 +46,8 @@ export class DocumentList {
 		spaceDiv.style.height = "2px";
 		spaceDiv.style.backgroundColor = "rgb(145, 230, 250)";
 		const displayText = document.createElement( "span" );
-		displayText.style.fontSize = "20px";
-		displayText.style.lineHeight = "30px";
+		displayText.style.fontSize = "16px";
+		displayText.style.lineHeight = "24px";
 		displayText.innerText = text;
 		displayText.id = this.#idNumber;
 		displayText.className = type;
@@ -84,7 +84,17 @@ export class DocumentList {
 		displayText.innerText = text;
 		displayText.id = this.#idNumber;
 		displayText.className = type;
+		displayText.fontSize = "16px";
+		displayText.lineHeight = "24px";
 		contentDiv.appendChild( displayText );
+		if( type == "Section" ) {
+			contentDiv.className = "Containor";
+			const spaceDiv = document.createElement( "div" );
+			spaceDiv.className = "Space";
+			spaceDiv.style.height = "2px";
+			spaceDiv.style.backgroundColor = "rgb(145, 230, 250)";
+			contentDiv.appendChild( spaceDiv );
+		}
 		blockDiv.appendChild( contentDiv );
 		this.#parent.appendChild( blockDiv );
 		this.#saveDiv( blockDiv, type );
