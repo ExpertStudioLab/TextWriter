@@ -53,7 +53,6 @@ public class JsonString {
 			}
 			matchString.add( tmp );
 		}
-		System.out.println( "results: " + matchString.size() );
 	}
 	public String getData() {
 		return this.data;
