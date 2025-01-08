@@ -30,7 +30,7 @@ public class DatabaseAdapter {
 			
 			return statement.getInt( 1 );
 		} catch( Exception e ) {
-			
+			e.printStackTrace();
 		}
 		return 0;
 	}

@@ -1,16 +1,25 @@
 @charset "UTF-8";
 
 body {
+/*
+	background-color: aliceblue;
+*/
 	margin: 0 auto auto auto;
-	padding: 30px 0 30px 10px;
+	padding: 30px 0 10px 0;
+	background-color: black;
+/*
 	border: solid 30px black;
+*/
+}
+#FormBackGround {
+	border-radius: 5px;
+	background-color: aliceblue;
 }
 /* display on right side */
 .Right-Justify {
 	display: flex;
 	justify-content: flex-end;
 	height: fit-content;
-	padding-right: 27%;
 }
 /* display on left side */
 .Left-Justify {
@@ -34,7 +43,7 @@ body {
 /* size of textbox */
 .Textbox {
 	font-size: 30px;
-	width: 15cm;
+	min-width: 80%;
 }
 /* permission button position */
 #permit {
@@ -83,6 +92,15 @@ body {
 .Hover-Button {
 	background-color: rgba(223, 215, 215, 0.826);
 }
+/*
+#Title-Partition {
+	display: grid;
+	grid-template-columns: 50% 28%;
+	border: 2px solid rebeccapurple;
+	width: fit-content;
+	padding: 0;
+}
+*/
 
 /* [Add Tag] [Del Tag] button */
 .Tag-Button {
@@ -167,4 +185,5 @@ body {
 #BackGround {
 	overflow-y: scroll;
 	overflow-x: hidden;	
+	background-color: black;
 }

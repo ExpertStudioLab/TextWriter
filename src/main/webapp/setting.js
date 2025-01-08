@@ -9,10 +9,13 @@ window.addEventListener('pageshow', (event) => {
    // on update widow, make the servlet program to process orders previous values
    window.addEventListener( "DOMContentLoaded", ()=> {
       storeState();
-      document.body.style.width = String( Math.floor( window.innerWidth ) - 100 ) + "px";
-	  document.body.style.height = String( Math.floor( window.scrollHeight ) - 100 ) + "px";
+      document.body.style.width = String( Math.floor( window.innerWidth ) - 60 ) + "px";
+//	  document.body.style.height = String( Math.floor( window.scrollHeight ) - 100 ) + "px";
       init();
    });
+   
+   document.onload = function() {
+   }
 
    function storeState() {
       var url = new URL( window.location.href );

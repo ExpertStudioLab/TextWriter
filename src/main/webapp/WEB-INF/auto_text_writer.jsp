@@ -9,6 +9,7 @@
 <title>AutoTextWriter</title>
 </head>
 <body>
+	<div id="FormBackGround">
 	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) {	%>
 	<div id="BackGround">
 		<div class="Grid-Container">
@@ -34,6 +35,7 @@
 											  								\"input_sec_title\" :
 											  								\"input_contents\"
 	}.jsp" />
+	</div>
 <script type="text/javascript" src="${pageContext.request.contextPath}/setting.js" ></script>
 </body>
 </html>
