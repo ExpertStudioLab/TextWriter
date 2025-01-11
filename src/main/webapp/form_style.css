@@ -1,20 +1,11 @@
 @charset "UTF-8";
 
 body {
-/*
-	background-color: aliceblue;
-*/
 	margin: 0 auto auto auto;
 	padding: 30px 0 10px 0;
-	background-color: black;
-/*
-	border: solid 30px black;
-*/
+	background-image: url( "./picture/bg.png" );
 }
-#FormBackGround {
-	border-radius: 5px;
-	background-color: aliceblue;
-}
+
 /* display on right side */
 .Right-Justify {
 	display: flex;
@@ -26,13 +17,49 @@ body {
 	padding-left: 7%;
 	height: fit-content;
 }
-/* style of comment  */
-.Comment {
-	font-size: 18px;
-	display: block;
-	height: auto;
-	width: auto;
+
+.Title-Background {
+	height: fit-content;
+	width: 80%;
+	background: linear-gradient( to top, rgba( 200, 200, 0, 0.7 ), rgba( 200, 200, 0, 0.2) 70% );
+	padding-top: 5px;
+	padding-right: 50px;
+	padding-left: 10px;
+	border-top: 10px solid darkkhaki;
+	border-bottom: 10px solid darkkhaki;
 }
+
+/******** Input Title Page *********/
+#TagLabel {
+	/* Label: [タグの入力]	*/
+	display: block;
+	margin-top: 10px;
+	margin-right: 120px;
+	font-weight: bold;
+	font-size: 20px;
+}
+.Partition {
+	height: auto;
+	border-radius: 5px;
+	border: ridge 15px silver;
+	background-color:  rgba(165, 255, 255, 0.26);;
+}
+#Title-Right {
+	width: 220px;
+	display: inline-block;
+	padding-right: 15px;
+}
+#Title-Left {
+	width: 50%;
+	min-width: 700px;
+	float: left;
+}
+#Tag-Selector {
+	border: 2px solid lightgray;
+	width: fit-content;
+	padding: 30px 10px 10px 10px;
+}
+
 /* size of dropdown list */
 .Selector {
 	height: 0.8cm;
@@ -107,19 +134,31 @@ body {
 	margin-top: 5px;
 	letter-spacing: 1px;
 }
-
+/*
 .Grid-Container {
 	position: relative;
 	display: grid;
-	grid-template-columns: 65% 350px;
+	grid-template-columns: 74% 20%;
+	min-width: 1150px;
 	margin: auto;
+	background-color: white;
+	overflow-x: scroll;
 }
-.Grid-Item {
+*/
+.Grid-Item1 {
+	height: auto;
+	width: 100%;
+	min-width: 800px;
+	padding: 0px;
+	background-image: url( "./picture/bg.png" );
+	border: 2px solid cadetblue;
+}
+.Grid-Item2 {
 	height: auto;
 	width: 100%;
 	min-width: 350px;
-	padding: 10px;
-	background-color: white;
+	padding: 0px;
+	background-image: url( "./picture/bg.png" );
 	border: 2px solid cadetblue;
 }
 .Frame {
@@ -182,8 +221,30 @@ body {
 #Save {
 	width: 100px;
 }
+
 #BackGround {
-	overflow-y: scroll;
-	overflow-x: hidden;	
-	background-color: black;
+	height: auto;
+	border-radius: 5px;
+	border: ridge 15px silver;
+	background-color:  rgba(165, 255, 255, 0.26);;
+}
+#Column-Background {
+	margin-top: 5px;
+	border-radius: 5px;
+	border: ridge 15px silver;
+	background-color:  rgba(165, 255, 255, 0.26);;
+}
+#Document-Comment {
+	margin-top: 10px;
+	margin-left: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+	display: block;
+	width: fit-content;
+	border-left: solid 10px green;
+	border-bottom: solid 2px black;
+	font-size: 20px;
+}
+#Column-Title {
+	font-size: 28px;
 }

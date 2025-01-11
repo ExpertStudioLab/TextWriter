@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-
+<div id="Column-Background">
 <%
 	if( session.getAttribute( "ColumnName" ).equals( false ) ) {
 %>
@@ -21,10 +21,10 @@
 <%
 	} else {
 %>
-    <div><span>作成されるドキュメントの書式</span></div>
+<span id="Document-Comment">作成されるドキュメントの書式</span>
 
 <div class="Left-Justify">
-	<h3 id="Column-Title"></h3>
+	<img src="./picture/001.png" style="display: inline-block; width: 30px; height: 30px; margin-bottom: -5px; margin-right: 5px;" /><h3 id="Column-Title" style="display: inline-block;"></h3>
 </div>
 
 <div id="Display-Area">
@@ -79,6 +79,7 @@
 </div>
 <% 	}
 %>
+</div>
 <%  if( session.getAttribute( "ColumnName" ).equals( true ) ) { %>
 <script type="module" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
 
@@ -96,7 +97,18 @@
     		const jsonData = await receiveData( "Column" );
     		const column = document.getElementById( "Column-Title" );
     		column.innerHTML = jsonData.column;
-    	}    	
+    	}
+    	
+    	console.log( "section called" );
+		let jsonData = await receiveData( "Title" );
+		let hEl = document.getElementById( "Title" );
+        const tagEl = document.getElementById( "Tag" );
+		hEl.insertAdjacentHTML( "afterbegin", "<h1 style=\"margin-top: 5px; margin-bottom: 0;\">" + jsonData.title + "</h1>" );
+		tagEl.insertAdjacentHTML( "afterbegin", "<span><small>" + jsonData.tagName + "</small></span>");
+
+		jsonData = await receiveData( "Section" );
+		hEl = document.getElementById( "Section-Title" );
+		hEl.innerHTML = jsonData.section;
     }
 
     // make sure to input a column name.
@@ -111,3 +123,4 @@
              form.submit();
     }
 </script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/View/views.js"></script>

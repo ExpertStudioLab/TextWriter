@@ -3,14 +3,11 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.util.ArrayList" %>
 
-<div id="Title-Partition" style="">
-	<div style="width: 220px; display: inline-block; padding-right: 15px;">
-		<div class="Right-Justify">
-			<label for="Tag-El" class="Comment" style="margin-top: 5px; margin-right: 100px; font-weight: bold; font-size: 20px;">タグの入力</label> 
-		</div>
-		<div style="border: 2px solid lightgray; width: fit-content; padding: 30px 10px 10px 10px;">
-			<div class="Right-Justify">
-    			<select name="Tag" class="Selector" id="Tag-El">
+<div class="Partition">
+	<div id="Title-Right">
+		<label for="Tag-El" id="TagLabel">タグの入力</label> 
+		<div id="Tag-Selector">
+    		<select name="Tag" class="Selector" id="Tag-El">
 <%
 	        if( session.getAttribute( "Tags" ) != null ) {
     	    	ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
@@ -22,8 +19,7 @@
 <%					}
         		}
         	} 																					%>
-    			</select>
-			</div>
+    		</select>
 			<div class="Right-Justify">
     			<input type="button" value="タグを追加" class="Tag-Button" id="Add-Tag" onclick="popupAddTagWnd()" />
 			</div>
@@ -32,9 +28,9 @@
 			</div>
 		</div>
 	</div>
-	<div style="width: 50%; min-width: 700px; display: inline-block; float: left;">
+	<div id="Title-Left">
 		<div class="Left-Justify" style="padding-top: 20px;">
-			<div style="height: fit-content; width: fit-content; background-color: lightyellow; padding-top: 5px; padding-right: 50px; border-top: 10px solid maroon; border-bottom: 10px solid maroon; padding-left: 10px;">
+			<div class="Title-Background">
 				<h1 style="margin: 0;"><label for="Title-Name">タイトルを指定してください</label></h1>
 			</div>
 		</div>
@@ -47,25 +43,38 @@
 				<option value="Display here stored title names."></option>
 			</datalist>
 		</div>
-		<form action="TextWriter" method="get" id="send" >
+		<form action="TextWriter" method="get" id="send" style="display: block;" >
 			<input type="submit" alt="送信" id="permit" disabled onclick="sendTitle()" />
 		</form>
 	</div>
 </div>
 <script type="text/javascript" src="${pageContext.request.contextPath}/title.js" ></script>
 <script>
+	let height;
+	let width;
+	let formHeight;
+	const div = document.querySelector( ".Partition" );
 	window.onload = function() {
-		const height = window.innerHeight;
-		const width = window.innerWidth;
-		const div = document.getElementById( "Title-Partition" );
-		div.style.height = String( height - 60 ) + "px";
-		  const background = document.getElementById( "FormBackGround" );
-		  background.style.width = div.style.width;
-		  background.style.height = div.style.height;
-		if( width < 550 ) {
-			div.style.width = "5500px";
-			background.style.width = "550px";
+		height = div.clientHeight * 2;
+		width = window.outerWidth;
+		const form = document.getElementById( "send" );
+		formHeight = send.clientHeight;
+		console.log( height );
+		console.log( formHeight );
+		div.style.height = String( height + formHeight ) + "px";
+		if( width < 770 ) {
+			div.style.width = "770px";
+		} else {
+			div.style.width = String( window.innerWidth - 80 ) + "px";
 		}
 	}
-	
+	window.onresize = function() {
+		div.style.height = String( height + formHeight ) + "px";	
+		console.log( window.outerWidth );
+		if( window.outerWidth < 770 ) {
+			div.style.width = "770px";
+		} else {
+			div.style.width = String( window.innerWidth - 120 ) + "px";
+		}
+	}
 </script>

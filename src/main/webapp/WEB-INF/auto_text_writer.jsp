@@ -9,19 +9,24 @@
 <title>AutoTextWriter</title>
 </head>
 <body>
-	<div id="FormBackGround">
 	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) {	%>
 	<div id="BackGround">
+<!--
 		<div class="Grid-Container">
-			<div class="Grid-Item"><iframe class="Frame" src="${pageContext.request.contextPath}/View/title.html" ></iframe></div>
-			<div class="Grid-Item"></div>
+			<div class="Grid-Item1"><iframe class="Frame" src="${pageContext.request.contextPath}/View/title.html" ></iframe></div>
+			<div class="Grid-Item2"></div>
 		</div>
+-->
+		<jsp:include page="../View/title.jsp" />
 	<% }	%>
 	<% if( session.getAttribute( "SectionTitle").equals( true ) ) {	%>
+<!--
 		<div class="Grid-Container">
-			<div class="Grid-Item"><iframe class="Frame" src="${ pageContext.request.contextPath }/View/sec_title.html"></iframe></div>
-			<div class="Grid-Item"></div>
+			<div class="Grid-Item1"><iframe class="Frame" src="${ pageContext.request.contextPath }/View/sec_title.html"></iframe></div>
+			<div class="Grid-Item2"></div>
 		</div>
+-->
+		<jsp:include page="../View/sec_title.jsp" />
 	<% }	%>
 
 	<% if( session.getAttribute( "HeaderTitle" ).equals( true ) ) { 	%>
@@ -35,7 +40,6 @@
 											  								\"input_sec_title\" :
 											  								\"input_contents\"
 	}.jsp" />
-	</div>
 <script type="text/javascript" src="${pageContext.request.contextPath}/setting.js" ></script>
 </body>
 </html>
