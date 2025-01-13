@@ -51,6 +51,7 @@ public class Control extends HttpServlet {
 			break;
 		}
 		
+		System.out.println( "hello たぬきち" );
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher("/WEB-INF/" + session.getAttribute("jsp_file"));
 //		RequestDispatcher rd = sc.getRequestDispatcher( "/editor" );

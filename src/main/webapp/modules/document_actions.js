@@ -21,67 +21,79 @@ import { displayText } from "./display_text.js";
  
     }
 
-    function sendDocumentData( event, params ) {
+     function sendDocumentData( event, params ) {
         const index = params.currentIndex;
-        params.dataSending[ index ] = true;
-        event.target.removeEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
-        params.timer[ index ] = window.setTimeout( () => {
-            console.log( "send data!" );
-            event.target.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
-            params.dataSending[ index ] = false;
+		params.dataSending = true;
+        params.textArea.removeEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
+        params.timer = window.setTimeout( async () => {
+			const doc = params.documentStructures[ params.currentIndex ];
+			const jsonText = JSON.stringify( doc );
+			const myRequest = new Request( "storage", {
+				method: "POST",
+				body: jsonText,
+				headers: { "Process": "Analysis" }
+			} );
+			const response = await window.fetch( myRequest );
+			try {
+				if( ! response.ok ) {
+					throw new Error( "response status: ${ response.status }" );
+				}
+			} catch( error ) {
+				console.error( error );
+			}
+            params.textArea.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
+			params.dataSending = false;
         }, 1500 );
     }
 
 
     function composeOn( event, params ) {
-		params.isComposing[ params.currentIndex ] = true;
-        if( params.inputStatus[ params.currentIndex ] != "Select" ) {
-            params.inputStatus[ params.currentIndex ] = "Compose";
+		params.isComposing = true;
+		console.log( params.inputStatus );
+        if( params.inputStatus != "Select" ) {
+            params.inputStatus = "Compose";
         }
 
-        event.target.removeEventListener( "input", params.recorder.eventFunction( "TextArea" ) );
-        event.target.removeEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
+        params.textArea.removeEventListener( "input", params.recorder.eventFunction( "TextArea" ) );
+        params.textArea.removeEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
         params.startCaret = event.target.selectionStart;
     }
 
     function composeOff( event, params ) {
-		params.isComposing[ params.currentIndex ] = false;
+		params.isComposing = false;
 
-        event.target.addEventListener( "input", params.recorder.eventFunction( "TextArea" ) );
-        event.target.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
+        params.textArea.addEventListener( "input", params.recorder.eventFunction( "TextArea" ) );
+        params.textArea.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
 
         displayText( event, params );
         sendDocumentData( event, params );
     }
 
-    function getCurrentTextArea( event, params ) {
-        params.currentTextArea = String( event.target.id );
-        params.currentIndex = params.currentTextArea.substring( 8, ( String )( params.currentTextArea ).length ) - 1;
-    }
-
-
     function getSelectedText( event, params ) {
-        params.selectionStart[ params.currentIndex ] = event.target.selectionStart;
-        params.selectionEnd[ params.currentIndex ] = event.target.selectionEnd;
-        if( params.selectionStart[ params.currentIndex ] > params.selectionEnd[ params.currentIndex ] ) {
-            params.selectionEnd[ params.currentIndex ] = event.target.selectionStart;
-            params.selectionStart[ params.currentIndex ] = event.target.selectionEnd;
+        params.selectionStart = params.textArea.selectionStart;
+        params.selectionEnd = params.textArea.selectionEnd;
+        if( params.selectionStart > params.selectionEnd ) {
+            params.selectionEnd = params.textArea.selectionStart;
+            params.selectionStart = params.textArea.selectionEnd;
         }
-        if( params.selectionStart[ params.currentIndex ] != params.selectionEnd[ params.currentIndex ] ) {
-            params.inputStatus[ params.currentIndex ] = "Select";
+        if( params.selectionStart != params.selectionEnd ) {
+            params.inputStatus = "Select";
         }
     }
 
     function specialKeysSettings( event, params ) {
-		if( params.inputStatus[ params.currentIndex ] == "Compose" && !params.isComposing[ params.currentIndex ] ) {
-			if( params.inputStatus[ params.currentIndex ] != "Select" ) {
-				params.inputStatus[ params.currentIndex ] = "Normal";
-			}
+		if( params.inputStatus == "Compose" && !params.isComposing ) {
+			params.inputStatus = "Normal";
 		}
-        if( params.dataSending[ params.currentIndex ] ) {
-            window.clearTimeout( params.timer[ params.currentIndex ] );
-            document.getElementById( params.currentTextArea ).addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
-            params.dataSending[ params.currentIndex ] = false;
+		if( params.inputStatus == "Select" ) {
+			params.isSelect = true;
+		} else {
+			params.isSelect = false;
+		}
+        if( params.dataSending ) {
+            window.clearTimeout( params.timer );
+            params.textArea.addEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
+            params.dataSending = false;
         }
         switch( event.key ) {
             case "Enter":
@@ -91,13 +103,13 @@ import { displayText } from "./display_text.js";
                 event.preventDefault();
                 break;
             case "Backspace":
-                params.keyEvent[ params.currentIndex ] = "Backspace";
+                params.keyEvent = "Backspace";
                 break;
             case "Delete":
-                params.keyEvent[ params.currentIndex ] = "Delete";
+                params.keyEvent = "Delete";
                 break;
             default:
-                params.keyEvent[ params.currentIndex ] = "Normal";
+                params.keyEvent = "Normal";
                 break;
         }
     }
@@ -116,10 +128,14 @@ import { displayText } from "./display_text.js";
 
     function editText( event, params ) {
         params.isEdit = true;
-        params.editStart = event.target.selectionStart;
-        params.editEnd = event.target.selectionEnd;
+        params.editStart = params.textArea.selectionStart;
+        params.editEnd = params.textArea.selectionEnd;
     }
 
+	function changeText( event, params ) {
+		params.recorder.setButtonStatus( event );
+	}
 
-export { composeOn, composeOff, sendDocumentData, getCurrentTextArea,
-				insertReservedWords, getSelectedText, specialKeysSettings, textSelection, editText }
+export { composeOn, composeOff, sendDocumentData,
+				insertReservedWords, getSelectedText, specialKeysSettings, textSelection, editText,
+				changeText }

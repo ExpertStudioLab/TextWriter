@@ -190,6 +190,10 @@ public class Storage extends HttpServlet {
 			inReader.close();
 			bufferedReader.close();
 			*/
+		} else if( request.getHeader( "Process" ).equals( "Analysis" ) ) {
+			InputStream inStream = ( InputStream ) request.getInputStream();
+			byte[] buffer = inStream.readAllBytes();
+			System.out.println( new String( buffer ) );
 		}
 	}
 }

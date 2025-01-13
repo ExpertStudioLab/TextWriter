@@ -16,7 +16,7 @@ const sendBtn = document.getElementById( "Save" );
 sendBtn.addEventListener( "click", SendDocuments );
 
 // recorders
-const recorder = new DocumentRecorder( "Basic-Div", "Display-Area" );
+const recorder = new DocumentRecorder( "Basic-Div", "Display-Area", "PreviousTextButtons" );
 const illustRecorder = new IllustrationRecorder( "Image1", "New-Image" );
 
 illustRecorder.setTextButton( "Text", "Text-Label" );
@@ -103,10 +103,16 @@ async function SendDocuments() {
         const str = String( event.target.id );
         const idNumber = str.substring( 12, str.length );
 
-        const illust = document.getElementById( "Illust" + String( idNumber ) );
+//        const illust = document.getElementById( "Illust" + String( idNumber ) );
+		const illust = document.createElement( "img" );
+		illust.id = "Illust" + String( idNumber );
         illust.src = cvs.toDataURL();
         illust.style.width = "350px";
         illust.style.height = "275px";
+        illust.style.float = "right";
+        
+        const div = document.getElementById( "Preview" + String( idNumber ) );
+        div.appendChild( illust );
 
         recorder.setImage( parseInt( idNumber ), illustRecorder.getIllustration( illustRecorder.getCurrentIndex() ) );
 

@@ -35,7 +35,15 @@
         	<h3><label>テキストを入力してください。</label></h3>
         </div>
         
-        <div id="Basic-Div" class="Left-Justify" ></div>
+        <div id="Basic-Div" class="Left-Justify" >
+        	<div>
+        		<textarea rows="4" style="font-size: 20px; width: 70%;" id="Contents"></textarea>
+        	</div>
+        	<div>
+        		<input type="button" value="画像を挿入" />
+        	</div>
+        	<div id="PreviousTextButtons"></div>
+        </div>
     </div>
     <div id="Center">
     </div>

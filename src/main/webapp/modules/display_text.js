@@ -4,25 +4,31 @@
 import { TextBuffer, ReplaceProperties } from "./document_manager.js";
 
     export function displayText( event, params ) {
-        params.currentTextArea = String( event.target.id );
-        const idNumber = params.currentTextArea.substring( params.textAreaNameLength, ( String )( params.currentTextArea ).length );
-        const textElement = document.getElementById( params.textAreaName + idNumber );
-        const paragraph = document.getElementById( "Doc" + idNumber );
-        const doc = params.documentStructures[ parseInt( idNumber ) - 1 ];
-
+        const textElement = params.textArea;
+		const paragraph = document.getElementById( "Doc" + String ( params.currentIndex + 1 ) );
+		const doc = params.documentStructures[ params.currentIndex ];
+		
         if( params.isEdit ) {
-            params.inputStatus[ params.currentIndex ] = "Paste";
-            params.keyEvent[ params.currentIndex ] = "Normal";
+            params.inputStatus = "Paste";
+            params.keyEvent = "Normal";
         }
 
+		if( params.inputStatus == "Compose" ) {
+			if( params.isSelect ) {
+				params.inputStatus = "Select";
+			}
+		}
+		params.isSelect = false;
         let replace = new ReplaceProperties();
         let textBuffer = new TextBuffer();
 
         replace.end = textElement.selectionEnd;
 
-        switch( params.inputStatus[ params.currentIndex ] ) {
+		console.log( params.inputStatus );
+        switch( params.inputStatus ) {
             case "Normal":
-                replace.start = parseInt( textElement.selectionStart - 1 ) + parseInt( ( params.keyEvent[ params.currentIndex ] == "Normal" ) ? 0 : 1 );
+                replace.start = parseInt( textElement.selectionStart - 1 ) + parseInt( ( params.keyEvent == "Normal" ) ? 0 : 1 );
+                console.log( "ねこまる：" + replace.start );
                 replace.replaceEnd = replace.end - textElement.textLength + doc.getLength();
                 break;
             case "Compose":
@@ -30,16 +36,17 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
                 replace.replaceEnd = params.startCaret;
                 break;
             case "Select":
-                replace.start = params.selectionStart[ params.currentIndex ];
-                replace.replaceEnd = params.selectionEnd[ params.currentIndex ];
+                replace.start = params.selectionStart;
+                replace.replaceEnd = params.selectionEnd;
                 break;
             case "Paste":
                 replace.start = params.editStart;
                 replace.replaceEnd = params.editEnd;
+                break;
         }
 
         replace.indexStart = doc.searchDocumentIndex( replace.start );
-        if( params.keyEvent[ params.currentIndex ] == "Normal" ||  replace.end == textElement.textLength ) {
+        if( params.keyEvent == "Normal" ||  replace.end == textElement.textLength ) {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd );
         } else {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd + 1 );
@@ -75,7 +82,8 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
 
         if( params.isEdit ) {
             params.isEdit = false;
-            params.inputStatus[ params.currentIndex ] = "Normal";
+            params.inputStatus = "Normal";
         }
+        params.inputStatus = "Normal";
     }
 

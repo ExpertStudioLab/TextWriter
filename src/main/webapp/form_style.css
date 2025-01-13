@@ -99,6 +99,17 @@ body {
 		box-shadow: 2px 2px 4px inset,
 							 -1px -1px 2px inset;
 }
+.Text-Press-Button {
+	border: 2px groove darkblue;
+	background-color: lightblue;
+	width: fit-content;
+	height: 26px;
+	min-width: 38px;
+	font-size: 17px;
+	line-height: 17px;
+	box-shadow: 2px 2px 4px inset,
+							 -1px -1px 2px inset;
+}
 .Button-Preference {
 	border: 2px groove darkslategray;
 	background-color: lightgray;
@@ -116,6 +127,24 @@ body {
 			box-shadow: 2px 2px 4px inset,
 							 -1px -1px 2px inset;
 }
+.Text-Button-Preference {
+	border: 2px groove darkslategray;
+	background-color: lightgray;
+	width: fit-content;
+	height: 26px;
+	min-width: 38px;
+	font-size:  17px;
+	line-height: 17px;	
+}
+.Text-Button-Preference:hover {
+	background-color:  rgb( 230, 230, 230 );
+}
+.Text-Button-Preference:active {
+		background-color: rgb( 160,  160, 160 );
+		box-shadow: 2px 2px 4px inset,
+							 -1px -1px 2px inset;
+}
+
 .Hover-Button {
 	background-color: rgba(223, 215, 215, 0.826);
 }
@@ -171,7 +200,6 @@ body {
 }
 #Display-Area {
 	height: fit-content;
-	min-height: 300px;
 	width: 70%;
 	margin-left: 10%;
 	margin-right: 10%;
@@ -194,12 +222,7 @@ body {
 .Reserved-Words {
 	width: 100px;
 }
-#Preview1 {
-	width: 60%;
-	height: fit-content;
-	min-height: 400px;
-	background-color: darkcyan;
-}
+
 #Illust1 {
 	margin-left: 20px;
 	float: right;
