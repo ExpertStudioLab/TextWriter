@@ -6,8 +6,6 @@ import java.util.Stack;
 public class JsonConverter {
 	public Property property;
 	public JsonConverter( String data ) {
-		data = "{ \"hitsuji\" : [ [ { \"tanukichi\" : \"akuma\", \"kitsune\" : \"udon\" },{ \"nekomaru\" : \"ramen\" } ],"
-				+ "[ { \"mikezou\" : \"takoyaki\"}, { \"tanubou\" : \"yakisoba\" } ] ] }";
 		Stack<Statement> statements = new Stack<>();
 		Stack<Node> nodeStack = new Stack<>();
 		JsonString jsonStr = new JsonString( data );
@@ -23,9 +21,9 @@ public class JsonConverter {
 		Statement statement = null;
 		Node rootNode = node;
 		for( int i = length - 1; i >= 0; i-- ) {
-			Statement tmpStatement = new Statement( type, jsonStr.get( i ), node.getParent() );
+			Statement tmpStatement = new Statement( type, jsonStr.get( i ), node.getName() );
 			if( ( length > 0 ) && ( i != 0 ) ) {
-				if( tmpStatement.value.matches( "\\[[^\\]]*\\]" ) ) {
+				if( ( tmpStatement.value.charAt( 0 ) == '{' ) && ( tmpStatement.value.charAt( tmpStatement.value.length() - 1 ) == '}' ) ) {
 					tmpStatement.nest = false;
 				}
 			}
@@ -58,14 +56,13 @@ public class JsonConverter {
 				while( ! node.getParent().equals( statement.parent ) ) {
 					node = nodeStack.pop();
 				}
-				if( ! statement.parent.equals( "Root" ) ) {
-					node = nodeStack.pop();
-				}
+				node = nodeStack.pop();
 			}
 			
 			jsonStr = new JsonString( statement.value );
 			length = 0;
 			type = jsonStr.getType();
+
 			if( statement.type == Blocks.ARRAY  || statement.type == Blocks.BLOCKVALUE ) {
 				if( type == Blocks.ARRAY || type == Blocks.OBJECT ) {
 					if( ! ( node instanceof BlockValueNode ) ) ( ( ArrayNode )node ).addNode( type );
@@ -111,7 +108,7 @@ public class JsonConverter {
 				}
 				statements.push( new Statement( type, insertStatement, parent ) );
 				if( ( length > 0 ) && ( i != 0 ) ) {
-					if( insertStatement.matches( "\\[[^\\]]*\\]" ) ) {
+					if( ( insertStatement.charAt( 0 ) == '{' ) && ( insertStatement.charAt( insertStatement.length() - 1 ) == '}' ) ) {
 						Statement tmpStatement = statements.pop();
 						tmpStatement.nest = false;
 						statements.push( tmpStatement );

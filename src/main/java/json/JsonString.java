@@ -36,7 +36,9 @@ public class JsonString {
 			blocks.closeBlock( index, ( this.data.charAt( index ) == '}' ) ? Blocks.OBJECT : Blocks.ARRAY );
 		}
 		this.data = blocks.replaceData( this.data);
-		p = Pattern.compile( "(\"\\w+\"\s*:\s*)?(\\{[^\\}]*\\}|\\[[^\\]]*\\]|\"\\w*\"|-?\\d+[(\\.\\d+)]?|\\w+|\\@ARROUT\\$.*\\@ARROUT\\;|\\@OBJOUT\\$.*\\@OBJOUT\\;)" );
+//		p = Pattern.compile( "(\"\\w+\"\s*:\s*)?(\\{[^\\}]*\\}|\\[[^\\]]*\\]|\"\\w*\"|-?\\d+[(\\.\\d+)]?|\\w+|\\@ARROUT\\$.*\\@ARROUT\\;|\\@OBJOUT\\$.*\\@OBJOUT\\;)" );
+		p = Pattern.compile( "(\"\\w+\"\s*:\s*)?(\\{[^\\}]*\\}|\\[[^\\]]*\\]|\"[^\"]*\"|-?\\d+[(\\.\\d+)]?|\\w+|\\@ARROUT\\$.*\\@ARROUT\\;|\\@OBJOUT\\$.*\\@OBJOUT\\;)" );
+
 		m = p.matcher( this.data );
 
 		while( m.find() ) {

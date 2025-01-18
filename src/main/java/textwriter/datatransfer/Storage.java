@@ -191,9 +191,11 @@ public class Storage extends HttpServlet {
 			bufferedReader.close();
 			*/
 		} else if( request.getHeader( "Process" ).equals( "Analysis" ) ) {
+			request.setCharacterEncoding( "UTF-8" );
 			InputStream inStream = ( InputStream ) request.getInputStream();
 			byte[] buffer = inStream.readAllBytes();
-			System.out.println( new String( buffer ) );
+			System.out.println( new String( buffer, "UTF-8" ) );
+			inStream.close();
 		}
 	}
 }

@@ -91,19 +91,22 @@ abstract class Node {
 	}
 
 	public Property getProperty() {
-		// Is outerBlock ObjectBlock({}) or ArrayBlock([]) ?
-		Property property = ( this instanceof ObjectNode ) ? new ObjectProperty() : new ArrayProperty();
-		List<Node> nodeList = this.getNodeList();
-		for( int i = 0; i < nodeList.size(); i++ ) {
-			Node childNode = nodeList.get( i );
-			Property childProperty = childNode.createProperty();
-//			if( this.type == Blocks.OBJECT ) {
-			if( this instanceof ObjectNode ) {
-				property.set( nodeList.get( i ).getName(), childProperty );
-//			} else if( this.type == Blocks.ARRAY ) {
-			} else if( this instanceof ArrayNode ) {
-				property.set( childProperty );
+		Property property = null;
+		if( this instanceof ObjectNode || this instanceof ArrayNode ) {
+			// Is outerBlock ObjectBlock({}) or ArrayBlock([]) ?
+			property = ( this instanceof ObjectNode ) ? new ObjectProperty() : new ArrayProperty();
+			List<Node> nodeList = this.getNodeList();
+			for( int i = 0; i < nodeList.size(); i++ ) {
+				Node childNode = nodeList.get( i );
+				Property childProperty = childNode.createProperty();
+				if( this instanceof ObjectNode ) {
+					property.set( childNode.getName(), childProperty );
+				} else if( this instanceof ArrayNode ) {
+					property.set( childProperty );
+				}
 			}
+		} else {
+			property = this.createProperty();
 		}
 		return property;
 	}
@@ -111,63 +114,41 @@ abstract class Node {
 		Property property = null;
 		Property childProperty = null;
 
-//		System.out.println( this.types[ this.type ] + ": " + this.name );
-//		if( this.type == Blocks.BLOCKVALUE ) {
 		if( this instanceof BlockValueNode ) {
 			Node childNode = ( ( BlockValueNode ) this ).getNode();
+			property = new ObjectProperty();
 			childProperty = childNode.createProperty();
-//			if( childNode.type == Blocks.ARRAY ) {
-			if( childNode instanceof ArrayNode ) {
-				property = new ArrayProperty();
-				property.set( childProperty );
-//			} else if( childNode.type == Blocks.OBJECT ) {
-			} else if( childNode instanceof ObjectNode ) {
-				property = new ObjectProperty();
-				property.set( this.name, childProperty );
-			}
-			return property;
-//		} else if( this.type == Blocks.NONE ) {
+			property.set( childNode.getName(), childProperty );
 		} else if( this instanceof ValueNode ) {
-			if( ! this.name.matches( "Value.*" ) ) {
-				property = new ObjectProperty();
-				property.set( this.name, new ValueProperty( this.getValue() ) );
-			} else {
-				property = new ValueProperty( this.getValue() );
-			}
-//		} else if( this.type == Blocks.ARRAY ) {
+			property = new ValueProperty( this.getValue() );
 		} else if( this instanceof ArrayNode ) {
 			property = new ArrayProperty();
 			List<Node> nodeList = this.getNodeList();
 			for( int i = 0; i < nodeList.size(); i++ ) {
 				Node childNode = nodeList.get( i );
-//				if( childNode.getType() == Blocks.NONE ) {
 				if( childNode instanceof ValueNode ) {
 					property = childNode.createProperty();
 				} else if( childNode instanceof ArrayNode ||
 								childNode instanceof ObjectNode ) {
 					childProperty = ( childNode instanceof ArrayNode ) ? new ArrayProperty() : new ObjectProperty();
+					List<Node> childNodeList = childNode.getNodeList();
 					for( int j = 0; j < childNode.getNodeList().size(); j++ ) {
-//						System.out.println( "[ " + j + " ]: " + childNode.getNodeList().get( j ).getName() );
-//						System.out.println( childNode.getNodeList().get( j ).getName() );
 						if( childProperty instanceof ArrayProperty ) {
-							( ( ArrayProperty )childProperty ).set( childNode.getNodeList().get( j ).createProperty() );
+							( ( ArrayProperty )childProperty ).set( childNodeList.get( j ).createProperty() );
 						} else {
-							( ( ObjectProperty ) childProperty ).set( childNode.getNodeList().get( j ).getName(), childNode.getNodeList().get( j ).createProperty() );
+							( ( ObjectProperty ) childProperty ).set( childNodeList.get( j ).getName(), childNodeList.get( j ).createProperty() );
 						}
 					}
 					property.set( childProperty );
 				}
 			}
-//		} else if( this.type == Blocks.OBJECT ) {
 		} else if( this instanceof ObjectNode ) {
 			property = new ObjectProperty();
 			List<Node> nodeList = this.getNodeList();
 			for( int i = 0; i < nodeList.size(); i++ ) {
 				Node childNode = nodeList.get( i );
-//				if( childNode.getType() == Blocks.NONE ) {
 				if( childNode instanceof ValueNode ) {
 					property.set( childNode.getName(),  new ValueProperty( childNode.getValue() ) );
-//				} else if( childNode.getType() == Blocks.BLOCKVALUE ) {
 				} else if( childNode instanceof BlockValueNode ) {
 					property.set( childNode.getName(), childNode.createProperty() );
 				}
@@ -175,7 +156,6 @@ abstract class Node {
 		}
 		return property;
 	}
-
 }
 
 class ObjectNode extends Node {

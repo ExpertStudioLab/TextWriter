@@ -38,12 +38,15 @@ async function getKeywords() {
             throw new Error( "response status: ${ response.status }" );
         } else {
             const jsonData = await response.json();
+            const div = document.getElementById( "Center" );
             jsonData.forEach( data => {
                 const statement = createKeywordButton( data.keyword, data.placeholder, data.options );
-                const div = document.getElementById( "Center" );
                 div.insertAdjacentHTML( "beforeend", statement );
                 recorder.registerKeywordButton( "Insert-" + data.keyword );
             });
+            const statement = createKeywordButton( "Keyword", "キーワード", null );
+            div.insertAdjacentHTML( "beforeend", statement );
+            recorder.registerKeywordButton( "Insert-" + "Keyword" );
         }
     } catch( error ) {
         console.error( error );

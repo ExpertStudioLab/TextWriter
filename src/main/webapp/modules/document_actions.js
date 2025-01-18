@@ -4,16 +4,22 @@
 import { displayText } from "./display_text.js";
     function insertReservedWords( event, params ) {
         const typeOfReservedWord = String( event.target.id ).substring( 7, String( event.target.id ).length );
+        console.log( "たぬきち：「" + typeOfReservedWord + "」" );
         const reservedWordOp = document.getElementById( typeOfReservedWord );
         const reservedWord = reservedWordOp.value;
         const htmlForm = "<font color=\"darkmagenta\">" + reservedWord + "</font>";
-        const textArea = document.getElementById( params.currentTextArea );
-        const idNumber = params.currentTextArea.substring( 8, String( params.currentTextArea ).length );
-        const paragraph = document.getElementById( "Doc" + idNumber );
-        const doc = params.documentStructures[ parseInt( idNumber ) - 1 ];
+        const textArea = params.textArea;
+//        const idNumber = params.currentTextArea.substring( 8, String( params.currentTextArea ).length );
+//        const paragraph = document.getElementById( "Doc" + idNumber );
+		const paragraph = document.getElementById( "Doc" + String ( params.currentIndex + 1 ) );
+//        const doc = params.documentStructures[ parseInt( idNumber ) - 1 ];
+		const doc = params.documentStructures[ params.currentIndex ];
         const pos = textArea.selectionEnd;
-
-        doc.insertKeyword( String( reservedWord ), 1, pos );
+		let keywordType = 1;
+		if( typeOfReservedWord == "Keyword" ) {
+			keywordType = 2;
+		}
+        doc.insertKeyword( String( reservedWord ), keywordType, pos );
         console.log( "doc: ", doc );
 
         paragraph.innerHTML = textArea.value.substring( 0, textArea.selectionEnd ) + htmlForm + textArea.value.substring( textArea.selectionEnd, textArea.textLength );
@@ -27,11 +33,12 @@ import { displayText } from "./display_text.js";
         params.textArea.removeEventListener( "input", params.recorder.eventFunction( "DataTransfer" ) );
         params.timer = window.setTimeout( async () => {
 			const doc = params.documentStructures[ params.currentIndex ];
-			const jsonText = JSON.stringify( doc );
+			const blob = new Blob( [ JSON.stringify( doc ) ], { type: "application/json;charset=UTF-8" } );
 			const myRequest = new Request( "storage", {
 				method: "POST",
-				body: jsonText,
-				headers: { "Process": "Analysis" }
+				body: blob,
+				headers: { "Process": "Analysis",
+									"Content-type": "application/json" }
 			} );
 			const response = await window.fetch( myRequest );
 			try {

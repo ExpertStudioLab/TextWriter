@@ -53,10 +53,21 @@ abstract class Property {
 		}
 		if( property instanceof ObjectProperty ) {
 			if( type != Property.ARRAY ) result += indentStr;
-			result += toStringObject( ( ObjectProperty ) property, indent );
+				if( property.getName( 0 ).matches( "Array.*" ) ) {
+					property = (( ObjectProperty ) property ).getObject().get( property.getName( 0 ) );
+					result += toStringArray( (ArrayProperty) property, indent );
+					return result;
+				} else if( property.getName( 0 ).matches( "Object.*" ) ) {
+					property = ( ( ObjectProperty ) property ).getObject().get( property.getName( 0 ) );
+					result += toStringObject( ( ObjectProperty ) property, indent );
+				}else {
+					result += toStringObject( ( ObjectProperty ) property, indent );
+				}
 		} else if( property instanceof ArrayProperty ) {
 			if( type != Property.OBJECT ) result += indentStr;
 			result += toStringArray( ( ArrayProperty ) property, indent );
+		} else if( property instanceof ValueProperty ) {
+			result += ((ValueProperty) property).getValue() + '\n';
 		}
 		return result;
 	}
@@ -69,6 +80,7 @@ abstract class Property {
 		for( int i = 0; i < list.size(); i++ ) {
 			this.depth = depth + 1;
 			result += this.toString( list.get( i ), indent, Property.ARRAY );
+			result += "----------------------------\n";
 		}
 		return result;
 	}
@@ -96,7 +108,7 @@ abstract class Property {
 				}
 			}
 
-			result += indentStr + "[ " + ( String )names[ i ] + " ]:    ";
+			result += indentStr + "[ " + ( String ) names[ i ] + " ]:    ";
 			Property value = object.get( ( String ) names[ i ] );
 			if( value instanceof ArrayProperty || value instanceof ObjectProperty ) {
 				this.objectNest.set( depth, Boolean.TRUE );
@@ -137,6 +149,9 @@ class ObjectProperty extends Property {
 	public String getName( int index ) {
 		Object[] names = object.keySet().toArray();
 		return ( String ) names[ index ];
+	}
+	public Property getValue( String key ) {
+		return this.object.get( key );
 	}
 	public Map<String,Property> getObject() {
 		return this.object;
@@ -223,7 +238,10 @@ class PropertyList {
 	}
 	
 	public PropertyList get( int index ) {
-		return this.list.get( index ).getPropertyList();
+		Map<String,Property> object = (( ObjectProperty )this.curProperty).getObject();
+		Object[] keys = object.keySet().toArray();
+		return object.get( ( String )keys[ index ] ).getPropertyList();
+//		return this.list.get( index ).getPropertyList();
 	}
 	
 	public String getValue() {
@@ -241,30 +259,62 @@ class PropertyList {
 			Map<String,Property> object = ( ( ObjectProperty ) this.curProperty ).getObject();
 			Object[] keys = object.keySet().toArray();
 			for( int i = 0; i < keys.length; i++ ) {
-				result += "key: " + ( ( ObjectProperty ) this.curProperty ).getName( i );
+//				result += "key: " + ( ( ObjectProperty ) this.curProperty ).getName( i );
+				result += "key: " + ( String ) keys[ i ];
 				Property value = object.get( ( String ) keys[ i ] );
 				if( value instanceof ValueProperty ) {
 					result += ", value: " + ( ( ValueProperty ) value ).getValue();
 				} else if( value instanceof ObjectProperty ) {
-					Map<String,Property> valueObject = ( ( ObjectProperty ) value ).getObject();
-					Object[] valueKeys = valueObject.keySet().toArray();
-					result += "\n   [ Properties ]\n";
-					for( int j = 0; j < valueKeys.length; j++ ) {
-						result += "      " + valueObject.get( ( String ) valueKeys[ j ] ) + '\n';
+					if( value.getName( 0 ).matches( "Object.*" ) ) {
+						Map<String,Property> valueObject = ( ( ObjectProperty ) value ).getObject();
+						Object[] valueKeys = valueObject.keySet().toArray();
+						result += "\n   [ Properties ]\n";
+						for( int j = 0; j < valueKeys.length; j++ ) {
+//						result += "      " + valueObject.get( ( String ) valueKeys[ j ] ) + '\n';
+							Property innerValue = valueObject.get( ( String ) valueKeys[ j ] );
+							if( innerValue instanceof ValueProperty ) {
+								result += "    " + valueObject.get( ( String ) valueKeys[ j ] ) + '\n';
+							} else {
+								Map<String,Property> innerValueObject = ( ( ObjectProperty ) innerValue ).getObject();
+								Object[] innerValueKeys = innerValueObject.keySet().toArray();
+								for( int k = 0; k < innerValueKeys.length; k++ ) {
+									result += "    " + ( String )innerValueKeys[ k ] + '\n';							
+								}
+							}
+						}
+					} else {
+						ArrayProperty arrayProperty = ( ArrayProperty ) ( ( ObjectProperty ) value ).getValue( ( ( ObjectProperty ) value ).getName( 0 ) );
+						List<Property> valueList = ( arrayProperty ).getList();
+						result += "\n   [ Properties ]\n";
+						for( int j = 0; j < valueList.size(); j++ ) {
+							Property innerValue = valueList.get( i );
+							if( innerValue instanceof ValueProperty ) {
+								result += "    value: " + ( ( ValueProperty ) innerValue ).getValue() + '\n';
+							} else if( innerValue instanceof ArrayProperty || innerValue instanceof ObjectProperty ) {
+								result += "    List[ " + j + " ]\n";
+							}
+						}
 					}
 				} else if( value instanceof ArrayProperty ) {
 //					List<Property> valueList = ( ( ArrayProperty ) value ).getList();
-					List<Property> valueList = ((ArrayProperty)( ( ArrayProperty ) value ).getList().get( 0 )).getList();
+					System.out.println( ( ( ArrayProperty ) value ).getList() );
+					List<Property> valueList = (( ArrayProperty ) value ).getList();
+//					List<Property> valueList = ((ArrayProperty)( ( ArrayProperty ) value ).getList().get( 0 )).getList();
 					result += "\n   [ Properties ]\n";
 					for( int j = 0; j < valueList.size(); j++ ) {
 						Property listItem = valueList.get( j );
 						if( listItem instanceof ValueProperty ) {
 							result += "      value: " + ( ( ValueProperty ) listItem ).getValue() + '\n';
-						} else if( listItem instanceof ArrayProperty ) {
+						} else if( listItem instanceof ArrayProperty || listItem instanceof ObjectProperty ) {
 							result += "      LIST[ " + j + " ]\n";
-						} else if( listItem instanceof ObjectProperty ) {
-							result += "      " + ( ( ObjectProperty ) listItem ).getName( j );
-						}
+						} /* else if( listItem instanceof ObjectProperty ) {
+							Map<String,Property> properties = ( ( ObjectProperty ) listItem ).getObject();
+							result += "      [ Element ]\n";
+							for( int k = 0; k < properties.size(); k++ ) {
+								result += "      " + ( ( ObjectProperty ) listItem ).getName( k ) + "\n";
+							}
+							System.out.println();
+						} */
 					}
 				}
 			}

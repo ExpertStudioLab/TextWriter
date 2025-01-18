@@ -147,7 +147,11 @@ class Document {
         let doc = "";
         for( let i = 0; i < this.textPieces; i++ ) {
             if( this.properties[ i ].isKeywords ) {
-                doc += "<font color=\"darkmagenta\">" + this.properties[ i ].text + "</font>";
+                if( this.properties[ i ].keywordType == 1 ) {
+				 	doc += "<font color=\"darkmagenta\">" + this.properties[ i ].text + "</font>";	
+				} else if( this.properties[ i ].keywordType == 2 ) {
+					doc += "<font color=\"darkyellow\">" + this.properties[ i ].text + "</font>";
+				}
             } else {
                 doc += this.properties[ i ].text;
             }
