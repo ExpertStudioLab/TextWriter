@@ -24,7 +24,10 @@ illustRecorder.setImageButton( "Insert-File", "FileImage", "ImageFileName" );
 illustRecorder.setButton( "Rect", Illustration.RECTANGLE );
 illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 
-window.onload = getKeywords();
+window.onload = function() {
+	getKeywords();
+	getCustomDatalist();
+};
 
 async function getKeywords() {
     const myRequest = new Request( "storage", {
@@ -38,15 +41,34 @@ async function getKeywords() {
             throw new Error( "response status: ${ response.status }" );
         } else {
             const jsonData = await response.json();
-            const div = document.getElementById( "Center" );
             jsonData.forEach( data => {
                 const statement = createKeywordButton( data.keyword, data.placeholder, data.options );
-                div.insertAdjacentHTML( "beforeend", statement );
-                recorder.registerKeywordButton( "Insert-" + data.keyword );
+                recorder.registerKeywordButton( "Insert-" + data.keyword, statement );
             });
             const statement = createKeywordButton( "Keyword", "キーワード", null );
-            div.insertAdjacentHTML( "beforeend", statement );
-            recorder.registerKeywordButton( "Insert-" + "Keyword" );
+            recorder.registerKeywordButton( "Insert-" + "Keyword", statement );
+        }
+    } catch( error ) {
+        console.error( error );
+    }
+}
+
+async function getCustomDatalist() {
+	const myRequest = new Request( "storage", {
+		method: "GET",
+		headers: { "Process": "CustomDatalist" }
+	} );
+	const response = await window.fetch( myRequest );
+	
+	try{
+        if( !response.ok ) {
+            throw new Error( "response status: ${ response.status }" );
+        } else {
+            const jsonData = await response.json();
+            jsonData.forEach( data => {
+				recorder.setCustomDatalist( data );
+				console.log( data );
+            } );
         }
     } catch( error ) {
         console.error( error );
@@ -59,10 +81,12 @@ async function SendDocuments() {
     const blob = new Blob( [ JSON.stringify( recorder.getDocuments() ) ], { type: "application/json"} );
     const illustBlob = new Blob( [ JSON.stringify( illustRecorder.getIllustrations() ) ], { type: "application/json" } );
     const illustrations = illustRecorder.getIllustrations();
+    const datalistBlob = new Blob( [ JSON.stringify( recorder.getCustomDatalist() ) ], { type: "application/json" } );
 
     const formData = new FormData();
     formData.append( "Docs", blob );
     formData.append( "Illusts", illustBlob );
+    formData.append( "datalist", datalistBlob );
 
     let fileNumber = 1;
     for( let i = 0; i < illustrations.length; i++ ) {
@@ -100,6 +124,9 @@ async function SendDocuments() {
     } catch( error ) {
         console.error( error );
     }
+    const form = document.getElementById( "SendForm" );
+    const sendForm = new FormData( form );
+    sendForm.submit();
 }
 
     export async function insertIllust( event ) {

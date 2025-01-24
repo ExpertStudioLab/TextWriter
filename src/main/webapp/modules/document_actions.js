@@ -12,6 +12,36 @@ import { displayText } from "./display_text.js";
         
         const reservedWordOp = document.getElementById( typeOfReservedWord );
         const reservedWord = reservedWordOp.value;
+        const reservedWordListOp = document.getElementById( typeOfReservedWord + "-List" );
+        const options = Array.from( reservedWordListOp.options );
+        let addFlag = true;
+        for( const option of options ) {
+			if( option.value == reservedWord ) {
+				addFlag = false;
+			}
+		}
+		if( addFlag ) {
+			const option = document.createElement( "option" );
+			option.value = reservedWord;
+			reservedWordListOp.appendChild( option );
+			let check = false;
+			for( const datalist of params.customDatalist ) {
+				if( datalist.datalistId == typeOfReservedWord ) {
+					datalist.options.push( reservedWord );
+					check = true;
+				}
+			}
+			if( !check ) {
+				const object = {
+					datalistId: typeOfReservedWord,
+					options: []
+				}
+				object.options.push( reservedWord );
+				params.customDatalist.push( object );
+				console.log( params.customDatalist );
+			}
+		}
+        reservedWordOp.value = "";
         const textArea = params.textArea;
 		const paragraph = document.getElementById( "Doc" + String ( params.currentIndex + 1 ) );
 		const doc = params.documentStructures[ params.currentIndex ];
@@ -50,6 +80,22 @@ import { displayText } from "./display_text.js";
         }, 1500 );
     }
 
+	function moveToolPanel( event, params ) {
+		const panelTop = params.toolPanel.style.top;
+		let panelBoundsTop = Math.floor( params.toolPanel.getBoundingClientRect().top );
+		const textAreaBoundsBottom = Math.floor( params.textArea.getBoundingClientRect().bottom );
+		const panelTopInt = parseInt( panelTop.substring( 0, panelTop.indexOf( 'p' ) ) );
+		let distance = textAreaBoundsBottom - panelBoundsTop;
+		let compare = panelTopInt - panelBoundsTop - window.scrollY;
+		if( compare > -1 && compare < 1 ) {
+			params.toolPanel.style.top = String( panelTopInt + distance ) + "px";
+		} else {
+			window.setTimeout( () => {
+				const inputEvent = new CustomEvent( "changeposition" );
+        		event.target.dispatchEvent( inputEvent );
+			}, 200 );
+		}
+	}
 
     function composeOn( event, params ) {
 		params.isComposing = true;
@@ -139,7 +185,58 @@ import { displayText } from "./display_text.js";
 	function changeText( event, params ) {
 		params.recorder.setButtonStatus( event );
 	}
+	
+	async function scrollScreen( event, params ) {
+//		await scroll();
+		const scrollPoint = document.getElementById( "Scroll-Point" );
+		const scrollBounds = scrollPoint.getBoundingClientRect();
+		const scrollVolume = Math.floor( scrollBounds.top );
+		window.scrollTo( {
+			behavior: "smooth",
+			top: window.scrollY + scrollVolume,
+			left: 0
+		});
+		
+		const textAreaBounds = event.target.getBoundingClientRect();
+		const bottomRest = Math.floor( textAreaBounds.bottom - window.scrollY - window.innerHeight );
+		if( bottomRest < 300 ) {
+			window.scrollTo( {
+				behavior: "smooth",
+				top: window.scrollY + scrollVolume + 300 - bottomRest,
+				left: 0
+			} );
+		}
+//		const height = bounds.bottom - bounds.top;
+		// absolute point ( 0, bottom )
+//		const rest = window.innerHeight - bounds.bottom;
+//		console.log( "bottom: " + bounds.bottom );
+/*
+		if( rest < slideDivHeight ) {
+			const space = window.innerHeight - height - 50;
+			if( space < slideDivHeight ) {
+				slideDivHeight = space;
+			}
+			window.scrollTo( {
+				behavior: "smooth",
+				top: window.scrollY+ slideDivHeight - rest,
+				left: 0
+			} );
+			const bottom = Math.floor( window.scrollY + slideDivHeight - rest + bounds.bottom - bounds.top );
+			params.toolPanel.style.top = String( bottom + 70 ) + "px";
+		} else {
+			params.toolPanel.style.top = String( Math.floor( window.innerHeight + window.scrollY - rest ) ) + "px";
+		}
+		*/
+		const bottom = Math.floor( textAreaBounds.bottom + window.scrollY );
+		params.toolPanel.style.top = String( bottom ) + "px";
+
+		
+		params.toolPanel.style.display = "block";
+		params.toolPanel.style.animation = "SlideIn 1.6s";
+		params.toolPanel.style.position = "absolute";
+		params.toolPanel.style.left = "10px";
+	}
 
 export { composeOn, composeOff, sendDocumentData,
 				insertReservedWords, getSelectedText, specialKeysSettings, textSelection, editText,
-				changeText }
+				changeText, scrollScreen, moveToolPanel }

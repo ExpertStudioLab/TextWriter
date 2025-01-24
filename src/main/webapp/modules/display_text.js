@@ -85,5 +85,9 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
             params.inputStatus = "Normal";
         }
         params.inputStatus = "Normal";
+        
+        const inputEvent = new CustomEvent( "changeposition" );
+        event.target.dispatchEvent( inputEvent );
+
     }
 

@@ -23,7 +23,7 @@
 %>
 <span id="Document-Comment">作成されるドキュメントの書式</span>
 
-<div class="Left-Justify">
+<div class="Left-Justify" id="Scroll-Point">
 	<img src="./picture/001.png" style="display: inline-block; width: 30px; height: 30px; margin-bottom: -5px; margin-right: 5px;" /><h3 id="Column-Title" style="display: inline-block;"></h3>
 </div>
 
@@ -77,13 +77,10 @@
         	<input type="button" id="Download" value="画像のダウンロード" />
         </div>
     </div>
-    <div>
-        <input type="button" id="Next" value="追加" />
-    </div>
-    <div id="SendForm" >
+    <form action="TextWriter" method="get" id="SendForm" >
         <input type="submit" id="Save" value="保存" />
-        <input type="file" hidden="true" id="SendFile" />
-    </div>
+        <input type="hidden" value="true" name="finish" />
+    </form>
 </div>
 <% 	}
 %>

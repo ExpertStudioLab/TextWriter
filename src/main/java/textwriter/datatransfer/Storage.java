@@ -2,10 +2,12 @@ package textwriter.datatransfer;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -133,6 +135,36 @@ public class Storage extends HttpServlet {
 			out.flush();
 			out.close();
 			adapter.deleteRecordView();
+		} else if( request.getHeader( "Process" ).equals( "CustomDatalist" ) ) {
+			response.setContentType( "application/json" );
+			response.setCharacterEncoding( "UTF-8" );
+			PrintWriter outWriter = response.getWriter();
+			File file = new File( webapp + "\\JSON\\custom_datalist.json" );
+			if( file.createNewFile() ) {
+				try {
+					FileWriter fileWriter = new FileWriter( webapp + "\\JSON\\custom_datalist.json" );
+					PrintWriter printWriter = new PrintWriter( new BufferedWriter( fileWriter ) );
+					printWriter.print( "[]" );
+					printWriter.close();
+				} catch( Exception e) {
+					
+				}
+			}
+			FileInputStream fileIn = new FileInputStream( file );
+			InputStreamReader inStreamReader = new InputStreamReader( fileIn, "UTF-8" );
+			BufferedReader bufferedReader = new BufferedReader( inStreamReader );
+			String line;
+			while( ( line = bufferedReader.readLine() ) != null ) {
+				System.out.print( line );
+				outWriter.write( line );
+			}
+			outWriter.flush();
+			
+			fileIn.close();
+			inStreamReader.close();
+			bufferedReader.close();
+			outWriter.close();
+			
 		}
 	}
 
@@ -156,6 +188,12 @@ public class Storage extends HttpServlet {
 
 			buffer = bufferedData.getData( "Illusts" );
 			records.add( new Record( buffer, Record.TEXT ) );
+			
+			buffer = bufferedData.getData( "datalist" );
+			File file = new File( webapp + "\\JSON\\custom_datalist.json" );
+			PrintWriter printWriter = new PrintWriter( new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" ) ) );
+			printWriter.print( new String( buffer, "UTF-8" ) );
+			printWriter.close();
 
 			buffer = bufferedData.getData( "FileNumber" );
 			records.add( new Record( buffer, Record.TEXT ) );

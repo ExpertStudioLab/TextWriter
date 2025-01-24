@@ -105,6 +105,7 @@ public class StatusManager {
 		this.tagName = this.request.getParameter( "tag-name" );
 
 		if (this.title != null) {
+			System.out.println( "抜き打ちたぬきちチェック" );
 			this.state = StatusManager.SECTION;
 			this.session.setAttribute( "TitleName", this.title );
 		}

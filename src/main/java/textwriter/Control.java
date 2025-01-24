@@ -40,7 +40,13 @@ public class Control extends HttpServlet {
 		StatusManager manager = ( StatusManager ) session.getAttribute( "StatusManager" );
 		manager.setRequest( request );
 		manager.setResponse( response );
-
+		if( request.getParameter( "finish" ) != null ) {
+			manager.setStatus( StatusManager.ABORT );
+			session.setAttribute( "jsp_file", "home.jsp" );
+			session.setAttribute( "HeaderTitle", Boolean.FALSE );
+			session.setAttribute( "SectionTitle", Boolean.FALSE );
+			session.setAttribute( "ColumnName", Boolean.FALSE );
+		}
 		manager.execute();
 		switch (manager.getState()) {
 		case StatusManager.SECTION:
@@ -52,6 +58,7 @@ public class Control extends HttpServlet {
 		}
 		
 		System.out.println( "hello たぬきち" );
+
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher("/WEB-INF/" + session.getAttribute("jsp_file"));
 //		RequestDispatcher rd = sc.getRequestDispatcher( "/editor" );

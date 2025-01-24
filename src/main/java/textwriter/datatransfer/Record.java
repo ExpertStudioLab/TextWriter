@@ -1,6 +1,7 @@
 package textwriter.datatransfer;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 
 public class Record implements Serializable {
 	/**
@@ -15,7 +16,12 @@ public class Record implements Serializable {
 	public Record( byte[] data, int dataType ) {
 		switch( dataType ) {
 		case Record.TEXT:
-			text = new String( data );
+			try {
+				this.text = new String( data, "UTF-8" );
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case Record.BINARY:
 			binary = data;
