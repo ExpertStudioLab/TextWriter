@@ -38,4 +38,5 @@ Dec. 19, 2024, Thu. Created a module "DocumentList" class.
 Jan. 7, 2025, Tue. Created a JSON Converter.
 Jan. 11, 2025, Sat. Changed Text Writer's Design.
 Jan. 13, 2025, Mon. Changed TextArea appearance.
-Jan.19, 2025, Sun. Fixed bugs of JSON Converter.
+Jan. 19, 2025, Sun. Fixed bugs of JSON Converter.
+Jan. 25, 2025, Sun. Enabled to register original keywords.
