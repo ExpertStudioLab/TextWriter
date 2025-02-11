@@ -1,18 +1,27 @@
 /**
  * 
  */
-export function createKeywordButton( keywordType, placeHolder, options ) {
-	let  statement = "<div>";
-	statement +=			"<input type=\"text\" class=\"Reserved-Words\" id=\"" + keywordType + "\" "
-																		+	"list=\"" + keywordType + "-List\" placeholder=\"" + placeHolder + "\" />";
-	statement +=			"<datalist id=\"" + keywordType +"-List\" >";
-	if( options != null ) {
-		for( let i = 0; i < options.length; i++ ) {
-			statement += "<option value=\"" + options[ i ] + "\" ></option>";
-		}
-	}
-	statement +=			"</datalist>";
-	statement +=			"<input type=\"button\" class=\"Reserved-Words-Button\" id=\"Insert-" + keywordType + "\" value=\"追加\" />"
-	statement += 	  "</div>";
-	return statement;
+export function createKeywordButton( keywordType, placeHolder ) {    
+    const block = document.createElement( "div" );
+    const textbox = document.createElement( "input" );
+    textbox.type = "text";
+    textbox.className = "Reserved-Words";
+    textbox.id = keywordType;
+    textbox.placeholder = placeHolder;
+    textbox.style.width = "140px";
+    const pulldownBtn = document.createElement( "input" );
+    pulldownBtn.type = "button";
+    pulldownBtn.id = keywordType + "-PulldownBtn";
+    pulldownBtn.style.cssText = "width: fit-content; margin-left: -1px; background-color: lightgray;";
+    pulldownBtn.value = "▼";
+    const button = document.createElement( "input" );
+    button.type = "button";
+    button.className = "Reserved-Words-Button";
+    button.id = "Insert-" + keywordType;
+    button.value = "追加";
+    block.appendChild( textbox );
+    block.appendChild( pulldownBtn );
+    block.appendChild( button );
+	
+	return block.outerHTML;
 }

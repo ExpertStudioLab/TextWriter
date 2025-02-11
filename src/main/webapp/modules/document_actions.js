@@ -2,56 +2,50 @@
  * 
  */
 import { displayText } from "./display_text.js";
+import { Specify } from "./document_manager.js";
+import { setVerbButtonStatus } from "./document_recorder.js";
     function insertReservedWords( event, params ) {
         const typeOfReservedWord = String( event.target.id ).substring( 7, String( event.target.id ).length );
-        console.log( "たぬきち：「" + typeOfReservedWord + "」" );
         let keywordType = 1;
-		if( typeOfReservedWord == "Keyword" ) {
-			keywordType = 2;
+		switch( typeOfReservedWord ) {
+			case "Keyword":
+				keywordType = 2;
+				break;
+			case "Verb":
+				keywordType = 3;
+				break;
 		}
-        
-        const reservedWordOp = document.getElementById( typeOfReservedWord );
+		const reservedWordOp = document.getElementById( typeOfReservedWord );
         const reservedWord = reservedWordOp.value;
-        const reservedWordListOp = document.getElementById( typeOfReservedWord + "-List" );
-        const options = Array.from( reservedWordListOp.options );
-        let addFlag = true;
-        for( const option of options ) {
-			if( option.value == reservedWord ) {
-				addFlag = false;
+        if( typeOfReservedWord != "VerbValue" ) {
+			const datalistIdList = Object.keys( params.registeredDatalist );
+			if( ! datalistIdList.includes( typeOfReservedWord ) ) {
+				params.registeredDatalist[ typeOfReservedWord ] = [];
+			}
+			if( ! params.registeredDatalist[ typeOfReservedWord ].includes( reservedWord ) ) {
+				console.log( "typeOfReservedWord: " + typeOfReservedWord );
+				params.registeredDatalist[ typeOfReservedWord ].push( reservedWord );
+				console.log( "keywords: ", params.registeredDatalist[ typeOfReservedWord ] );
+			}
+			reservedWordOp.value = "";
+		} else if( typeOfReservedWord == "VerbValue" ) {
+			if( ! params.verb.entry( params.labelTextbox.value, params.typeSelector.value, reservedWord ) ) {
+				return;
 			}
 		}
-		if( addFlag ) {
-			const option = document.createElement( "option" );
-			option.value = reservedWord;
-			reservedWordListOp.appendChild( option );
-			let check = false;
-			for( const datalist of params.customDatalist ) {
-				if( datalist.datalistId == typeOfReservedWord ) {
-					datalist.options.push( reservedWord );
-					check = true;
-				}
-			}
-			if( !check ) {
-				const object = {
-					datalistId: typeOfReservedWord,
-					options: []
-				}
-				object.options.push( reservedWord );
-				params.customDatalist.push( object );
-				console.log( params.customDatalist );
-			}
-		}
-        reservedWordOp.value = "";
+
         const textArea = params.textArea;
 		const paragraph = document.getElementById( "Doc" + String ( params.currentIndex + 1 ) );
 		const doc = params.documentStructures[ params.currentIndex ];
         const pos = textArea.selectionEnd;
+        const specify = ( typeOfReservedWord == "VerbValue" ) ?
+        							new Specify( typeOfReservedWord, params.operationTextbox, params.typeSelect, params.valueTextbox ) :
+        							new Specify( typeOfReservedWord, null, null, null );
 
-        doc.insertKeyword( String( reservedWord ), keywordType, pos );
+        doc.insertKeyword( String( reservedWord ), keywordType, specify, pos );
 
 		paragraph.innerHTML = doc.getHTMLDocument();
         textArea.value = textArea.value.substring( 0, textArea.selectionEnd ) + reservedWord + textArea.value.substring( textArea.selectionEnd, textArea.textLength );
- 
     }
 
      function sendDocumentData( event, params ) {
@@ -187,7 +181,6 @@ import { displayText } from "./display_text.js";
 	}
 	
 	async function scrollScreen( event, params ) {
-//		await scroll();
 		const scrollPoint = document.getElementById( "Scroll-Point" );
 		const scrollBounds = scrollPoint.getBoundingClientRect();
 		const scrollVolume = Math.floor( scrollBounds.top );
@@ -206,37 +199,115 @@ import { displayText } from "./display_text.js";
 				left: 0
 			} );
 		}
-//		const height = bounds.bottom - bounds.top;
-		// absolute point ( 0, bottom )
-//		const rest = window.innerHeight - bounds.bottom;
-//		console.log( "bottom: " + bounds.bottom );
-/*
-		if( rest < slideDivHeight ) {
-			const space = window.innerHeight - height - 50;
-			if( space < slideDivHeight ) {
-				slideDivHeight = space;
-			}
-			window.scrollTo( {
-				behavior: "smooth",
-				top: window.scrollY+ slideDivHeight - rest,
-				left: 0
-			} );
-			const bottom = Math.floor( window.scrollY + slideDivHeight - rest + bounds.bottom - bounds.top );
-			params.toolPanel.style.top = String( bottom + 70 ) + "px";
-		} else {
-			params.toolPanel.style.top = String( Math.floor( window.innerHeight + window.scrollY - rest ) ) + "px";
-		}
-		*/
+
 		const bottom = Math.floor( textAreaBounds.bottom + window.scrollY );
 		params.toolPanel.style.top = String( bottom ) + "px";
 
-		
 		params.toolPanel.style.display = "block";
 		params.toolPanel.style.animation = "SlideIn 1.6s";
 		params.toolPanel.style.position = "absolute";
 		params.toolPanel.style.left = "10px";
 	}
+	
+	async function pulldown( event, params ) {
+		if( ! params.listIsActive ) {
+			let name = event.target.id;
+			if( name.includes( "-" ) ) {
+				name = name.substring( 0, name.indexOf( "-" ) );
+			}
+			let list = Object.keys( params.verb.label );
+			if( name == "VerbValue" ) {
+				if( list.includes( params.labelTextbox.value ) ) {
+					list = params.verb.action[ parseInt( params.verb.label[ params.labelTextbox.value ] ) ][ parseInt( params.typeSelector.value ) ];
+				} else {
+					list = [];
+				}
+			} else if( name != "Label" ) {
+				list = params.registeredDatalist[ name ];
+			}
+			if( list.length > 0 ) {
+				const datalist = document.createElement( "div" );
+				datalist.id = "Datalist";
+				document.body.appendChild( datalist );
+				params.curTextbox = document.getElementById( name );
+				params.curPulldownBtn = document.getElementById( name + "-PulldownBtn" );
+				const bounds = params.curTextbox.getBoundingClientRect();
+				datalist.style.cssText = `top: ${ Math.floor( bounds.bottom + window.scrollY ) }px;
+											left: ${ Math.floor( bounds.left + window.scrollX ) }px;
+											width: ${ Math.floor( bounds.right - bounds.left - 3 ) }px;
+											overflow-x: hidden;
+											overflow-y: scroll;
+											position: absolute;
+											height: 0px;
+											border: 2px solid black;`;
+					params.curPulldownBtn.value = "▲";
+				for( let i = 0; i < list.length; i++ ) {
+					const div = document.createElement( "div" );
+					div.className = "List-Item-Div";
+					div.id = String( i );
+					div.style.cssText = `width: ${ datalist.style.width }; background-color: white;`;
+					const span = document.createElement( "span" );
+					span.innerText = list[ i ];
+					span.style.cssText = "font-size: 14px; cursor: default;";
+					div.appendChild( span );
+					datalist.appendChild( div );
+					div.addEventListener( "mouseenter", hoverItem );
+					div.addEventListener( "mouseleave", leaveItem );
+					div.addEventListener( "click", params.selectItemFunc );
+				}
+				for( let i = 0; i < 26; i++ ) {
+					await timer();
+					datalist.style.height = String( ( list.length < 6 ) ? ( i * list.length ) : i * 6 ) + "px";
+				}
+				params.listIsActive = true;
+			}
+		}
+	}
+	
+	function closeList( event, params ) {
+		const element = document.elementFromPoint( event.clientX, event.clientY );
+		if( params.listIsActive && element != document.getElementById( "Datalist" ) && element != params.curTextbox ) {
+			params.listIsActive = false;
+			const divs = document.querySelectorAll( ".List-Item-Div" );
+			divs.forEach( div => {
+				div.removeEventListener( "mouseenter", hoverItem );
+				div.removeEventListener( "mouseleave", leaveItem );
+				div.removeEventListener( "click", params.selectItemFunc );
+			} );
+			document.body.removeChild( document.getElementById( "Datalist" ) );
+			params.curPulldownBtn.value = "▼";
+		}
+	}
+	
+	function hoverItem( event ) {
+		event.target.style.backgroundColor = "lightblue";
+	}
+	
+	function leaveItem( event ) {
+		event.target.style.backgroundColor = "white";
+	}
+	
+	function selectItem( event, params ) {
+		const outerHTML = event.target.outerHTML;
+		const elementType = outerHTML.substring( outerHTML.indexOf( "<" ) + 1, outerHTML.indexOf( " " ) );
+		switch( elementType ) {
+			case "div":
+				params.curTextbox.value = event.target.querySelector( "span" ).innerText;	
+				break;
+			case "span":
+				params.curTextbox.value = event.target.innerText;
+		}
+		setVerbButtonStatus();
+	}
+	
+	function timer() {
+		return new Promise( resolve => {
+			window.setTimeout( () => {
+				resolve();
+			}, 5 );
+		} );
+	}
 
 export { composeOn, composeOff, sendDocumentData,
 				insertReservedWords, getSelectedText, specialKeysSettings, textSelection, editText,
-				changeText, scrollScreen, moveToolPanel }
+				changeText, scrollScreen, moveToolPanel, pulldown, closeList, selectItem }

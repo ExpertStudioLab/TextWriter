@@ -27,6 +27,7 @@ illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 window.onload = function() {
 	getKeywords();
 	getCustomDatalist();
+	getVerbs();
 };
 
 async function getKeywords() {
@@ -40,11 +41,12 @@ async function getKeywords() {
         if( !response.ok ) {
             throw new Error( "response status: ${ response.status }" );
         } else {
-            const jsonData = await response.json();
-            jsonData.forEach( data => {
-                const statement = createKeywordButton( data.keyword, data.placeholder, data.options );
+            let jsonData = await response.json();
+            jsonData.forEach( async ( data ) => {
+                const statement = createKeywordButton( data.keyword, data.placeholder );
                 recorder.registerKeywordButton( "Insert-" + data.keyword, statement );
-            });
+                await recorder.registerOptions( data.keyword, data.options );
+            } );
             const statement = createKeywordButton( "Keyword", "キーワード", null );
             recorder.registerKeywordButton( "Insert-" + "Keyword", statement );
         }
@@ -64,29 +66,55 @@ async function getCustomDatalist() {
         if( !response.ok ) {
             throw new Error( "response status: ${ response.status }" );
         } else {
-            const jsonData = await response.json();
-            jsonData.forEach( data => {
-				recorder.setCustomDatalist( data );
-				console.log( data );
-            } );
+            let jsonData = await response.json();
+			const keys = Object.keys( jsonData );
+			keys.forEach( key => {
+				recorder.setCustomDatalist( key, jsonData[ key ] );
+			} );
         }
     } catch( error ) {
         console.error( error );
+        window.location.href = "TextWriter";
     }
 }
 
+async function getVerbs() {
+	const myRequest = new Request( "storage", {
+		method: "GET",
+		headers: { "Process": "Verb" }
+	} );
+	const response = await window.fetch( myRequest );
+	try{
+        if( !response.ok ) {
+            throw new Error( "response status: ${ response.status }" );
+        } else {
+			let jsonData = await response.json();
+			jsonData = await JSON.parse( jsonData );
+			const operation = jsonData.label;
+			const action = jsonData.action;
+			recorder.setVerb( operation, action );
+        }
+    } catch( error ) {
+        console.error( error );
+    }	
+}
+
 async function SendDocuments() {
+	console.log( recorder.getVerb() );
     const myHeaders = new Headers();
     myHeaders.append( "Process", "Save" );
     const blob = new Blob( [ JSON.stringify( recorder.getDocuments() ) ], { type: "application/json"} );
     const illustBlob = new Blob( [ JSON.stringify( illustRecorder.getIllustrations() ) ], { type: "application/json" } );
     const illustrations = illustRecorder.getIllustrations();
-    const datalistBlob = new Blob( [ JSON.stringify( recorder.getCustomDatalist() ) ], { type: "application/json" } );
+//    const datalistBlob = new Blob( [ JSON.stringify( recorder.getCustomDatalist() ) ], { type: "application/json" } );
+	const datalistBlob = new Blob( [ JSON.stringify( recorder.getRegisteredDatalist() ) ], { type: "application/json" } );
+    const verbBlob = new Blob( [ JSON.stringify( recorder.getVerb() ) ], { type: "application/json" } );
 
     const formData = new FormData();
     formData.append( "Docs", blob );
     formData.append( "Illusts", illustBlob );
     formData.append( "datalist", datalistBlob );
+    formData.append( "Verb", verbBlob );
 
     let fileNumber = 1;
     for( let i = 0; i < illustrations.length; i++ ) {
@@ -124,9 +152,6 @@ async function SendDocuments() {
     } catch( error ) {
         console.error( error );
     }
-    const form = document.getElementById( "SendForm" );
-    const sendForm = new FormData( form );
-    sendForm.submit();
 }
 
     export async function insertIllust( event ) {

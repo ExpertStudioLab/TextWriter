@@ -30,12 +30,12 @@
 <div id="Display-Area">
 </div>
 <div id="Align-Containt">
-    <div id="Left-Side">  
-        <div class="Left-Justify">
+    <div id="Left-Side" class="Left-Justify">  
+        <div>
         	<h3><label>テキストを入力してください。</label></h3>
         </div>
         
-        <div id="Basic-Div" class="Left-Justify" >
+        <div id="Basic-Div" >
         	<div>
         		<textarea rows="4" style="font-size: 20px; width: 70%;" id="Contents"></textarea>
         	</div>

@@ -107,14 +107,12 @@ public class Storage extends HttpServlet {
 			response.setContentType( "application/json; charset=UTF-8" );
 			PrintWriter out = response.getWriter();
 			if( request.getHeader( "Option" ).equals( "Count" ) ) {
-				System.out.println( "たぬきち：「数をかぞえる！！！」(._.)" );
 				int count = adapter.getRecordCount();
 				session.setAttribute( "Count", String.valueOf( count ) );
 				JsonData data = new JsonData();
 				data.push( "count", String.valueOf( count ) );
 				out.print( data.convertToJson() );
 			} else if( request.getHeader( "Option" ).equals( "Get-Record" ) ) {
-				System.out.println( "たぬきち：「レコードを返す！！！」('_')" );
 				String result = "[";
 				ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
 				int length = Integer.valueOf( ( String ) session.getAttribute( "Count" ) );
@@ -136,35 +134,9 @@ public class Storage extends HttpServlet {
 			out.close();
 			adapter.deleteRecordView();
 		} else if( request.getHeader( "Process" ).equals( "CustomDatalist" ) ) {
-			response.setContentType( "application/json" );
-			response.setCharacterEncoding( "UTF-8" );
-			PrintWriter outWriter = response.getWriter();
-			File file = new File( webapp + "\\JSON\\custom_datalist.json" );
-			if( file.createNewFile() ) {
-				try {
-					FileWriter fileWriter = new FileWriter( webapp + "\\JSON\\custom_datalist.json" );
-					PrintWriter printWriter = new PrintWriter( new BufferedWriter( fileWriter ) );
-					printWriter.print( "[]" );
-					printWriter.close();
-				} catch( Exception e) {
-					
-				}
-			}
-			FileInputStream fileIn = new FileInputStream( file );
-			InputStreamReader inStreamReader = new InputStreamReader( fileIn, "UTF-8" );
-			BufferedReader bufferedReader = new BufferedReader( inStreamReader );
-			String line;
-			while( ( line = bufferedReader.readLine() ) != null ) {
-				System.out.print( line );
-				outWriter.write( line );
-			}
-			outWriter.flush();
-			
-			fileIn.close();
-			inStreamReader.close();
-			bufferedReader.close();
-			outWriter.close();
-			
+			sendData( "custom_datalist.json", "{}", response );
+		} else if( request.getHeader( "Process" ).equals( "Verb" ) ) {
+			sendData( "verb.json", "{\"label\":{},\"action\":[]}", response );
 		}
 	}
 
@@ -180,7 +152,6 @@ public class Storage extends HttpServlet {
 		manager.setResponse( response );
 
 		if( request.getHeader( "Process" ).equals( "Save" ) ) {
-			System.out.println( "たぬきち：「セーブ！！！！」" );
 			List<Record> records = new ArrayList<Record>();
 			BufferedData bufferedData = new BufferedData( request );
 			byte[] buffer = bufferedData.getData( "Docs" );
@@ -192,6 +163,12 @@ public class Storage extends HttpServlet {
 			buffer = bufferedData.getData( "datalist" );
 			File file = new File( webapp + "\\JSON\\custom_datalist.json" );
 			PrintWriter printWriter = new PrintWriter( new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" ) ) );
+			printWriter.print( new String( buffer, "UTF-8" ) );
+			printWriter.close();
+			
+			buffer = bufferedData.getData( "Verb" );
+			file = new File( webapp + "\\JSON\\verb.json" );
+			printWriter = new PrintWriter( new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" ) ) );
 			printWriter.print( new String( buffer, "UTF-8" ) );
 			printWriter.close();
 
@@ -206,28 +183,6 @@ public class Storage extends HttpServlet {
 			String fileNumber = manager.getFileNumber();
 			ObjectStream<Record> saveStream = new ObjectStream<>( records, webapp + "\\Doc\\" + fileNumber + ".dat");
 			saveStream.write();
-			/*
-			InputStream inStream = ( InputStream ) request.getInputStream();
-			InputStreamReader inReader = new InputStreamReader( inStream, "UTF-8" );
-			BufferedReader bufferedReader = new BufferedReader( inReader );
-			String fileNumber = manager.getFileNumber();
-			File file = new File( webapp + "\\Doc\\Document" + fileNumber + ".json" );
-			file.createNewFile();
-			
-			FileOutputStream fOut = new FileOutputStream( file );
-			OutputStreamWriter outWriter = new OutputStreamWriter( fOut, "UTF-8" );
-			
-			String line;
-			while( ( line = bufferedReader.readLine() ) != null ) {
-				System.out.println( line );
-				outWriter.write(line);
-			}
-			outWriter.close();
-			fOut.close();
-			inStream.close();
-			inReader.close();
-			bufferedReader.close();
-			*/
 		} else if( request.getHeader( "Process" ).equals( "Analysis" ) ) {
 			request.setCharacterEncoding( "UTF-8" );
 			InputStream inStream = ( InputStream ) request.getInputStream();
@@ -235,6 +190,36 @@ public class Storage extends HttpServlet {
 			System.out.println( new String( buffer, "UTF-8" ) );
 			inStream.close();
 		}
+	}
+	
+	private void sendData( String filename, String initialize, HttpServletResponse response ) throws IOException {
+		response.setContentType( "application/json" );
+		response.setCharacterEncoding( "UTF-8" );
+		PrintWriter outWriter = response.getWriter();
+		File file = new File( webapp + "\\JSON\\" + filename );
+		if( file.createNewFile() ) {
+			try {
+				FileWriter fileWriter = new FileWriter( webapp + "\\JSON\\" + filename );
+				PrintWriter printWriter = new PrintWriter( new BufferedWriter( fileWriter ) );
+				printWriter.print( initialize );
+				printWriter.close();
+			} catch( Exception e) {
+				
+			}
+		}
+		FileInputStream fileIn = new FileInputStream( file );
+		InputStreamReader inStreamReader = new InputStreamReader( fileIn, "UTF-8" );
+		BufferedReader bufferedReader = new BufferedReader( inStreamReader );
+		String line;
+		while( ( line = bufferedReader.readLine() ) != null ) {
+			outWriter.write( line );
+		}
+		outWriter.flush();
+		
+		fileIn.close();
+		inStreamReader.close();
+		bufferedReader.close();
+		outWriter.close();
 	}
 }
 

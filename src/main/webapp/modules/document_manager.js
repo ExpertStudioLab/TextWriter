@@ -103,7 +103,7 @@ class Document {
         return textOfIndex.substring( start, end );
     }
 
-    insertKeyword( keyword, keywordType, pos ) {
+    insertKeyword( keyword, keywordType, specify, pos ) {
         let index = this.searchDocumentIndex( pos );
 
         if( pos > this.properties[ index ].textPosition.getStart() && pos < this.properties[ index ].textPosition.getEnd() ) {
@@ -125,6 +125,7 @@ class Document {
         this.insertText( keyword, index + 1 );
         this.properties[ index + 1 ].isKeywords = true;
         this.properties[ index + 1 ].keywordType = keywordType;
+        this.properties[ index + 1 ].specify = specify;
     }
     deleteKeyword( index ) {
         this.properties[ index ].isKeywords = false;
@@ -192,6 +193,7 @@ class Document {
     getCurrentLength() {
         return this.currentLength;
     }
+
     createInstanceFromJson( jsonData ) {
 		const jsonObject = JSON.parse( jsonData );
         this.textPieces = jsonObject.textPieces;
@@ -229,6 +231,7 @@ class DocumentProperties {
     isKeywords;
     keywordType;
     textPosition;
+    specify;
 }
 
 class Caret {
@@ -250,6 +253,20 @@ class Caret {
     setEnd( end ) {
         this.end = end;
     }
+}
+
+class Specify {
+	name;
+	operation;
+	verbType;
+	verbValue;
+
+	constructor( name, operation, verbType, verbValue ) {
+		this.name = name;
+		this.operation = operation;
+		this.verbType = verbType;
+		this.verbValue = verbValue;
+	}
 }
 
 class TextBuffer {
@@ -282,4 +299,4 @@ class ReplaceProperties {
     indexEnd;
 }
 
-export { Document, DocumentProperties, Caret, TextBuffer, ReplaceProperties };
+export { Document, DocumentProperties, Caret, TextBuffer, ReplaceProperties, Specify };

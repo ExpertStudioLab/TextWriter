@@ -5,7 +5,10 @@
 
 <div class="Partition">
 	<div id="Title-Right">
-		<label for="Tag-El" id="TagLabel">タグの入力</label> 
+	<!-- 
+		<label for="Tag-El" id="TagLabel"><span style="background-color: white; padding-left: 3px; display: block; width: 114px;">タグの入力</span></label>
+	 -->
+		<label for="Tag-El" id="TagLabel"><canvas id="Canvas" width="114px" height="30px" style="width:117px; height:30px;"></canvas></label>
 		<div id="Tag-Selector">
     		<select name="Tag" class="Selector" id="Tag-El">
 <%
@@ -50,6 +53,17 @@
 </div>
 <script type="text/javascript" src="${pageContext.request.contextPath}/title.js" ></script>
 <script>
+	const cvs = document.getElementById( "Canvas" );
+	const device = cvs.getContext( "2d" );
+	device.fillStyle = "#aabbff";
+	device.fillRect( 0, 0, 117, 30 );
+	device.strokeStyle = "#000000";
+	device.fillStyle = "#ffffff";
+	device.font = "bold 20px sans-serif";
+	device.textAlign = "center";
+	device.fillText( "タグの入力", 53, 21 );
+	device.strokeText( "タグの入力", 53, 21 );
+
 	let height;
 	let width;
 	let formHeight;
@@ -70,7 +84,6 @@
 	}
 	window.onresize = function() {
 		div.style.height = String( height + formHeight ) + "px";	
-		console.log( window.outerWidth );
 		if( window.outerWidth < 770 ) {
 			div.style.width = "770px";
 		} else {
