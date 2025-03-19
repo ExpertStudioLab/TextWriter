@@ -32,11 +32,10 @@ public class FileSystem {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		List<Record> records = new ArrayList<>();
-		ObjectStream<Record> objStream = new ObjectStream<>( records, "C:\\Users\\SmartBrightB\\Desktop\\Java Training\\Servlet Test\\TextWriter\\src\\main\\webapp\\Doc\\2_2_1_1.dat" );
-		objStream.read();
-		String docs = new String( records.get( 0 ).getRecord() );
-		System.out.println( docs );
+
+		// { "サーバー" : [ "1_1_2", ... ], "たぬきち" : [ "2_3_5", ... ], ... }
+		JsonConverter converter = new JsonConverter( "{ \"サーバー\" : [ \"1_1_2\", \"2_4_2\" ] }" );
+		System.out.println( converter.property.getPropertyList() );
 /*
 		String path = Paths.get( "" ).toAbsolutePath().toString();
 		File file = new File( path + "\\json.txt" );

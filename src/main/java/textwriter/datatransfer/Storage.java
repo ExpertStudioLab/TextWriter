@@ -25,6 +25,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -63,7 +64,6 @@ public class Storage extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
 		HttpSession session = request.getSession();
 		StatusManager manager = ( StatusManager ) session.getAttribute( "StatusManager" );
 		manager.setRequest( request );
@@ -137,6 +137,45 @@ public class Storage extends HttpServlet {
 			sendData( "custom_datalist.json", "{}", response );
 		} else if( request.getHeader( "Process" ).equals( "Verb" ) ) {
 			sendData( "verb.json", "{\"label\":{},\"action\":[]}", response );
+		} else if( request.getHeader( "Process" ).equals( "ReservedKeywords" ) ) {
+			response.setContentType( "application/json" );
+			response.setCharacterEncoding( "UTF-8" );
+			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
+			String tagName = manager.getTagName();
+			int tagIndex = tags.indexOf( tagName );
+			File file = new File( webapp + "\\JSON\\reserved_keywords.json" );
+			if( file.createNewFile() ) {
+				try {
+					List<String> reservedKeywords = new ArrayList<>();
+					ObjectStream<String> oStream = new ObjectStream<>( reservedKeywords, webapp + "\\JSON\\reserved_keywords.json" );
+					oStream.write();
+				} catch( Exception e ) {
+					
+				}
+			}
+			/*
+				System.out.println( line.substring( line.indexOf( '{' ), line.indexOf( '}' ) + 1 ) );
+			*/
+			List<String> reservedKeywordsList = new ArrayList<>();
+			ObjectStream<String> oStream = new ObjectStream<>( reservedKeywordsList, webapp + "\\JSON\\reserved_keywords.json" );
+			oStream.read();
+			String reservedKeywords = "";
+			try {
+				reservedKeywords = reservedKeywordsList.get( tagIndex );
+			} catch( IndexOutOfBoundsException e ) {
+				e.printStackTrace();
+			}
+			PrintWriter outWriter = response.getWriter();
+			outWriter.write( reservedKeywords );
+			outWriter.close();
+		} else if( request.getHeader( "Process" ).equals( "DocumentIndex" ) ) {
+			response.setContentType( "text/plain" );
+			response.setCharacterEncoding( "UTF-8" );
+			String index = manager.getFileNumber();
+			manager.deleteRecord();
+			PrintWriter outWriter = response.getWriter();
+			outWriter.write( index.substring( index.indexOf( '_' ) + 1 ) );
+			outWriter.close();
 		}
 	}
 
@@ -171,6 +210,22 @@ public class Storage extends HttpServlet {
 			printWriter = new PrintWriter( new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), "UTF-8" ) ) );
 			printWriter.print( new String( buffer, "UTF-8" ) );
 			printWriter.close();
+			
+			buffer = bufferedData.getData( "Keywords" );
+			file = new File( webapp + "\\JSON\\reserved_keywords.json" );
+			String reservedKeywords = new String( buffer, "UTF-8" );
+			ArrayList<String> tags = ( ArrayList<String> )session.getAttribute( "Tags" );
+			int index = tags.indexOf( manager.getTagName() );
+			List<String> reservedKeywordsList = new ArrayList<>();
+			ObjectStream<String> oStream = new ObjectStream<>( reservedKeywordsList, webapp + "\\JSON\\reserved_keywords.json" );
+			oStream.read();
+			int newTagsNum = tags.size() - reservedKeywordsList.size();
+			for( int i = 0; i < newTagsNum; i++ ) {
+				reservedKeywordsList.add( "" );
+			}
+			reservedKeywordsList.remove( index );
+			reservedKeywordsList.add( index, reservedKeywords );
+			oStream.write();
 
 			buffer = bufferedData.getData( "FileNumber" );
 			records.add( new Record( buffer, Record.TEXT ) );
@@ -189,6 +244,19 @@ public class Storage extends HttpServlet {
 			byte[] buffer = inStream.readAllBytes();
 			System.out.println( new String( buffer, "UTF-8" ) );
 			inStream.close();
+		} else if( request.getHeader( "Process" ).equals( "ExistingDocument" ) ) {
+			response.setContentType( "application/json" );
+			response.setCharacterEncoding( "UTF-8" );
+			String columnName = null;
+			ServletInputStream inStream = request.getInputStream();
+			final byte[] buffer = inStream.readAllBytes();
+			columnName = new String( buffer, "UTF-8" );
+			System.out.println( columnName );
+			boolean booleanValue = manager.existingDocument( columnName );
+			PrintWriter outWriter = response.getWriter();
+			System.out.println( booleanValue );
+			outWriter.write( "{ \"isExists\" : " + booleanValue +" }" );
+			outWriter.close();
 		}
 	}
 	

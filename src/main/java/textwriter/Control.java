@@ -56,7 +56,6 @@ public class Control extends HttpServlet {
 			session.setAttribute("SectionTitle", Boolean.TRUE);
 			break;
 		}
-		System.out.println( "hello ねこまる" );
 
 		ServletContext sc = getServletContext();
 		RequestDispatcher rd = sc.getRequestDispatcher("/WEB-INF/" + session.getAttribute("jsp_file"));

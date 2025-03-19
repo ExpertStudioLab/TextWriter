@@ -42,7 +42,7 @@ window.addEventListener('pageshow', (event) => {
 		   try {
 			   return window.fetch( myRequest ).then( response => {
 				   if( !response.ok ) {
-					   throw new Error( "response status: ${ response.status} ");
+					   throw new Error( `response status: ${ response.status}`);
 				   } else {
 					   return response.json();
 				   }

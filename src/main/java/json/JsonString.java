@@ -37,10 +37,9 @@ public class JsonString {
 		}
 		this.data = blocks.replaceData( this.data);
 //		p = Pattern.compile( "(\"\\w+\"\s*:\s*)?(\\{[^\\}]*\\}|\\[[^\\]]*\\]|\"\\w*\"|-?\\d+[(\\.\\d+)]?|\\w+|\\@ARROUT\\$.*\\@ARROUT\\;|\\@OBJOUT\\$.*\\@OBJOUT\\;)" );
-		p = Pattern.compile( "(\"\\w+\"\s*:\s*)?(\\{[^\\}]*\\}|\\[[^\\]]*\\]|\"[^\"]*\"|-?\\d+[(\\.\\d+)]?|\\w+|\\@ARROUT\\$.*\\@ARROUT\\;|\\@OBJOUT\\$.*\\@OBJOUT\\;)" );
+		p = Pattern.compile( "(\"[^\"]+\"\s*:\s*)?(\\{[^\\}]*\\}|\\[[^\\]]*\\]|\"[^\"]*\"|-?\\d+[(\\.\\d+)]?|\\w+|\\@ARROUT\\$.*\\@ARROUT\\;|\\@OBJOUT\\$.*\\@OBJOUT\\;)" );
 
 		m = p.matcher( this.data );
-
 		while( m.find() ) {
 			String tmp = m.group();
 			if( tmp.contains( "@" ) ) {

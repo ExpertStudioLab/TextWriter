@@ -68,6 +68,10 @@ public class StatusManager {
 		return this.state;
 	}
 	
+	public String getTagName() {
+		return this.tagName;
+	}
+	
 	public void sendTitle() {
 		JsonData data = new JsonData();
 		data.push( "title", this.title );
@@ -158,13 +162,13 @@ public class StatusManager {
 			Connection connection;
 			String url = "jdbc:mysql://localhost:3306/autotextwriter?useSSL=false";
 			String user = "root";
-			String passward = "root";
+			String password = "root";
 			
 			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
 
 
 			Class.forName( "com.mysql.jdbc.Driver" );
-			connection = DriverManager.getConnection( url, user, passward );
+			connection = DriverManager.getConnection( url, user, password );
 			CallableStatement statement = connection.prepareCall( "{ call CreateRecord() }" );
 			statement.execute();
 			statement = connection.prepareCall( "{ call InsertColumn( ?, ?, ?, ?, ? ) }" );
@@ -172,8 +176,6 @@ public class StatusManager {
 			statement.setString( 1, this.title );
 
 			int index = tags.indexOf( this.tagName ) + 1;
-			System.out.println( "たぬきち：「" + this.tagName + "」" );
-			System.out.println( index );
 			statement.setInt( 2,  index );
 			statement.setString( 3, this.section );
 			statement.setString(4, this.column );
@@ -193,5 +195,77 @@ public class StatusManager {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public void deleteRecord() {
+		try {
+			Connection connection;
+			String url = "jdbc:mysql://localhost:3306/autotextwriter?useSSL=false";
+			String user = "root";
+			String password = "root";
+			
+			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
+
+
+			Class.forName( "com.mysql.jdbc.Driver" );
+			connection = DriverManager.getConnection( url, user, password );
+			CallableStatement statement = connection.prepareCall( "{ call CreateRecord() }" );
+			statement.execute();
+			statement = connection.prepareCall( "{ call DeleteColumn(?,?,?,?) }" );
+			statement.setString( 1, this.title );
+			int index = tags.indexOf( this.tagName ) + 1;
+			statement.setInt( 2, index );
+			statement.setString( 3, this.section );
+			statement.setString( 4, this.column );
+			statement.execute();
+			statement = connection.prepareCall( "{ call DeleteRecord }" );
+			statement.execute();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean existingDocument( String columnName ) {
+		boolean result = false;
+		try {
+			Connection connection;
+			String url = "jdbc:mysql://localhost:3306/autotextwriter?useSSL=false";
+			String user = "root";
+			String password = "root";
+			
+			ArrayList<String> tags = ( ArrayList<String> ) this.session.getAttribute( "Tags" );
+
+
+			Class.forName( "com.mysql.jdbc.Driver" );
+			connection = DriverManager.getConnection( url, user, password );
+			CallableStatement statement = connection.prepareCall( "{ call CreateRecord() }" );
+			statement.execute();
+			statement = connection.prepareCall( "{ call ExistingDocument( ? , ? , ? , ? , ? ) }" );
+			statement.registerOutParameter( 5, Types.BOOLEAN );
+			int index = tags.indexOf( this.tagName ) + 1;
+			statement.setInt( 1, index );
+			statement.setString( 2, this.title );
+			statement.setString( 3, this.section );
+			System.out.println( columnName );
+			statement.setString( 4, columnName );
+			statement.execute();
+			result = statement.getBoolean( 5 );
+			System.out.println( result );
+			statement = connection.prepareCall( "{ call DeleteRecord }" );
+			statement.execute();
+
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 }

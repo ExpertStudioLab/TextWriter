@@ -24,6 +24,8 @@ class DocumentRecorder {
     #toolPanel;
     #keywordBlock;
     #registeredDatalist = new Object();
+    #reservedKeywords = new Object();
+    #usage = { "VerbValue" : "VerbValue" };
     #verb;
     #menulist = new Object();
 
@@ -71,15 +73,23 @@ class DocumentRecorder {
 		closeButtonDiv.appendChild( closeButton );
         this.#toolPanel = document.createElement( "div" );
         this.#toolPanel.id = "Tool-Panel";
-        this.#toolPanel.style.cssText = "display: none; background-color: white; overflow-y: scroll; height: 400px; width: 98%;";
+        this.#toolPanel.style.cssText = "display: none; background-color: white; overflow-y: scroll; height: 400px; width: 98%; min-width: 670px;";
+        const toolPanelDiv = document.createElement( "div" );
+        toolPanelDiv.style.cssText = "display: grid; grid-template-columns: auto 200px 200px; grid-template-rows: auto; width: 100%;";
         this.#keywordBlock = document.createElement( "div" );
-        this.#keywordBlock.style.cssText = "width: 220px; display: inline-block; vertical-align: top; padding-right: 5px; margin-right: 5px; border-right: 2px solid black;";
+        this.#keywordBlock.style.cssText = "min-width: 180px; display: inline-block; vertical-align: top; padding-right: 5px; margin-right: 5px; border-right: 2px solid black;";
         const reservedBlock1 = document.createElement( "div" );
-        reservedBlock1.style.width = "220px";
-        reservedBlock1.style.display = "inline-block";
+        reservedBlock1.style.cssText = "display: inline-block; vertical-align: top; padding-right: 5px; border-right: 2px solid black;";
+        const reservedBlock2 = document.createElement( "div" );
+        reservedBlock2.style.display = "inline-block";
+        reservedBlock2.style.verticalAlign = "top";
+
         this.#toolPanel.appendChild( closeButtonDiv );
-        this.#toolPanel.appendChild( this.#keywordBlock );
-        this.#toolPanel.appendChild( reservedBlock1 );
+        this.#toolPanel.appendChild( toolPanelDiv );
+        toolPanelDiv.appendChild( this.#keywordBlock );
+        toolPanelDiv.appendChild( reservedBlock1 );
+        toolPanelDiv.appendChild( reservedBlock2 );
+
         document.body.appendChild( this.#toolPanel );
 
 		const verbDiv = document.createElement( "div" );
@@ -160,10 +170,27 @@ class DocumentRecorder {
         reservedBlock1.appendChild( verbDiv );
         valueTextbox.addEventListener( "input", setVerbButtonStatus );
 
-		const verbBorderDiv = document.createElement( "div" );
-		verbBorderDiv.style.border = "2px solid black";
-		verbBorderDiv.style.padding = "15px 5px 3px 5px";
-		verbBorderDiv.style.marginTop = "-15px";
+		const endDiv = document.createElement( "div" );
+		endDiv.style.cssText = "border: 2px solid black; margin-top: 5px; margin-left: 5px;";
+		const endTitleDiv = document.createElement( "div" );
+		endTitleDiv.style.cssText = "background-color: white; margin-top: -12px; margin-left: 3px; width: fit-content;";
+		const endTitleSpan = document.createElement( "span" );
+		endTitleSpan.style.cssText = "margin: 1px 3px 1px 3px; font-size: 16px;";
+		endTitleSpan.innerText = "終端文字";
+		endTitleDiv.appendChild( endTitleSpan );
+		endDiv.appendChild( endTitleDiv );
+		reservedBlock2.appendChild( endDiv );
+		
+		const targetDiv = document.createElement( "div" );
+		targetDiv.style.cssText = "border: 2px solid black; margin-top: 15px;";
+		const targetTitleDiv = document.createElement( "div" );
+		targetTitleDiv.style.cssText = "background-color: white; margin-top: -12px; margin-left: 3px; width: fit-content;";
+		const targetTitleSpan = document.createElement( "span" );
+		targetTitleSpan.style.cssText = "margin: 1px 3px 1px 3px; font-size: 16px;";
+		targetTitleSpan.innerText = "対象キーワード";
+		targetTitleDiv.appendChild( targetTitleSpan );
+		targetDiv.appendChild( targetTitleDiv );
+		reservedBlock1.appendChild( targetDiv );
         
         const styleSheet = document.createElement( "style" );
         let selector = "@keyframes SlideIn";
@@ -190,13 +217,6 @@ class DocumentRecorder {
 		property = "opacity: 1;";
 		cssRuleString = selector + "{" + property + "}";
 		styleSheet.sheet.insertRule( cssRuleString, styleSheet.sheet.cssRules.length );
-		closeButton.addEventListener( "mouseup", ( event ) => {
-			this.#toolPanel.style.cssText = "";
-			this.#toolPanel.style.display = "none";
-        	this.#toolPanel.style.backgroundColor = "white";
-        	this.#toolPanel.style.overflowY = "scroll";
-        	this.#toolPanel.style.width = "98%";
-		} );
 
         this.#textArea = document.getElementById( this.#textAreaName );
 
@@ -207,7 +227,10 @@ class DocumentRecorder {
         this.#eventParams.text = [];
         this.#eventParams.inputStatus = "Normal";
         this.#eventParams.toolPanel = this.#toolPanel;
+        this.#eventParams.endDiv = endDiv;
         this.#eventParams.registeredDatalist = this.#registeredDatalist;
+        this.#eventParams.reservedKeywords = this.#reservedKeywords;
+        this.#eventParams.usage = this.#usage;
         this.#eventParams.verb = this.#verb;
         this.#eventParams.listIsActive = false;
         this.#eventParams.menulist = this.#menulist;
@@ -215,6 +238,7 @@ class DocumentRecorder {
         this.#eventParams.valueTextbox = valueTextbox;
         this.#eventParams.typeSelector = typeSelect;
         this.#eventParams.selectItemFunc = { params: this.#eventParams, handleEvent: function( event ) { action.selectItem( event, this.params ); } };
+        this.#eventParams.insertEndKeywordFunc = { params: this.#eventParams, handleEvent: function( event ) { action.insertEndKeyword( event, this.params ); } };
 
         this.#eventObject = [
             { name: DocumentRecorder.INSERT_PARAGRAPH, recorder: this, handleEvent: function( event ) { insertParagraph( event, this.recorder ) } },
@@ -233,6 +257,18 @@ class DocumentRecorder {
 			{ name: "Pulldown", params: this.#eventParams, handleEvent: function( event ) { action.pulldown( event, this.params ) } },
 			{ name: "CloseDatalist", params: this.#eventParams, handleEvent: function( event ) { action.closeList( event, this.params ) } }
         ];
+        
+        closeButton.addEventListener( "mouseup", ( event ) => {
+			this.#toolPanel.style.cssText = "";
+			this.#toolPanel.style.display = "none";
+        	this.#toolPanel.style.backgroundColor = "white";
+        	this.#toolPanel.style.overflowY = "scroll";
+        	this.#toolPanel.style.width = "98%";
+			const endKeywordDivs = document.querySelectorAll( ".EndKeywordDiv" );
+			endKeywordDivs.forEach( endKeywordDiv => {
+				this.#eventParams.endDiv.removeChild( endKeywordDiv );
+			} );
+		} );
 
         valueButton.addEventListener( "click", this.eventFunction( DocumentRecorder.INSERT_RESERVED_WORD ) );
 
@@ -270,6 +306,10 @@ class DocumentRecorder {
 	getVerb() {
 		return JSON.stringify( this.#verb );
 	}
+	
+	getReservedKeywords() {
+		return this.#reservedKeywords;
+	}
 
     registerKeywordButton( btnId, statement ) {
 		this.#keywordBlock.insertAdjacentHTML( "beforeend", statement );
@@ -279,16 +319,25 @@ class DocumentRecorder {
         const name = btnId.substring( 7, btnId.length );
         const textbox = document.getElementById( name );
         textbox.addEventListener( "click", this.eventFunction( "Pulldown" ) );
-        const pulldownBtn = document.getElementById( name + "-PulldownBtn" );
+        textbox.addEventListener( "input", enableButtons );
+        const pulldownBtn = document.getElementById( name + "-Pulldown" );
         pulldownBtn.addEventListener( "click", this.eventFunction( "Pulldown" ) );
     }
-    registerOptions( textboxId, options ) {
+    registerOptions( textboxId, options, usage ) {
 		return new Promise( resolve => {
 			this.#registeredDatalist[ textboxId ] = [];
+			this.#usage[ textboxId ] = usage;
 			options.forEach( async( value ) => {
 				this.#registeredDatalist[ textboxId ].push( value );
 			} );
 			resolve();
+		} );
+	}
+	
+	registerReservedKeywords( keywords) {
+		const keys = Object.keys( keywords );
+		keys.forEach( key => {
+			this.#reservedKeywords[ key ] = keywords[ key ];
 		} );
 	}
 
@@ -420,6 +469,14 @@ class Verb {
 			return null;
 		}
 	}
+}
+
+function enableButtons( event ) {
+	const empty = ( event.target.value == "" );
+	console.log( `target value: ${ event.target.value }` );
+	const id = `Insert-${ event.target.id }`;
+	const insertBtn = document.getElementById( id );
+	insertBtn.disabled = empty;
 }
 
 export { DocumentRecorder, setVerbButtonStatus };

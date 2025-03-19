@@ -28,7 +28,6 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
         switch( params.inputStatus ) {
             case "Normal":
                 replace.start = parseInt( textElement.selectionStart - 1 ) + parseInt( ( params.keyEvent == "Normal" ) ? 0 : 1 );
-                console.log( "ねこまる：" + replace.start );
                 replace.replaceEnd = replace.end - textElement.textLength + doc.getLength();
                 break;
             case "Compose":
@@ -51,8 +50,19 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
         } else {
             replace.indexEnd = doc.searchDocumentIndex( replace.replaceEnd + 1 );
         }
+        
+		let textSelected = false;
+		let selectionStart = textElement.selectionStart;
+		let selectionEnd = textElement.selectionEnd;
+		const textLength = textElement.textLength - doc.getLength();
+		if( params.inputStatus == "Select" ) {
+			textSelected = true;
+			selectionStart = params.selectionStart;
+			selectionEnd = params.selectionEnd;
+		}
+		doc.deleteKeywords( selectionStart, selectionEnd, textLength, textSelected, params );
 
-        // text0 text1 ... "[before]【insert letters】[after][end]" textn textn+1 ...
+        // text0 text1 ... "[before]【insert letters】[after]...[end]" textn textn+1 ...
         textBuffer.setBeforeAndEndBuffer( doc, replace)
         
         if( doc.isKeywordsFunc( replace.indexStart ) ) {
@@ -70,6 +80,8 @@ import { TextBuffer, ReplaceProperties } from "./document_manager.js";
         console.log( "additional letters: " + textElement.value.substring( replace.start, replace.end ) );
         doc.changeText( replace.indexStart, textBuffer.before + textElement.value.substring( replace.start, replace.end ) + textBuffer.after + textBuffer.end );
         doc.concatText( replace.indexStart );
+        
+
         
 //        const obj = JSON.stringify( doc );
 //        const docCopy = new Document();

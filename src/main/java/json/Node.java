@@ -127,7 +127,7 @@ abstract class Node {
 			for( int i = 0; i < nodeList.size(); i++ ) {
 				Node childNode = nodeList.get( i );
 				if( childNode instanceof ValueNode ) {
-					property = childNode.createProperty();
+					childProperty = childNode.createProperty();
 				} else if( childNode instanceof ArrayNode ||
 								childNode instanceof ObjectNode ) {
 					childProperty = ( childNode instanceof ArrayNode ) ? new ArrayProperty() : new ObjectProperty();
@@ -139,8 +139,8 @@ abstract class Node {
 							( ( ObjectProperty ) childProperty ).set( childNodeList.get( j ).getName(), childNodeList.get( j ).createProperty() );
 						}
 					}
-					property.set( childProperty );
 				}
+				property.set( childProperty );
 			}
 		} else if( this instanceof ObjectNode ) {
 			property = new ObjectProperty();
@@ -266,7 +266,7 @@ class ValueNode extends Node {
 		this.name = key;
 		this.value = value;
 		this.valueType = Node.STRING;
-		if( value.equals( "true" ) || value.equals( "false" ) ) {
+		if( value.matches( "(true|false)" ) ) {
 			this.valueType = Node.BOOLEAN;
 		} else if( value.matches( "-?\s*\\d+(\\.\\d+)?" ) ) {
 			this.valueType = Node.INTEGER;
@@ -276,6 +276,12 @@ class ValueNode extends Node {
 		this.parent = parent;
 		this.name = "Value" + ( ValueNode.count++ );
 		this.value = value;
+		this.valueType = Node.STRING;
+		if( value.matches( "(true|false)" ) ) {
+			this.valueType = Node.BOOLEAN;
+		} else if( value.matches( "-?\s*\\d+(\\.\\d+)?" ) ) {
+			this.valueType = Node.INTEGER;
+		}
 	}
 	
 	public int getValueType() {

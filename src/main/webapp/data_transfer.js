@@ -24,10 +24,15 @@ illustRecorder.setImageButton( "Insert-File", "FileImage", "ImageFileName" );
 illustRecorder.setButton( "Rect", Illustration.RECTANGLE );
 illustRecorder.setButton( "MoveGraph", Illustration.MOVE_GRAPH );
 
+document.getElementById( "GetVerb" ).addEventListener( "click", ( ) => {
+	console.log( recorder.getVerb() );
+} );
+
 window.onload = function() {
 	getKeywords();
 	getCustomDatalist();
 	getVerbs();
+	getReservedKeywords();
 };
 
 async function getKeywords() {
@@ -39,16 +44,17 @@ async function getKeywords() {
     const response = await window.fetch( myRequest );
     try{
         if( !response.ok ) {
-            throw new Error( "response status: ${ response.status }" );
+            throw new Error( `response status: ${ response.status }` );
         } else {
             let jsonData = await response.json();
             jsonData.forEach( async ( data ) => {
                 const statement = createKeywordButton( data.keyword, data.placeholder );
                 recorder.registerKeywordButton( "Insert-" + data.keyword, statement );
-                await recorder.registerOptions( data.keyword, data.options );
+                await recorder.registerOptions( data.keyword, data.options, data.usage );
             } );
             const statement = createKeywordButton( "Keyword", "キーワード", null );
             recorder.registerKeywordButton( "Insert-" + "Keyword", statement );
+            await recorder.registerOptions( "Keyword", [], "Keyword" );
         }
     } catch( error ) {
         console.error( error );
@@ -64,7 +70,7 @@ async function getCustomDatalist() {
 	
 	try{
         if( !response.ok ) {
-            throw new Error( "response status: ${ response.status }" );
+            throw new Error( `response status: ${ response.status }` );
         } else {
             let jsonData = await response.json();
 			const keys = Object.keys( jsonData );
@@ -86,10 +92,10 @@ async function getVerbs() {
 	const response = await window.fetch( myRequest );
 	try{
         if( !response.ok ) {
-            throw new Error( "response status: ${ response.status }" );
+            throw new Error( `response status: ${ response.status }` );
         } else {
 			let jsonData = await response.json();
-			jsonData = await JSON.parse( jsonData );
+//			jsonData = await JSON.parse( jsonData );
 			const operation = jsonData.label;
 			const action = jsonData.action;
 			recorder.setVerb( operation, action );
@@ -97,6 +103,25 @@ async function getVerbs() {
     } catch( error ) {
         console.error( error );
     }	
+}
+
+async function getReservedKeywords() {
+	const myRequest = new Request( "storage", {
+		method: "GET",
+		headers: { "Process": "ReservedKeywords" }
+	} );
+	const response = await window.fetch( myRequest );
+	try {
+		if( ! response.ok ) {
+			throw new Error( `response status: ${ response.status}` );
+		} else {
+			const jsonData = await response.json();
+			console.log( jsonData );
+			recorder.registerReservedKeywords( jsonData );
+		}
+	} catch( error ) {
+		console.log( error );
+	}
 }
 
 async function SendDocuments() {
@@ -108,13 +133,15 @@ async function SendDocuments() {
     const illustrations = illustRecorder.getIllustrations();
 //    const datalistBlob = new Blob( [ JSON.stringify( recorder.getCustomDatalist() ) ], { type: "application/json" } );
 	const datalistBlob = new Blob( [ JSON.stringify( recorder.getRegisteredDatalist() ) ], { type: "application/json" } );
-    const verbBlob = new Blob( [ JSON.stringify( recorder.getVerb() ) ], { type: "application/json" } );
+    const verbBlob = new Blob( [ recorder.getVerb() ], { type: "application/json" } );
+    const keywordsBlob = new Blob( [ JSON.stringify( recorder.getReservedKeywords() ) ], { type: "application/json" } );
 
     const formData = new FormData();
     formData.append( "Docs", blob );
     formData.append( "Illusts", illustBlob );
     formData.append( "datalist", datalistBlob );
     formData.append( "Verb", verbBlob );
+    formData.append( "Keywords", keywordsBlob );
 
     let fileNumber = 1;
     for( let i = 0; i < illustrations.length; i++ ) {

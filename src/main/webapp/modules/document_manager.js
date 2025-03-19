@@ -1,4 +1,4 @@
-//import { Illustration } from "./illustration.js";
+import { setEndKeywordSelector } from "./document_actions.js";
 /**
  * 
  */
@@ -8,7 +8,7 @@ class Document {
     textPieces;
     currentIndex;
     currentLength;
-//    #imageBlob = null;
+    keywordCount;
     containImage = false;
     constructor() {
         this.properties = [];
@@ -16,6 +16,7 @@ class Document {
         this.textPieces = 0;
         this.currentIndex = 0;
         this.currentLength = 0;
+        this.keywordCount = 0;
 
         this.insertText( "", 0 );
     }
@@ -61,6 +62,133 @@ class Document {
         this.currentIndex -= 1;
         this.properties.splice( index, 1 );
     }
+    deleteKeywords( pos, endPos, textLength, textSelected, params ) {
+		let start, end;
+		if( textLength > 0 && ! textSelected ) endPos = pos = pos - textLength;
+
+		for( start = 0; start < this.textPieces; start++ ) {
+			let flag;
+			if( start != this.textPieces - 1 ) {
+				flag = Math.sign( pos - this.properties[ start ].textPosition.getStart() ) * Math.sign( this.properties[ start ].textPosition.getEnd() + 1 - pos );
+			} else {
+				flag = Math.sign( pos - this.properties[ start ].textPosition.getStart() ) * Math.sign( this.properties[ start ].textPosition.getEnd() - pos );
+			}
+			if( flag == 1 ) {
+				if( this.properties[ start ].isKeywords && this.properties[ start ].textPosition.getEnd() == ( pos ) ) {
+					start++;
+				}
+				break;
+			}
+		}
+		for( end = 0; end < this.textPieces; end++ ) {
+			let flag;
+			if( end != this.textPieces - 1 ) {
+				flag = Math.sign( endPos - this.properties[ end ].textPosition.getStart() ) * Math.sign( this.properties[ end ].textPosition.getEnd() + 1 - endPos );
+			} else {
+				flag = Math.sign( endPos - this.properties[ end ].textPosition.getStart() ) * Math.sign( this.properties[ end ].textPosition.getEnd() - endPos )
+			}
+			if( flag == 1 ) {
+				if( this.properties[ end ].isKeywords && this.properties[ end ].textPosition.getEnd() == ( endPos ) ) {
+					end++;
+				}
+				break;
+			}
+		}
+		if( pos == 0 ) {
+			start = end = 0;
+		}
+		/*
+		if( ! textSelected ) {
+			end = start;
+		}
+		*/
+		console.log( `start: ${ start }, end: ${ end }` );
+
+		let keywords = [];
+		for( let i = start; i <= end; i++ ) {
+			if( this.properties[ i ].isKeywords ) {
+				keywords.push( this.properties[ i ] );
+			}
+		}
+		let keywordName = null;
+		const deleteEndKeywords = [];
+		keywords.forEach( keyword => {
+//			if( keyword.keywordName != "EndKeyword" && keyword.keywordName != "VerbValue" ) {
+			if( ! keyword.keywordName.match( "(EndKeyword|VerbValue)" ) ) {
+				this.keywordCount--;
+				if( keyword.isEnd ) {
+					deleteEndKeywords.push( `End${ keyword.keywordName }` );
+				} else {
+					keywordName = keyword.keywordName;
+					let id = keywordName.substring( 7, keywordName.length );
+					const endKeywordDiv = document.getElementById( "EndKeywordDiv" + id );
+					params.endDiv.removeChild( endKeywordDiv );
+				}
+			} else if( keyword.keywordName != "VerbValue") {
+				const matchIndex = deleteEndKeywords.findIndex( name => name == keyword.keywordId );
+				if( matchIndex == -1 ) {
+					const keywordIndex = this.properties.findIndex( property =>
+														`End${ property.keywordName }` == keyword.keywordId );
+					let id = keyword.keywordId;
+					id = id.substring( 10, id.length );
+					this.properties[ keywordIndex ].isEnd = false;
+
+					setEndKeywordSelector( this.properties[ keywordIndex ].text, this.properties[ keywordIndex ].keywordId,
+																id, params );
+				}
+			}
+		} );
+
+		let deleteIndexes = -1;
+		if( start > 0 && keywords.length == 0 ) {
+			keywordName = this.properties[ start - 1 ].keywordName;
+		} else if( keywordName != null ) {
+			deleteIndexes = parseInt( keywords[ 0 ].keywordName.substring( 7, keywords[ 0 ].keywordName.length ) );
+		}
+
+		keywords = [];
+		for( let i = end + 1; i < this.properties.length; i++ ) {
+			if( this.properties[ i ].keywordName != undefined && this.properties[ i ].keywordName.match( "Keyword\\d+" ) ) {
+				keywords.push( this.properties[ i ] );
+			}
+		}
+
+		let lastIndex = 0;
+
+		if( keywordName != null ) {
+			lastIndex = parseInt( keywordName.substring( 7, keywordName.length ) );
+		}
+		
+		if( deleteIndexes == -1 ) {
+			deleteIndexes = lastIndex + 1;
+		} else {
+			if( lastIndex == 0 ) {
+				deleteIndexes = 1;
+			}
+		}
+
+		keywords.forEach( val => {
+			console.log( val.text );
+		} );
+		for( let i = 0; i < keywords.length; i++ ) {
+			const name = keywords[ i ].keywordName;
+			keywords[ i ].keywordName = `Keyword${ lastIndex + 1 + i }`;
+			if( ! keywords[ i ].isEnd ) {
+				console.log(lastIndex + 1 + i );
+				const deleteDiv = document.getElementById( `EndKeywordDiv${ lastIndex + 1 + i }` );
+				params.endDiv.removeChild( deleteDiv );
+
+				console.log( `lastIndex: ${ lastIndex }` );
+				console.log( `newIndex: ${ deleteIndexes }` );
+				setEndKeywordSelector( keywords[ i ].text, keywords[ i ].keywordId, deleteIndexes + i, params );
+			} else if( keywords[ i ].isEnd ) {
+				const endIndex = this.properties.findIndex( val => val.keywordId == `End${ name }` );
+				if( endIndex != -1 ) {
+					this.properties.splice( endIndex, 1 );
+				}
+			}
+		}
+	}
     changeText( index, newText ) {
         const dif = String( newText ).length - String( this.properties[ index ].text ).length;
         this.properties[ index ].text = String( newText );
@@ -103,7 +231,7 @@ class Document {
         return textOfIndex.substring( start, end );
     }
 
-    insertKeyword( keyword, keywordType, specify, pos ) {
+    insertKeyword( keyword, keywordType, keywordId, specify, pos ) {
         let index = this.searchDocumentIndex( pos );
 
         if( pos > this.properties[ index ].textPosition.getStart() && pos < this.properties[ index ].textPosition.getEnd() ) {
@@ -126,7 +254,45 @@ class Document {
         this.properties[ index + 1 ].isKeywords = true;
         this.properties[ index + 1 ].keywordType = keywordType;
         this.properties[ index + 1 ].specify = specify;
+		if( ! keywordId.match( "(EndKeyword\\d+|VerbValue|Keyword)" ) ) {
+			this.keywordCount++;
+			this.properties[ index + 1 ].keywordName = `Keyword${ this.keywordCount }`;
+			this.properties[ index + 1 ].isEnd = false;
+		} else if( ! keywordId.match( "(VerbValue|Keyword)" ) ) {
+			this.properties[ index + 1 ].keywordName = "EndKeyword";
+			this.properties[ index + 1 ].isEnd = true;
+		} else if( keywordId.match( "Keyword" ) ) {
+			this.properties[ index + 1 ].keywordName = "Keyword";
+			this.properties[ index + 1 ].isEnd = true;
+		} else {
+			this.properties[ index + 1 ].keywordName = "VerbValue";
+			this.properties[ index + 1 ].isEnd = true;
+		}
+        this.properties[ index + 1 ].keywordId = keywordId;
+
     }
+    insertEndKeyword( keyword, keywordName, pos ) {
+		const property = this.searchKeyword( keywordName );
+		property.isEnd = true;
+		this.insertKeyword( keyword, 3, "End" + keywordName, null, pos );
+	}
+	searchKeyword( keywordName ) {
+		for( const property of this.properties ) {
+			if( property.keywordName == keywordName ) {
+				return property;
+			}
+		}
+	}
+	getKeywordCount() {
+		return this.keywordCount;
+	}
+	getKeywordIndex( keywordName ) {
+		for( let i = 0; i < this.properties.length; i++ ) {
+			if( this.properties[ i ].keywordName == keywordName ) {
+				return i;
+			}
+		}
+	}
     deleteKeyword( index ) {
         this.properties[ index ].isKeywords = false;
         this.properties[ index ].keywordType = null;
@@ -148,11 +314,20 @@ class Document {
         let doc = "";
         for( let i = 0; i < this.textPieces; i++ ) {
             if( this.properties[ i ].isKeywords ) {
-                if( this.properties[ i ].keywordType == 1 ) {
-				 	doc += "<font color=\"darkmagenta\">" + this.properties[ i ].text + "</font>";	
-				} else if( this.properties[ i ].keywordType == 2 ) {
-					doc += "<font color=\"darkyellow\">" + this.properties[ i ].text + "</font>";
+				console.log( `${this.properties[i].text}: ${this.properties[i].keywordType}` );
+				const colorValue = [ 255, 225, 135, 0 ];
+				const colorCode = [ `RGB(${colorValue[0]},${colorValue[1]},${colorValue[1]})`,
+													`RGB(${colorValue[0]},${colorValue[3]},${colorValue[3]})`,
+													`RGB(${colorValue[1]},${colorValue[3]},${colorValue[3]})`,
+													`RGB(${colorValue[3]},${colorValue[1]},${colorValue[1]})` ];
+				for( let k = 0; k < 3; k++ ) {
+					const a = ( k != 0 ) ? 1 : 2;
+					const b = ( k != 2 ) ? 3 : 2;
+					colorCode.push( `RGB(${colorValue[k]},${colorValue[a]},${colorValue[b]})`);
+					if( k != 0 ) colorCode.push( `RGB(${colorValue[k]},${colorValue[b]},${colorValue[a]})`);
 				}
+
+				doc += `<font style=\"color: ${colorCode[this.properties[i].keywordType]}; text-shadow: 1px 0px 2px #000;\">${this.properties[i].text}</font>`;
             } else {
                 doc += this.properties[ i ].text;
             }
@@ -162,6 +337,7 @@ class Document {
 
     searchDocumentIndex( pos ) {
         let i;
+        
         for( i = 0; i < this.textPieces; i++ ) {
             const flag = Math.sign( pos - this.properties[ i ].textPosition.getStart() ) * Math.sign( this.properties[ i ].textPosition.getEnd() - pos );
 
@@ -177,6 +353,16 @@ class Document {
         }
         return i;
     }
+    
+    getEndList() {
+		const propertiesList = [];
+		this.properties.forEach( property => {
+			if( property.isKeywords && ! property.isEnd ) {
+				propertiesList.push( property );
+			}
+		} );
+		return propertiesList;
+	}
 
     getTextPosition( index ) {
         return this.properties[ index ].textPosition;
@@ -207,6 +393,10 @@ class Document {
             this.properties[ i ].isKeywords = jsonObject.properties[ i ].isKeywords;
             this.properties[ i ].keywordType = jsonObject.properties[ i ].keywordType;
             this.properties[ i ].textPosition = new Caret( jsonObject.properties[ i ].start, jsonObject.properties[ i ].end );
+            this.properties[ i ].specify = new Specify( jsonObject.properties[ i ].operation,
+            																	jsonObject.properties[ i ].verbType, jsonObject.properties[ i ].verbValue );
+            this.properties[ i ].keywordName = jsonObject.properties[ i ].keywordName;
+            this.properties[ i ].isEnd = jsonObject.properties[ i ].isEnd;
         }
     }
     setImage( illust ) {
@@ -232,6 +422,10 @@ class DocumentProperties {
     keywordType;
     textPosition;
     specify;
+    keywordName;
+    isEnd;
+    keywordId;
+    target
 }
 
 class Caret {
@@ -256,13 +450,11 @@ class Caret {
 }
 
 class Specify {
-	name;
 	operation;
 	verbType;
 	verbValue;
 
 	constructor( name, operation, verbType, verbValue ) {
-		this.name = name;
 		this.operation = operation;
 		this.verbType = verbType;
 		this.verbValue = verbValue;

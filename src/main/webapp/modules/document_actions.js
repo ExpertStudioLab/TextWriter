@@ -2,22 +2,18 @@
  * 
  */
 import { displayText } from "./display_text.js";
-import { Specify } from "./document_manager.js";
+import { Specify, DocumentProperties } from "./document_manager.js";
 import { setVerbButtonStatus } from "./document_recorder.js";
-    function insertReservedWords( event, params ) {
+    async function insertReservedWords( event, params ) {
+		event.target.disabled = true;
         const typeOfReservedWord = String( event.target.id ).substring( 7, String( event.target.id ).length );
-        let keywordType = 1;
-		switch( typeOfReservedWord ) {
-			case "Keyword":
-				keywordType = 2;
-				break;
-			case "Verb":
-				keywordType = 3;
-				break;
-		}
+
+		const keywordUsage = [ "Keyword", "VerbValue", "Normal", "Attribute", "Verb-Attribute", "Independent", "Enumeration" ];
+		const keywordType = keywordUsage.findIndex( val => val == params.usage[ typeOfReservedWord ] );
 		const reservedWordOp = document.getElementById( typeOfReservedWord );
         const reservedWord = reservedWordOp.value;
-        if( typeOfReservedWord != "VerbValue" ) {
+//        if( typeOfReservedWord != "VerbValue" ) {
+		if( ! typeOfReservedWord.match( "(VerbValue|Keyword)" ) ) {
 			const datalistIdList = Object.keys( params.registeredDatalist );
 			if( ! datalistIdList.includes( typeOfReservedWord ) ) {
 				params.registeredDatalist[ typeOfReservedWord ] = [];
@@ -39,14 +35,46 @@ import { setVerbButtonStatus } from "./document_recorder.js";
 		const doc = params.documentStructures[ params.currentIndex ];
         const pos = textArea.selectionEnd;
         const specify = ( typeOfReservedWord == "VerbValue" ) ?
-        							new Specify( typeOfReservedWord, params.operationTextbox, params.typeSelect, params.valueTextbox ) :
-        							new Specify( typeOfReservedWord, null, null, null );
-
-        doc.insertKeyword( String( reservedWord ), keywordType, specify, pos );
+        							new Specify( params.operationTextbox, params.typeSelect, params.valueTextbox ) :
+        							new Specify( null, null, null );
+        doc.insertKeyword( String( reservedWord ), keywordType, typeOfReservedWord, specify, pos );
+        if( ! typeOfReservedWord.match( "(VerbValue|Keyword)" ) ) {
+        	const id = doc.getKeywordCount();
+			setEndKeywordSelector( reservedWord, typeOfReservedWord, id, params );
+		} else if( typeOfReservedWord.match( "Keyword" ) ) {
+			const index = await getIndex();
+			const keys = Object.keys( params.reservedKeywords );
+			if( ! keys.includes( reservedWord ) ) {
+				params.reservedKeywords[ reservedWord ] = [];
+			}
+			if( ! params.reservedKeywords[ reservedWord ].includes( index ) ) {
+				params.reservedKeywords[ reservedWord ].push( index );
+			}
+		}
 
 		paragraph.innerHTML = doc.getHTMLDocument();
         textArea.value = textArea.value.substring( 0, textArea.selectionEnd ) + reservedWord + textArea.value.substring( textArea.selectionEnd, textArea.textLength );
     }
+    
+    function insertEndKeyword( event, params ) {
+		event.target.disabled = true;
+		let idNumber = event.target.id;
+		idNumber = idNumber.substring( 13, idNumber.length );
+		const endKeyword = document.getElementById( `Keyword${ idNumber }` );
+		const doc = params.documentStructures[ params.currentIndex ];
+		const pos = params.textArea.selectionEnd;
+		const index = doc.searchDocumentIndex( pos );
+		const keywordIndex = doc.getKeywordIndex( `Keyword${ idNumber }` );
+		if( index <= keywordIndex ) {
+			return;
+		}
+		doc.insertEndKeyword( endKeyword.value, `Keyword${ idNumber }`, pos );
+		const paragraph = document.getElementById( "Doc" + String( params.currentIndex + 1 ) );
+		paragraph.innerHTML = doc.getHTMLDocument();
+		params.textArea.value = params.textArea.value.substring( 0, params.textArea.selectionEnd ) + endKeyword.value
+													+ params.textArea.value.substring( params.textArea.selectionEnd, params.textArea.length );
+		params.endDiv.removeChild( document.getElementById( `EndKeywordDiv${ idNumber }` ) );
+	}
 
      function sendDocumentData( event, params ) {
         const index = params.currentIndex;
@@ -199,10 +227,21 @@ import { setVerbButtonStatus } from "./document_recorder.js";
 				left: 0
 			} );
 		}
+		const doc = params.documentStructures[ params.currentIndex ];
+		const endKeywordDivs = document.querySelectorAll( ".EndKeywordDiv" );
+		endKeywordDivs.forEach( endKeywordDiv => {
+			params.endDiv.removeChild( endKeywordDiv );
+		} );
+		const propertiesList = doc.getEndList();
+		propertiesList.forEach( property => {
+			let id = property.keywordName;
+			id = id.substring( 7, id.length );
+			setEndKeywordSelector( property.text, property.keywordId, id, params );
+		} );
+		
 
 		const bottom = Math.floor( textAreaBounds.bottom + window.scrollY );
 		params.toolPanel.style.top = String( bottom ) + "px";
-
 		params.toolPanel.style.display = "block";
 		params.toolPanel.style.animation = "SlideIn 1.6s";
 		params.toolPanel.style.position = "absolute";
@@ -212,9 +251,11 @@ import { setVerbButtonStatus } from "./document_recorder.js";
 	async function pulldown( event, params ) {
 		if( ! params.listIsActive ) {
 			let name = event.target.id;
-			if( name.includes( "-" ) ) {
-				name = name.substring( 0, name.indexOf( "-" ) );
-			}
+			console.log( name );
+			name = ( name.includes( "-" ) ) ? name.substring( 0, name.indexOf( "-" ) ) : name;
+			params.dispatchInput = ( ! event.target.id.match("([^-]+-PulldownBtn|VerbValue|Label)" ) );
+			console.log( name );
+			console.log( `dispatch input: ${ params.dispatchInput }` );
 			let list = Object.keys( params.verb.label );
 			if( name == "VerbValue" ) {
 				if( list.includes( params.labelTextbox.value ) ) {
@@ -222,15 +263,21 @@ import { setVerbButtonStatus } from "./document_recorder.js";
 				} else {
 					list = [];
 				}
-			} else if( name != "Label" ) {
+			} else if( ! name.match( "(Label|Keyword)" ) ) {
 				list = params.registeredDatalist[ name ];
+			} else if( ! name.match( "Label" ) ) {
+				list = Object.keys( params.reservedKeywords );
 			}
 			if( list.length > 0 ) {
 				const datalist = document.createElement( "div" );
 				datalist.id = "Datalist";
 				document.body.appendChild( datalist );
 				params.curTextbox = document.getElementById( name );
-				params.curPulldownBtn = document.getElementById( name + "-PulldownBtn" );
+				if( name == "VerbValue" || name == "Label" ) {
+					params.curPulldownBtn = document.getElementById( name + "-PulldownBtn" );
+				} else {
+					params.curPulldownBtn = document.getElementById( name + "-Pulldown" );
+				}
 				const bounds = params.curTextbox.getBoundingClientRect();
 				datalist.style.cssText = `top: ${ Math.floor( bounds.bottom + window.scrollY ) }px;
 											left: ${ Math.floor( bounds.left + window.scrollX ) }px;
@@ -298,6 +345,14 @@ import { setVerbButtonStatus } from "./document_recorder.js";
 				params.curTextbox.value = event.target.innerText;
 		}
 		setVerbButtonStatus();
+		console.log( `dispatch input: ${ params.dispatchInput }` );
+		if( params.dispatchInput ) {
+			const inputEvent = new Event( "input" );
+			const datalist = document.getElementById( "Datalist" );
+			datalist.addEventListener( "click", ( ) => {
+				params.curTextbox.dispatchEvent( inputEvent );
+			} );
+		}
 	}
 	
 	function timer() {
@@ -307,7 +362,60 @@ import { setVerbButtonStatus } from "./document_recorder.js";
 			}, 5 );
 		} );
 	}
+	
+	function setEndKeywordSelector( keyword, type, idNumber, params ) {
+		const endKeywordDiv = document.createElement( "div" );
+		endKeywordDiv.id = `EndKeywordDiv${ idNumber }`;
+		endKeywordDiv.className = "EndKeywordDiv";
+		const targetKeyword = document.createElement( "span" );
+		targetKeyword.style.cssText = "display: inline-block; font-size: 14px;";
+		targetKeyword.innerText = `キーワード：${ keyword }`;
+		const targetType = document.createElement( "span" );
+		targetType.style.cssText = "display: inline-block; font-size: 14px;";
+		targetType.innerText = `タイプ：${ type }`;
+		const endKeyword = document.createElement( "input" );
+		endKeyword.type = "text";
+		endKeyword.id = `Keyword${ idNumber }`;
+		endKeyword.style.cssText = "width: 120px;";
+		const endKeywordPulldownBtn = document.createElement( "input" );
+		endKeywordPulldownBtn.type = "button";
+		endKeywordPulldownBtn.id = `EndKeywordPulldownBtn${ idNumber }`;
+		endKeywordPulldownBtn.value = "▼";
+		endKeywordPulldownBtn.style.cssText = "width: fit-content; margin-left: -1px; background-color: lightgray;";
+		const endKeywordBtn = document.createElement( "input" );
+		endKeywordBtn.type = "button";
+		endKeywordBtn.id = `EndKeywordBtn${ idNumber }`;
+		endKeywordBtn.value = "追加";
+		endKeywordDiv.appendChild( targetKeyword );
+		endKeywordDiv.appendChild( targetType );
+		endKeywordDiv.appendChild( endKeyword );
+		endKeywordDiv.appendChild( endKeywordPulldownBtn );
+		endKeywordDiv.appendChild( endKeywordBtn );
+		params.endDiv.appendChild( endKeywordDiv );
+		endKeywordBtn.addEventListener( "click", params.insertEndKeywordFunc );
+	}
+	
+	function getIndex() {
+		return new Promise( async ( resolve ) => {
+			const myRequest = new Request( "storage", {
+				method : "GET",
+				headers : { "Process" : "DocumentIndex" }
+			} );
+			const response = await window.fetch( myRequest );
+			try {
+				if( ! response.ok ) {
+					throw new Error( `response status: ${ response.status }` );
+				} else {
+					response.text().then( result => {
+						resolve( result );
+					} );
+				}
+			} catch( error ) {
+				console.log( error );
+			}
+		} );
+	}
 
-export { composeOn, composeOff, sendDocumentData,
+export { composeOn, composeOff, sendDocumentData, insertEndKeyword,
 				insertReservedWords, getSelectedText, specialKeysSettings, textSelection, editText,
-				changeText, scrollScreen, moveToolPanel, pulldown, closeList, selectItem }
+				changeText, scrollScreen, moveToolPanel, pulldown, closeList, selectItem, setEndKeywordSelector }

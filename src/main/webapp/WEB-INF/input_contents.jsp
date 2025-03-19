@@ -41,6 +41,7 @@
         	</div>
         	<div>
         		<input type="button" value="画像を挿入" />
+        		<input type="button" id="GetVerb" value="getVerb" />
         	</div>
         	<div id="PreviousTextButtons"></div>
         </div>
@@ -86,12 +87,13 @@
 %>
 </div>
 <%  if( session.getAttribute( "ColumnName" ).equals( true ) ) { %>
-<script type="module" src="${ pageContext.request.contextPath }/data_transfer.js"></script>
+<script type="module" src="${ pageContext.request.contextPath }/data_transfer.js" charset="utf-8"></script>
 
 <%  } %>
 <script>
 	let permitBtn = document.getElementById( "permit" );
 	let column_nameOp = document.getElementById( "Column-Name" );
+	let jsonData;
 
     async function init() {
     	console.log( "containt called");
@@ -105,7 +107,7 @@
     	}
     	
     	console.log( "section called" );
-		let jsonData = await receiveData( "Title" );
+		jsonData = await receiveData( "Title" );
 		let hEl = document.getElementById( "Title" );
         const tagEl = document.getElementById( "Tag" );
 		hEl.insertAdjacentHTML( "afterbegin", "<h1 style=\"margin-top: 5px; margin-bottom: 0;\">" + jsonData.title + "</h1>" );
@@ -117,9 +119,33 @@
     }
 
     // make sure to input a column name.
-    function inputChange( event ) {
+    async function inputChange( event ) {
+    	const isExists = await existingDocument( event.target.value );
         const btnOp = document.getElementById( "permit" );
-        btnOp.disabled = ( event.currentTarget.value == "" );
+        btnOp.disabled = ( ( event.target.value == "" ) || ( event.target.value != "" ) && isExists );
+    }
+    
+    function existingDocument( columnName ) {
+		return new Promise( async ( resolve ) => {
+			const myRequest = new Request( "storage", {
+				method : "POST",
+				headers : { "Process" : "ExistingDocument" },
+				body : columnName
+			} );
+			const response = await window.fetch( myRequest );
+			try {
+				if( ! response.ok ) {
+					throw new Error( `response status: ${ response.status }` );
+				} else {
+					response.json().then( result => {
+						resolve( result.isExists );
+					} );
+				}
+			} catch( error ) {
+				console.log( error );
+				resolve( false );
+			}
+		} );
     }
 
     function sendColumn() {

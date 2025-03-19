@@ -26,7 +26,7 @@ CREATE TABLE セクション名(
     UNIQUE KEY セクション・ユニーク・キー(セクション,所属,タグインデックス),
     PRIMARY KEY(インデックス,所属,タグインデックス),
     CONSTRAINT セクション外部キー FOREIGN KEY(所属) REFERENCES タイトル名(インデックス),
-    CONSTRAINT セクション・タグ外部キー FOREIGN KEY(タグインデックス) REFERENCES タイトル名(タグインデックス)
+    CONSTRAINT セクション・タグ外部キー FOREIGN KEY(タグインデックス) REFERENCES タグ名(インデックス)
 );
 
 CREATE TABLE コラム名(
@@ -39,5 +39,5 @@ CREATE TABLE コラム名(
     PRIMARY KEY(インデックス,所属,タイトル・インデックス,タグインデックス),
     CONSTRAINT コラム外部キー FOREIGN KEY(所属) REFERENCES セクション名(インデックス),
     CONSTRAINT コラム・タイトル外部キー FOREIGN KEY(タイトル・インデックス) REFERENCES セクション名(所属),
-    CONSTRAINT コラム・タグ外部キー FOREIGN KEY(タグインデックス) REFERENCES セクション名(タグインデックス)
+    CONSTRAINT コラム・タグ外部キー FOREIGN KEY(タグインデックス) REFERENCES タグ名(インデックス)
 );
