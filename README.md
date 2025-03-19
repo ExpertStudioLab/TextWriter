@@ -40,3 +40,4 @@ Jan. 11, 2025, Sat. Changed Text Writer's Design.
 Jan. 13, 2025, Mon. Changed TextArea appearance.
 Jan. 19, 2025, Sun. Fixed bugs of JSON Converter.
 Jan. 25, 2025, Sun. Enabled to register original keywords.
+Mar. 19, 2025, Wed. Enabled to register original keywords.Make it be managed each same tag-name.
